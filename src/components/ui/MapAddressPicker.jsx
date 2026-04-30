@@ -104,11 +104,6 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
     };
   }, [onClose]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onContinue(text);
-  };
-
   return (
     <div
       className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
@@ -140,7 +135,7 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <div className="p-5 space-y-4">
           {/* Address input */}
           <div>
             <label className="block text-xs font-bold text-ink-600 uppercase tracking-wide mb-2">
@@ -150,6 +145,7 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
               ref={inputRef}
               value={text}
               onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && text.trim()) { e.preventDefault(); onContinue(text); } }}
               placeholder="Ej: Barrio Los Ángeles, 200m norte del parque, casa verde con portón negro, Puntarenas"
               rows={3}
               className="w-full border border-cream-200 rounded-xl px-4 py-3 text-sm text-ink-900 placeholder-ink-300 focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all resize-none"
@@ -182,7 +178,8 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
               Cancelar
             </button>
             <button
-              type="submit"
+              type="button"
+              onClick={() => onContinue(text)}
               disabled={!text.trim()}
               className="flex-[2] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors shadow-btn">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -192,7 +189,7 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
               Continuar al mapa →
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
