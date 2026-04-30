@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { formatCRC } from '../../lib/currency';
 import api, { assetUrl } from '../../lib/api';
 import useToastStore from '../../store/toastStore';
+import QRCode from 'qrcode';
 
 const USE_API = import.meta.env.VITE_API_URL;
 
@@ -33,8 +34,8 @@ function StatusSelect({ value, onChange }) {
   );
 }
 
-/* ── Print order ── */
-function printOrder(order) {
+/* ── Print order (package sheet) ── */
+async function printOrder(order) {
   const fmt = (n) => `₡${Number(n || 0).toLocaleString('es-CR')}`;
   const date = new Date(order.createdAt).toLocaleString('es-CR', {
     day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
@@ -48,18 +49,65 @@ function printOrder(order) {
     </tr>`
   ).join('');
 
-  const w = window.open('', '_blank', 'width=780,height=700');
+  /* QR — uses lat/lng when available, otherwise address text */
+  let qrHtml = '';
+  const hasCoords = order.customer?.lat && order.customer?.lng;
+  const mapsUrl = hasCoords
+    ? `https://www.google.com/maps/search/?api=1&query=${order.customer.lat},${order.customer.lng}`
+    : order.customer?.address
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.customer.address}, ${order.customer.province}, Costa Rica`)}`
+      : null;
+
+  if (mapsUrl) {
+    try {
+      const qrDataUrl = await QRCode.toDataURL(mapsUrl, {
+        width: 180,
+        margin: 2,
+        color: { dark: '#111111', light: '#ffffff' },
+      });
+      qrHtml = `
+        <div class="section-title">Ubicación del cliente</div>
+        <div class="qr-box">
+          <img src="${qrDataUrl}" alt="QR ubicación" width="140" height="140" style="display:block;border-radius:8px" />
+          <div class="qr-info">
+            <div style="font-weight:bold;font-size:13px;color:#111;margin-bottom:6px">📲 Ubicación exacta</div>
+            <div style="font-size:12px;color:#444;margin-bottom:8px;line-height:1.5">
+              ${order.customer?.address || ''}<br>
+              <span style="color:#888">${order.customer?.province || ''}</span>
+            </div>
+            <div style="font-size:11px;color:#B85F72;font-weight:600;border:1px solid #B85F72;border-radius:6px;padding:5px 8px;display:inline-block">
+              📍 Escaneá el QR para ver la ubicación exacta en Google Maps
+            </div>
+          </div>
+        </div>
+      `;
+    } catch {
+      /* QR generation failed silently — show address only */
+      qrHtml = `
+        <div class="section-title">Dirección de entrega</div>
+        <div class="info-box">
+          ${order.customer?.address}, ${order.customer?.province}
+        </div>
+      `;
+    }
+  }
+
+  const w = window.open('', '_blank', 'width=780,height=820');
   w.document.write(`<!DOCTYPE html><html lang="es"><head>
     <meta charset="utf-8">
-    <title>Orden ${order.orderNumber}</title>
+    <title>Hoja del paquete — Orden ${order.orderNumber}</title>
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
-      body{font-family:Arial,sans-serif;color:#111;padding:32px;font-size:14px}
-      .header{text-align:center;margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid #B85F72}
-      .order-num{font-size:26px;font-weight:bold;color:#B85F72;letter-spacing:1px}
-      .date{color:#666;font-size:13px;margin-top:4px}
+      body{font-family:Arial,sans-serif;color:#111;padding:28px;font-size:14px}
+      .header{text-align:center;margin-bottom:24px;padding-bottom:18px;border-bottom:3px solid #B85F72}
+      .store-name{font-size:13px;font-weight:bold;color:#B85F72;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+      .order-num{font-size:28px;font-weight:bold;color:#111;letter-spacing:1px}
+      .date{color:#666;font-size:12px;margin-top:4px}
+      .status-badge{display:inline-block;margin-top:8px;background:#f0f9ff;border:1px solid #bae6fd;color:#0369a1;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:bold}
       .section-title{font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:8px;margin-top:20px}
-      .info-box{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:14px}
+      .info-box{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:14px;line-height:1.7}
+      .qr-box{background:#fafafa;border:2px dashed #B85F72;border-radius:10px;padding:16px;display:flex;align-items:center;gap:20px}
+      .qr-info{flex:1}
       table{width:100%;border-collapse:collapse;margin-top:8px}
       th{background:#f5f0f0;padding:8px 4px;text-align:left;font-size:11px;text-transform:uppercase;color:#888}
       th:last-child,th:nth-child(3),th:nth-child(2){text-align:right}
@@ -67,25 +115,27 @@ function printOrder(order) {
       .totals{margin-top:16px;border-top:2px solid #eee;padding-top:12px}
       .total-row{display:flex;justify-content:space-between;padding:4px 0;color:#666}
       .grand-total{font-size:18px;font-weight:bold;color:#111;border-top:1px solid #eee;margin-top:8px;padding-top:8px}
-      .footer{text-align:center;color:#aaa;font-size:11px;margin-top:32px;padding-top:16px;border-top:1px solid #eee}
+      .footer{text-align:center;color:#aaa;font-size:11px;margin-top:28px;padding-top:14px;border-top:1px solid #eee}
       .print-btn{display:block;margin:20px auto 0;padding:10px 28px;background:#B85F72;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
       @media print{.print-btn{display:none!important}body{padding:16px}}
     </style>
   </head><body>
     <div class="header">
+      <div class="store-name">JD Virtual Store</div>
       <div class="order-num">${order.orderNumber}</div>
       <div class="date">${date}</div>
-      <div style="margin-top:8px">Estado: <strong>${STATUS_CONFIG[order.status]?.label || order.status}</strong></div>
+      <div class="status-badge">Estado: ${STATUS_CONFIG[order.status]?.label || order.status}</div>
     </div>
 
     <div class="section-title">Cliente</div>
     <div class="info-box">
       <strong>${order.customer?.name}</strong><br>
       Tel: ${order.customer?.phone}<br>
-      ${order.customer?.address}, ${order.customer?.province}<br>
       Envío: ${order.shippingMethod || 'correos'}
       ${order.customer?.notes ? `<br><em>Nota: ${order.customer.notes}</em>` : ''}
     </div>
+
+    ${qrHtml}
 
     <div class="section-title">Productos</div>
     <table>
@@ -105,10 +155,48 @@ function printOrder(order) {
       <div class="total-row grand-total"><span>TOTAL</span><span>${fmt(order.total)}</span></div>
     </div>
 
-    <div class="footer">JD Virtual Store &nbsp;·&nbsp; Impreso el ${new Date().toLocaleDateString('es-CR')}</div>
-    <button class="print-btn" onclick="window.print()">Imprimir orden</button>
+    <div class="footer">JD Virtual Store &nbsp;·&nbsp; Hoja del paquete &nbsp;·&nbsp; Impreso el ${new Date().toLocaleDateString('es-CR')}</div>
+    <button class="print-btn" onclick="window.print()">🖨️ Imprimir hoja del paquete</button>
   </body></html>`);
   w.document.close();
+}
+
+/* ── Confirm print popup (shown when order is confirmed) ── */
+function ConfirmPrintModal({ order, onPrint, onDismiss }) {
+  return (
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-scale-in">
+        <div className="px-6 pt-6 pb-4 text-center">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"
+            style={{ background: 'linear-gradient(135deg,#dbeafe,#eff6ff)', border: '1px solid #bfdbfe' }}>
+            ✅
+          </div>
+          <h3 className="font-display text-lg font-bold text-ink-900 mb-1">¡Orden confirmada!</h3>
+          <p className="text-sm text-ink-500 leading-relaxed">
+            La orden <span className="font-mono font-bold text-rose-500">{order.orderNumber}</span> está confirmada.
+            <br />¿Querés imprimir la hoja del paquete ahora?
+          </p>
+        </div>
+        <div className="px-6 pb-5 space-y-2">
+          <button
+            onClick={onPrint}
+            className="w-full flex items-center justify-center gap-2.5 bg-ink-900 hover:bg-rose-500 text-white font-bold py-3.5 rounded-xl transition-colors text-sm shadow-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Sí, imprimir hoja del paquete
+          </button>
+          <button
+            onClick={onDismiss}
+            className="w-full py-2.5 rounded-xl text-sm font-semibold text-ink-500 hover:bg-cream-50 transition-colors">
+            Después
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /* ── Order detail drawer ── */
@@ -125,6 +213,21 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onSearchPh
 
   const [notes, setNotes] = useState(order.internalNotes || '');
   const [savingNotes, setSavingNotes] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState('');
+
+  useEffect(() => {
+    const hasCoords = order.customer?.lat && order.customer?.lng;
+    const mapsUrl = hasCoords
+      ? `https://www.google.com/maps/search/?api=1&query=${order.customer.lat},${order.customer.lng}`
+      : order.customer?.address
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.customer.address}, ${order.customer.province}, Costa Rica`)}`
+        : null;
+    if (mapsUrl) {
+      QRCode.toDataURL(mapsUrl, { width: 120, margin: 1 })
+        .then(setQrDataUrl)
+        .catch(() => {});
+    }
+  }, [order.customer]);
 
   if (!order) return null;
 
@@ -208,6 +311,29 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onSearchPh
               <p className="text-sm text-ink-700">{order.customer?.address}</p>
               <p className="text-xs text-ink-500 mt-0.5">{order.customer?.province}</p>
               <p className="text-[11px] text-ink-400 mt-2 capitalize">Método: {order.shippingMethod}</p>
+              {qrDataUrl && (
+                <div className="mt-3 flex items-start gap-3 bg-cream-50 rounded-xl p-3 border border-cream-200">
+                  <img src={qrDataUrl} alt="QR ubicación" className="w-16 h-16 rounded-lg flex-shrink-0 border border-cream-200" />
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold text-ink-600 mb-0.5">📲 Ubicación en mapa</p>
+                    <p className="text-[10px] text-ink-400 leading-relaxed">
+                      Escaneá el QR para ver la dirección exacta del cliente en Google Maps.
+                      {order.customer?.lat && order.customer?.lng && (
+                        <span className="block mt-1 text-green-600 font-semibold">✓ Coordenadas GPS registradas</span>
+                      )}
+                    </p>
+                    <a
+                      href={order.customer?.lat && order.customer?.lng
+                        ? `https://www.google.com/maps/search/?api=1&query=${order.customer.lat},${order.customer.lng}`
+                        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.customer?.address}, ${order.customer?.province}, Costa Rica`)}`
+                      }
+                      target="_blank" rel="noopener noreferrer"
+                      className="text-[10px] text-rose-500 font-semibold hover:underline mt-1 inline-block">
+                      Abrir en Maps →
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
             {order.customer?.notes && (
               <div className="pt-3 border-t border-cream-100">
@@ -297,19 +423,27 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onSearchPh
         </div>
 
         {/* Footer actions */}
-        <div className="bg-white border-t border-cream-200 px-5 py-4 flex gap-2 flex-shrink-0">
-          <a href={waHref} target="_blank" rel="noopener noreferrer"
-            className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-3 rounded-xl transition-colors text-sm shadow-btn flex items-center justify-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A12 12 0 0 0 3.48 20.52L2 22l1.48-1.48a12 12 0 0 0 17.04-17.04zM12 21a9 9 0 0 1-4.6-1.27l-.33-.2-3.13.82.83-3.07-.21-.33A9 9 0 1 1 12 21z"/><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96s-.47-.15-.67.15-.77.96-.94 1.16-.35.22-.65.07a8 8 0 0 1-2.37-1.46 8.8 8.8 0 0 1-1.64-2.04c-.17-.3 0-.45.13-.6.14-.14.3-.35.45-.52s.2-.3.3-.5a.55.55 0 0 0 0-.52c-.08-.15-.68-1.62-.92-2.22s-.5-.5-.67-.5h-.57a1.1 1.1 0 0 0-.8.37 3.35 3.35 0 0 0-1.04 2.49 5.8 5.8 0 0 0 1.22 3.1 13.4 13.4 0 0 0 5.15 4.56c.72.31 1.28.5 1.72.63a4.16 4.16 0 0 0 1.9.12 3.1 3.1 0 0 0 2.03-1.43 2.53 2.53 0 0 0 .17-1.43c-.07-.12-.27-.2-.56-.35z"/></svg>
-            WhatsApp al cliente
-          </a>
-          <button onClick={() => printOrder(order)}
-            className="px-4 py-3 rounded-xl text-sm font-semibold border border-cream-200 text-ink-600 hover:bg-cream-50 transition-colors">
-            Imprimir
-          </button>
-          <button onClick={onClose}
-            className="px-4 py-3 rounded-xl text-sm font-semibold border border-cream-200 text-ink-600 hover:bg-cream-50 transition-colors">
-            Cerrar
+        <div className="bg-white border-t border-cream-200 px-5 py-4 space-y-2 flex-shrink-0">
+          <div className="flex gap-2">
+            <a href={waHref} target="_blank" rel="noopener noreferrer"
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-3 rounded-xl transition-colors text-sm shadow-btn flex items-center justify-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A12 12 0 0 0 3.48 20.52L2 22l1.48-1.48a12 12 0 0 0 17.04-17.04zM12 21a9 9 0 0 1-4.6-1.27l-.33-.2-3.13.82.83-3.07-.21-.33A9 9 0 1 1 12 21z"/><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96s-.47-.15-.67.15-.77.96-.94 1.16-.35.22-.65.07a8 8 0 0 1-2.37-1.46 8.8 8.8 0 0 1-1.64-2.04c-.17-.3 0-.45.13-.6.14-.14.3-.35.45-.52s.2-.3.3-.5a.55.55 0 0 0 0-.52c-.08-.15-.68-1.62-.92-2.22s-.5-.5-.67-.5h-.57a1.1 1.1 0 0 0-.8.37 3.35 3.35 0 0 0-1.04 2.49 5.8 5.8 0 0 0 1.22 3.1 13.4 13.4 0 0 0 5.15 4.56c.72.31 1.28.5 1.72.63a4.16 4.16 0 0 0 1.9.12 3.1 3.1 0 0 0 2.03-1.43 2.53 2.53 0 0 0 .17-1.43c-.07-.12-.27-.2-.56-.35z"/></svg>
+              WhatsApp al cliente
+            </a>
+            <button onClick={onClose}
+              className="px-4 py-3 rounded-xl text-sm font-semibold border border-cream-200 text-ink-600 hover:bg-cream-50 transition-colors">
+              Cerrar
+            </button>
+          </div>
+          <button
+            onClick={() => printOrder(order)}
+            className="w-full flex items-center justify-center gap-2.5 bg-ink-900 hover:bg-rose-500 text-white font-bold py-3 rounded-xl transition-colors text-sm shadow-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Imprimir hoja del paquete
           </button>
         </div>
       </aside>
@@ -431,6 +565,7 @@ export default function AdminOrders() {
   const [page, setPage]                 = useState(1);
   const [pages, setPages]               = useState(1);
   const [total, setTotal]               = useState(0);
+  const [confirmPrint, setConfirmPrint] = useState(null);
 
   /* ── Bulk selection ── */
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -510,6 +645,11 @@ export default function AdminOrders() {
       setOrders((prev) => prev.map((o) => (o._id === id ? { ...o, status: data.status } : o)));
       setSelected((s) => (s && s._id === id ? { ...s, status: data.status } : s));
       useToastStore.getState().success(`Estado cambiado a "${STATUS_CONFIG[status]?.label || status}"`);
+
+      if (status === 'confirmado') {
+        const order = orders.find((o) => o._id === id) || selected;
+        if (order) setConfirmPrint({ ...order, status: 'confirmado' });
+      }
       api.get('/orders/admin/stats').then((r) => setStats(r.data)).catch(() => {});
 
       if (status === 'enviado') {
@@ -722,6 +862,14 @@ export default function AdminOrders() {
               useToastStore.getState().success('Nota guardada');
             } catch { useToastStore.getState().error('No se pudo guardar la nota'); }
           }}
+        />
+      )}
+
+      {confirmPrint && (
+        <ConfirmPrintModal
+          order={confirmPrint}
+          onPrint={() => { printOrder(confirmPrint); setConfirmPrint(null); }}
+          onDismiss={() => setConfirmPrint(null)}
         />
       )}
     </div>
