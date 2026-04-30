@@ -2,6 +2,13 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { loadGoogleMaps, hasGoogleMapsKey } from '../../lib/loadGoogleMaps';
 
 const CR_CENTER = { lat: 9.9281, lng: -84.0907 };
+const MAP_SEPARATOR = '\n📍 Ref. mapa: ';
+
+/* Extract user's description (strips any previous "Ref. mapa:" suffix) */
+const getUserDescription = (text) => {
+  if (!text) return '';
+  return text.split(MAP_SEPARATOR)[0].trim();
+};
 
 export default function MapAddressPicker({
   value,
@@ -14,21 +21,32 @@ export default function MapAddressPicker({
   const [showPreStep, setShowPreStep] = useState(false);
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState(null);
-  const [preStepText, setPreStepText] = useState('');
+  const [userDescription, setUserDescription] = useState('');
 
   const handleMapButtonClick = () => {
-    setPreStepText(value || '');
+    setUserDescription(getUserDescription(value));
     setShowPreStep(true);
   };
 
   const handlePreStepContinue = (text) => {
-    if (text.trim()) {
-      onChange?.(text);
-    }
-    setPreStepText(text);
+    setUserDescription(text);
+    if (text.trim()) onChange?.(text);
     setShowPreStep(false);
     setOpen(true);
   };
+
+  const handleMapConfirm = (result) => {
+    /* Combine user description + map's geocoded address */
+    const combined = userDescription
+      ? `${userDescription}${MAP_SEPARATOR}${result.address}`
+      : result.address;
+    setPicked({ ...result, combined });
+    onChange?.(combined);
+    onPick?.({ address: combined, lat: result.lat, lng: result.lng });
+    setOpen(false);
+  };
+
+  const hasMapMarked = picked && picked.combined === value;
 
   return (
     <div className="relative">
@@ -57,16 +75,23 @@ export default function MapAddressPicker({
         )}
       </div>
 
-      {picked && picked.address === value && (
-        <p className="text-[11px] text-green-600 mt-1 flex items-center gap-1">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          Ubicación marcada en el mapa ✓
-        </p>
+      {hasMapMarked && (
+        <div className="mt-1.5 bg-green-50 border border-green-200 rounded-lg px-3 py-2 space-y-1">
+          <p className="text-[11px] text-green-700 font-semibold flex items-center gap-1">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Ubicación marcada en el mapa
+          </p>
+          {picked.address && (
+            <p className="text-[10px] text-green-600 leading-snug pl-4">
+              📍 {picked.address}
+            </p>
+          )}
+        </div>
       )}
 
       {showPreStep && (
         <AddressPreStepModal
-          initialText={preStepText}
+          initialText={userDescription}
           onContinue={handlePreStepContinue}
           onClose={() => setShowPreStep(false)}
         />
@@ -74,14 +99,9 @@ export default function MapAddressPicker({
 
       {open && (
         <MapPickerModal
-          initialAddress={preStepText}
+          userDescription={userDescription}
           onClose={() => setOpen(false)}
-          onConfirm={(result) => {
-            setPicked(result);
-            onChange?.(result.address);
-            onPick?.(result);
-            setOpen(false);
-          }}
+          onConfirm={handleMapConfirm}
         />
       )}
     </div>
@@ -93,8 +113,16 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
   const [text, setText] = useState(initialText || '');
   const inputRef = useRef(null);
 
+  /* Auto-resize textarea to fit content */
+  const autoSize = (el) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+  };
+
   useEffect(() => {
     inputRef.current?.focus();
+    autoSize(inputRef.current);
     const onEsc = (e) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onEsc);
     document.body.style.overflow = 'hidden';
@@ -135,42 +163,43 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
           </div>
         </div>
 
-        <div className="p-5 space-y-4">
+        <div className="p-5 space-y-3.5">
           {/* Address input */}
           <div>
-            <label className="block text-xs font-bold text-ink-600 uppercase tracking-wide mb-2">
-              Dirección completa <span className="text-rose-400">*</span>
+            <label className="block text-xs font-bold text-ink-600 uppercase tracking-wide mb-1.5">
+              Dirección completa con señas <span className="text-rose-400">*</span>
             </label>
             <textarea
               ref={inputRef}
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => { setText(e.target.value); autoSize(e.target); }}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && text.trim()) { e.preventDefault(); onContinue(text); } }}
-              placeholder="Ej: Barrio Los Ángeles, 200m norte del parque, casa verde con portón negro, Puntarenas"
-              rows={3}
-              className="w-full border border-cream-200 rounded-xl px-4 py-3 text-sm text-ink-900 placeholder-ink-300 focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all resize-none"
+              placeholder="Ej: Barrio Los Ángeles, 200m norte del parque, casa verde con portón negro"
+              rows={2}
+              className="w-full border border-cream-200 rounded-xl px-4 py-2.5 text-sm text-ink-900 placeholder-ink-300 focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all resize-none overflow-hidden leading-relaxed"
+              style={{ minHeight: '52px' }}
             />
-            <p className="text-[10px] text-ink-400 mt-1.5">
-              Incluí barrio, calle, número de casa y señas (color de la casa, referencias, etc.)
+            <p className="text-[10px] text-ink-400 mt-1">
+              Barrio, calle, número de casa y señas (color, referencias, etc.)
             </p>
           </div>
 
-          {/* Map explanation tip */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3.5 flex items-start gap-3">
-            <span className="text-lg flex-shrink-0 mt-0.5">🗺️</span>
+          {/* Map explanation tip — más compacto */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl px-3.5 py-2.5 flex items-start gap-2.5">
+            <span className="text-base flex-shrink-0 mt-0.5">🗺️</span>
             <div>
-              <p className="text-xs font-bold text-blue-800 mb-1">
+              <p className="text-[11px] font-bold text-blue-800 mb-0.5 leading-snug">
                 En el siguiente paso vas a marcar el punto exacto en el mapa
               </p>
-              <p className="text-[11px] text-blue-700 leading-relaxed">
-                Para asegurarnos de que el repartidor llegue exactamente a tu casa, te pedimos que también
-                marques tu ubicación en Google Maps. Esto reduce errores y acelera la entrega.
+              <p className="text-[10px] text-blue-700 leading-relaxed">
+                Vamos a guardar <strong>las dos cosas</strong>: tu descripción con señas + la ubicación del mapa,
+                para que el repartidor llegue sin problemas.
               </p>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2 pt-1">
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={onClose}
@@ -195,7 +224,7 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
   );
 }
 
-function MapPickerModal({ initialAddress, onClose, onConfirm }) {
+function MapPickerModal({ userDescription, onClose, onConfirm }) {
   const mapRef        = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef     = useRef(null);
@@ -203,11 +232,12 @@ function MapPickerModal({ initialAddress, onClose, onConfirm }) {
 
   const [mapLoading, setMapLoading]   = useState(true);
   const [mapError, setMapError]       = useState('');
-  const [address, setAddress]         = useState(initialAddress || '');
+  const [address, setAddress]         = useState('');
   const [coords, setCoords]           = useState(CR_CENTER);
   const [geocoding, setGeocoding]     = useState(false);
   const [locating, setLocating]       = useState(false);
   const [locError, setLocError]       = useState('');
+  const [hasMarked, setHasMarked]     = useState(false);
 
   const reverseGeocode = useCallback((pos) => {
     if (!geocoderRef.current) return;
@@ -253,6 +283,7 @@ function MapPickerModal({ initialAddress, onClose, onConfirm }) {
 
         const updateFromPos = (pos) => {
           setCoords({ lat: pos.lat(), lng: pos.lng() });
+          setHasMarked(true);
           reverseGeocode({ lat: pos.lat(), lng: pos.lng() });
         };
 
@@ -293,6 +324,7 @@ function MapPickerModal({ initialAddress, onClose, onConfirm }) {
           markerRef.current.setPosition(p);
           markerRef.current.setVisible(true);
           setCoords(p);
+          setHasMarked(true);
           reverseGeocode(p);
         }
       },
@@ -323,17 +355,30 @@ function MapPickerModal({ initialAddress, onClose, onConfirm }) {
         onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-cream-100">
-          <div>
+        <div className="flex items-start justify-between px-4 sm:px-5 py-3.5 border-b border-cream-100 gap-3">
+          <div className="min-w-0 flex-1">
             <h3 className="font-display text-lg font-semibold text-ink-900">Marcá tu ubicación exacta</h3>
             <p className="text-[11px] text-ink-400">Paso 2 de 2 — tocá el mapa o usá tu GPS</p>
           </div>
-          <button type="button" onClick={onClose} className="p-2 hover:bg-cream-50 rounded-lg transition-colors">
+          <button type="button" onClick={onClose} className="p-2 hover:bg-cream-50 rounded-lg transition-colors flex-shrink-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
         </div>
+
+        {/* User's typed description — recordatorio */}
+        {userDescription && (
+          <div className="px-4 sm:px-5 pt-3 pb-1">
+            <div className="bg-cream-50 border border-cream-200 rounded-xl px-3 py-2 flex items-start gap-2">
+              <span className="text-xs flex-shrink-0 mt-0.5">📝</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-bold text-ink-500 uppercase tracking-widest">Tu descripción</p>
+                <p className="text-xs text-ink-700 leading-snug mt-0.5 break-words">{userDescription}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* GPS button */}
         <div className="px-4 sm:px-5 pt-3 pb-2">
@@ -404,15 +449,20 @@ function MapPickerModal({ initialAddress, onClose, onConfirm }) {
         {/* Address preview + actions */}
         <div className="px-4 sm:px-5 py-3.5 space-y-3 bg-cream-50 border-t border-cream-100">
           <div>
-            <p className="text-[10px] font-bold text-ink-400 uppercase tracking-widest mb-1">Ubicación detectada</p>
+            <p className="text-[10px] font-bold text-ink-400 uppercase tracking-widest mb-1">Ubicación marcada en el mapa</p>
             <p className="text-sm text-ink-800 leading-snug min-h-[2.5em]">
               {geocoding
                 ? <span className="text-ink-300 italic">Obteniendo dirección...</span>
-                : address
-                  ? address
+                : hasMarked && address
+                  ? <>📍 {address}</>
                   : <span className="text-ink-300 italic">Usá el GPS o tocá el mapa para marcar tu ubicación exacta</span>
               }
             </p>
+            {hasMarked && userDescription && (
+              <p className="text-[10px] text-green-700 mt-1.5 font-medium">
+                ✓ Se guardarán las dos: tu descripción + esta ubicación del mapa
+              </p>
+            )}
           </div>
 
           <div className="flex gap-2">
@@ -425,7 +475,7 @@ function MapPickerModal({ initialAddress, onClose, onConfirm }) {
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={mapLoading || !!mapError || !address || geocoding}
+              disabled={mapLoading || !!mapError || !hasMarked || geocoding}
               className="flex-[2] px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors shadow-btn">
               Confirmar ubicación
             </button>
