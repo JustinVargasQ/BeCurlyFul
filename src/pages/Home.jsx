@@ -10,7 +10,7 @@ import { assetUrl } from '../lib/api';
 import { formatCRC } from '../lib/currency';
 
 /* ─── Slide config ─── */
-/* Hero images — para subir nuevas, ponelas en /public/imgs/hero/ */
+/* Si querés usar fotos custom, ponelas en /public/imgs/hero/ y cambiá las urls de abajo */
 const SLIDE_CONFIG = [
   {
     eyebrow: 'Nuevos ingresos',
@@ -18,7 +18,7 @@ const SLIDE_CONFIG = [
     sub:     'Maquillaje y skincare de marcas originales con envíos a todo Costa Rica.',
     cta:     'Ver catálogo',
     cat:     null,
-    img:     '/imgs/hero/featured.jpg',
+    img:     'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=1400&q=85&auto=format&fit=crop',
     fallback: '/imgs/Skincare.jpeg',
     objectPosition: 'center 30%',
   },
@@ -28,7 +28,7 @@ const SLIDE_CONFIG = [
     sub:     'Productos auténticos con resultados reales para tu rutina diaria.',
     cta:     'Ver skincare',
     cat:     'skincare',
-    img:     '/imgs/hero/skincare.jpg',
+    img:     'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=1400&q=85&auto=format&fit=crop',
     fallback: '/imgs/Skincare.jpeg',
     objectPosition: 'center 25%',
   },
@@ -38,18 +38,34 @@ const SLIDE_CONFIG = [
     sub:     'Las marcas que amas al mejor precio en Costa Rica.',
     cta:     'Ver maquillaje',
     cat:     'maquillaje',
-    img:     '/imgs/hero/makeup.jpg',
+    img:     'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1400&q=85&auto=format&fit=crop',
     fallback: '/imgs/makeup.jpg',
-    objectPosition: 'center 20%',
+    objectPosition: 'center 30%',
   },
 ];
 
-/* ─── Quick categories for hero grid (different crops to differentiate from CategoryRow) ─── */
+/* ─── Quick categories for hero grid (different photos than CategoryRow) ─── */
 const HERO_CATEGORIES = [
-  { label: 'Maquillaje', cat: 'maquillaje', img: '/imgs/hero/cat-maquillaje.jpg', fallback: '/imgs/makeup.jpg',         objectPosition: 'center 35%' },
-  { label: 'Skincare',   cat: 'skincare',   img: '/imgs/hero/cat-skincare.jpg',   fallback: '/imgs/Skincare.jpeg',      objectPosition: 'center 60%' },
-  { label: 'Cabello',    cat: 'cabello',    img: '/imgs/hero/cat-cabello.jpg',    fallback: '/imgs/Cabello.jpeg',       objectPosition: 'center 40%' },
-  { label: 'Perfumes',   cat: 'perfumes',   img: '/imgs/hero/cat-perfumes.jpg',   fallback: '/imgs/Perfume.jpeg',       objectPosition: 'center 50%' },
+  {
+    label: 'Maquillaje', cat: 'maquillaje',
+    img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=85&auto=format&fit=crop',
+    fallback: '/imgs/makeup.jpg', objectPosition: 'center 40%',
+  },
+  {
+    label: 'Skincare', cat: 'skincare',
+    img: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&q=85&auto=format&fit=crop',
+    fallback: '/imgs/Skincare.jpeg', objectPosition: 'center 50%',
+  },
+  {
+    label: 'Cabello', cat: 'cabello',
+    img: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800&q=85&auto=format&fit=crop',
+    fallback: '/imgs/Cabello.jpeg', objectPosition: 'center 40%',
+  },
+  {
+    label: 'Perfumes', cat: 'perfumes',
+    img: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=85&auto=format&fit=crop',
+    fallback: '/imgs/Perfume.jpeg', objectPosition: 'center 50%',
+  },
 ];
 
 const ChevronIcon = ({ dir }) => (
@@ -66,11 +82,38 @@ const CATEGORIES = [
   { label: 'Cabello',    cat: 'cabello',    img: '/imgs/Cabello.jpeg'    },
 ];
 
+const TrustTruckIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
+    <path d="M15 18H9"/>
+    <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>
+    <circle cx="17" cy="18" r="2"/>
+    <circle cx="7" cy="18" r="2"/>
+  </svg>
+);
+const TrustShieldIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    <path d="m9 12 2 2 4-4"/>
+  </svg>
+);
+const TrustChatIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+const TrustCardIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="5" width="20" height="14" rx="2"/>
+    <line x1="2" y1="10" x2="22" y2="10"/>
+  </svg>
+);
+
 const TRUST = [
-  { emoji: '🚚', title: 'Envíos a todo CR',     sub: 'Correos, Uber, Express' },
-  { emoji: '✅', title: 'Originales 100%',       sub: 'Marcas auténticas' },
-  { emoji: '💬', title: 'Atención WhatsApp',     sub: 'Respuesta rápida' },
-  { emoji: '💳', title: 'SINPE / Transferencia', sub: 'Pago seguro' },
+  { Icon: TrustTruckIcon,  title: 'Envío a todo CR',      sub: 'Correos · Uber · Express' },
+  { Icon: TrustShieldIcon, title: '100% Originales',       sub: 'Marcas auténticas' },
+  { Icon: TrustChatIcon,   title: 'Atención WhatsApp',     sub: 'Respuesta rápida' },
+  { Icon: TrustCardIcon,   title: 'SINPE · Transferencia', sub: 'Pago seguro' },
 ];
 
 const MARQUEE_BRANDS = [
@@ -427,23 +470,23 @@ function Hero({ onCatSelect }) {
         </div>
       </div>
 
-      {/* ─ TRUST STRIP ─ */}
-      <div className="relative mt-3 sm:mt-5">
+      {/* ─ TRUST STRIP — minimal & premium ─ */}
+      <div className="relative mt-4 sm:mt-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl py-4 sm:py-5 px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-3.5 sm:gap-4"
-            style={{ background: 'linear-gradient(135deg, #FBF0F2 0%, #FEF7F0 100%)', border: '1px solid rgba(184,95,114,0.12)' }}>
+          <div className="bg-white border border-cream-200 rounded-2xl shadow-sm grid grid-cols-2 md:grid-cols-4 divide-y divide-x divide-cream-200 md:divide-y-0">
             {TRUST.map((t, i) => (
               <motion.div key={i}
                 initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-30px' }}
                 transition={{ delay: i * 0.06, duration: 0.4 }}
-                className="flex items-center gap-2.5 sm:gap-3">
-                <span className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 text-lg bg-white shadow-sm border border-rose-100">
-                  {t.emoji}
+                className="flex items-center gap-3 px-4 sm:px-5 py-4 sm:py-5 first:border-l-0">
+                <span className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center flex-shrink-0 text-rose-500"
+                  style={{ background: 'linear-gradient(135deg, #FDF2F4 0%, #FBEAEE 100%)' }}>
+                  <t.Icon />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[12px] sm:text-sm font-bold text-ink-900 leading-tight truncate">{t.title}</p>
-                  <p className="text-[10px] sm:text-[11px] text-ink-500 leading-tight truncate mt-0.5">{t.sub}</p>
+                  <p className="text-[12px] sm:text-sm font-bold text-ink-900 leading-tight">{t.title}</p>
+                  <p className="text-[10px] sm:text-[11px] text-ink-400 leading-tight mt-0.5 truncate">{t.sub}</p>
                 </div>
               </motion.div>
             ))}
