@@ -100,29 +100,21 @@ export default function MapAddressPicker({
       </div>
 
       {hasMapMarked && (
-        <div className="mt-2 rounded-xl overflow-hidden border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
-          <div className="px-3.5 py-2.5 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <p className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">Ubicación marcada en el mapa</p>
-              </div>
-              <p className="text-xs text-emerald-700 leading-snug break-words">
-                <span className="text-emerald-500">📍</span> {mapReference}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleClearMap}
-              className="flex-shrink-0 text-emerald-400 hover:text-red-500 transition-colors p-0.5"
-              title="Quitar ubicación del mapa">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            </button>
-          </div>
+        <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-2 flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <p className="text-[11px] text-emerald-800 leading-snug min-w-0 flex-1 break-words">
+            <span className="font-bold">Marcado en mapa:</span>{' '}
+            <span className="text-emerald-700">{mapReference}</span>
+          </p>
+          <button
+            type="button"
+            onClick={handleClearMap}
+            className="flex-shrink-0 text-emerald-400 hover:text-red-500 transition-colors p-0.5"
+            title="Quitar ubicación del mapa">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
         </div>
       )}
 

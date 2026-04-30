@@ -354,7 +354,7 @@ export default function Checkout() {
                 </div>
 
                 {!isPickup(shipping) && (<>
-                  <div>
+                  <div className="sm:col-span-2">
                     <label className="block text-xs font-bold text-ink-600 uppercase tracking-wide mb-1.5">
                       Provincia <span className="text-rose-400">*</span>
                     </label>
@@ -364,7 +364,7 @@ export default function Checkout() {
                     </select>
                   </div>
 
-                  <div>
+                  <div className="sm:col-span-2">
                     <Field label="Dirección exacta" required error={errors.address} touched={touched.address} icon={<MapPinIcon />}>
                       <MapAddressPicker
                         required
@@ -383,10 +383,6 @@ export default function Checkout() {
                         className={inputCls(touched.address, errors.address)}
                       />
                     </Field>
-                    <p className="text-[10px] text-ink-400 mt-1.5 flex items-center gap-1">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                      Tocá el ícono del mapa para marcar tu ubicación exacta
-                    </p>
                   </div>
                 </>)}
 
