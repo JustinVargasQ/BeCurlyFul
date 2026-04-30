@@ -311,6 +311,15 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
           draggable: true,
           animation: google.maps.Animation.DROP,
           visible: false,
+          icon: {
+            path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z',
+            fillColor: '#B85F72',
+            fillOpacity: 1,
+            strokeColor: '#ffffff',
+            strokeWeight: 2.5,
+            scale: 2.2,
+            anchor: new google.maps.Point(12, 22),
+          },
         });
 
         mapInstanceRef.current = map;
