@@ -10,6 +10,7 @@ import { assetUrl } from '../lib/api';
 import { formatCRC } from '../lib/currency';
 
 /* ─── Slide config ─── */
+/* Hero images — para subir nuevas, ponelas en /public/imgs/hero/ */
 const SLIDE_CONFIG = [
   {
     eyebrow: 'Nuevos ingresos',
@@ -17,7 +18,9 @@ const SLIDE_CONFIG = [
     sub:     'Maquillaje y skincare de marcas originales con envíos a todo Costa Rica.',
     cta:     'Ver catálogo',
     cat:     null,
-    img:     '/imgs/Skincare.jpeg',
+    img:     '/imgs/hero/featured.jpg',
+    fallback: '/imgs/Skincare.jpeg',
+    objectPosition: 'center 30%',
   },
   {
     eyebrow: 'Skincare coreano',
@@ -25,7 +28,9 @@ const SLIDE_CONFIG = [
     sub:     'Productos auténticos con resultados reales para tu rutina diaria.',
     cta:     'Ver skincare',
     cat:     'skincare',
-    img:     '/imgs/Skincare.jpeg',
+    img:     '/imgs/hero/skincare.jpg',
+    fallback: '/imgs/Skincare.jpeg',
+    objectPosition: 'center 25%',
   },
   {
     eyebrow: 'Maquillaje 2025',
@@ -33,16 +38,18 @@ const SLIDE_CONFIG = [
     sub:     'Las marcas que amas al mejor precio en Costa Rica.',
     cta:     'Ver maquillaje',
     cat:     'maquillaje',
-    img:     '/imgs/Maquillaje.jpeg',
+    img:     '/imgs/hero/makeup.jpg',
+    fallback: '/imgs/makeup.jpg',
+    objectPosition: 'center 20%',
   },
 ];
 
-/* ─── Quick categories for hero grid ─── */
+/* ─── Quick categories for hero grid (different crops to differentiate from CategoryRow) ─── */
 const HERO_CATEGORIES = [
-  { label: 'Maquillaje', cat: 'maquillaje', img: '/imgs/Maquillaje.jpeg' },
-  { label: 'Skincare',   cat: 'skincare',   img: '/imgs/Skincare.jpeg'   },
-  { label: 'Cabello',    cat: 'cabello',    img: '/imgs/Cabello.jpeg'    },
-  { label: 'Perfumes',   cat: 'perfumes',   img: '/imgs/Perfume.jpeg'    },
+  { label: 'Maquillaje', cat: 'maquillaje', img: '/imgs/hero/cat-maquillaje.jpg', fallback: '/imgs/makeup.jpg',         objectPosition: 'center 35%' },
+  { label: 'Skincare',   cat: 'skincare',   img: '/imgs/hero/cat-skincare.jpg',   fallback: '/imgs/Skincare.jpeg',      objectPosition: 'center 60%' },
+  { label: 'Cabello',    cat: 'cabello',    img: '/imgs/hero/cat-cabello.jpg',    fallback: '/imgs/Cabello.jpeg',       objectPosition: 'center 40%' },
+  { label: 'Perfumes',   cat: 'perfumes',   img: '/imgs/hero/cat-perfumes.jpg',   fallback: '/imgs/Perfume.jpeg',       objectPosition: 'center 50%' },
 ];
 
 const ChevronIcon = ({ dir }) => (
@@ -316,18 +323,20 @@ function Hero({ onCatSelect }) {
               <motion.img
                 key={`bg-${current}`}
                 src={slide.img}
+                onError={(e) => { if (slide.fallback && e.target.src !== window.location.origin + slide.fallback) e.target.src = slide.fallback; }}
                 alt=""
                 initial={{ opacity: 0, scale: 1.06 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.9, ease: [0.3, 1, 0.3, 1] }}
                 className="absolute inset-0 w-full h-full object-cover"
+                style={{ objectPosition: slide.objectPosition || 'center', filter: 'saturate(1.05) contrast(1.03)' }}
               />
             </AnimatePresence>
 
-            {/* Subtle gradient ONLY at the bottom for text contrast */}
-            <div className="absolute inset-x-0 bottom-0 h-2/3 pointer-events-none"
-              style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.65) 0%, rgba(15,9,11,0.2) 50%, transparent 100%)' }} />
+            {/* Subtle gradient ONLY at the bottom for text contrast — stronger so text is always visible */}
+            <div className="absolute inset-x-0 bottom-0 h-3/4 pointer-events-none"
+              style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.78) 0%, rgba(15,9,11,0.35) 45%, transparent 100%)' }} />
 
             {/* Content */}
             <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-9 lg:p-12 text-white">
@@ -395,13 +404,15 @@ function Hero({ onCatSelect }) {
                 {/* Image — protagonist */}
                 <img
                   src={c.img}
+                  onError={(e) => { if (c.fallback && e.target.src !== window.location.origin + c.fallback) e.target.src = c.fallback; }}
                   alt={c.label}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  style={{ objectPosition: c.objectPosition || 'center', filter: 'saturate(1.08) contrast(1.04)' }}
                 />
 
                 {/* Subtle bottom gradient ONLY for text legibility */}
-                <div className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none"
-                  style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.55) 0%, rgba(15,9,11,0.1) 60%, transparent 100%)' }} />
+                <div className="absolute inset-x-0 bottom-0 h-3/5 pointer-events-none"
+                  style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.7) 0%, rgba(15,9,11,0.2) 50%, transparent 100%)' }} />
 
                 {/* Label only — clean white text with strong shadow */}
                 <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 lg:p-6 text-white">
