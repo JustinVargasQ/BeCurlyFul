@@ -10,7 +10,7 @@ export function loadGoogleMaps() {
 
   loadPromise = new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${KEY}&loading=async&v=weekly&language=es&region=CR`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${KEY}&language=es&region=CR`;
     script.async = true;
     script.defer = true;
     script.onload = () => {
