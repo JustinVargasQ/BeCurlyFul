@@ -1615,11 +1615,11 @@ export default function Home() {
     <main>
       <SEO />
       <Hero onCatSelect={handleCatSelect} />
-      <LocationSocialBar />
-      <BrandMarquee />
       <CategoryRow onCatSelect={handleCatSelect} />
       <FeaturedSection />
       <Catalog externalCat={selectedCat} catalogRef={catalogRef} />
+      <LocationSocialBar />
+      <BrandMarquee />
       <TestimonialsSection />
       <AboutSection />
       <ShippingSection />
