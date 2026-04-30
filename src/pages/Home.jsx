@@ -6,6 +6,8 @@ import FilterBar from '../components/ui/FilterBar';
 import { useProducts, useFeatured, useCategoryPreviews } from '../hooks/useProducts';
 import useGoogleReviews from '../hooks/useGoogleReviews';
 import SEO from '../components/ui/SEO';
+import { assetUrl } from '../lib/api';
+import { formatCRC } from '../lib/currency';
 
 /* ─── Slide config ─── */
 const SLIDE_CONFIG = [
@@ -128,74 +130,140 @@ function SparkleLayer() {
   );
 }
 
-function HeroVideoPanel({ className = '', style }) {
+/* ─── Featured product card for hero showcase ─── */
+function ShowcaseCard({ product, size = 'md', rotate = 0, animDelay = 0 }) {
+  if (!product) return null;
+  const sizes = {
+    lg: 'w-[260px] h-[340px] xl:w-[300px] xl:h-[400px]',
+    md: 'w-[150px] h-[180px] xl:w-[170px] xl:h-[210px]',
+    sm: 'w-[120px] h-[140px]',
+  };
+  return (
+    <Link to={`/producto/${product.slug}`} className="block group">
+      <motion.div
+        initial={{ opacity: 0, y: 18, rotate: 0 }}
+        animate={{ opacity: 1, y: 0, rotate }}
+        transition={{ delay: animDelay, duration: 0.7, ease: [0.3, 1, 0.3, 1] }}
+        whileHover={{ y: -8, rotate: 0, scale: 1.02 }}
+        className={`${sizes[size]} relative rounded-2xl overflow-hidden bg-white transition-shadow duration-300`}
+        style={{
+          boxShadow: '0 20px 50px -10px rgba(15,9,11,0.18), 0 6px 18px -8px rgba(184,95,114,0.18)',
+        }}>
+        {/* Image */}
+        {product.img ? (
+          <img
+            src={assetUrl(product.img)}
+            alt={product.name}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-cream-100 flex items-center justify-center text-3xl">💄</div>
+        )}
+
+        {/* Gradient bottom overlay */}
+        <div className="absolute inset-x-0 bottom-0 h-2/3 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.88) 0%, rgba(15,9,11,0.5) 35%, transparent 100%)' }} />
+
+        {/* Badge — only on lg */}
+        {size === 'lg' && product.badge && (
+          <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/95 text-rose-600 text-[10px] font-bold uppercase tracking-widest shadow-sm">
+            {product.badge}
+          </div>
+        )}
+
+        {/* Info overlay */}
+        <div className={`absolute inset-x-0 bottom-0 ${size === 'lg' ? 'p-4 xl:p-5' : 'p-3'} text-white`}>
+          {product.brand && size !== 'sm' && (
+            <p className={`${size === 'lg' ? 'text-[10px]' : 'text-[9px]'} font-bold uppercase tracking-[0.2em] text-white/70 mb-1`}>
+              {product.brand}
+            </p>
+          )}
+          <p className={`font-display font-bold leading-tight ${size === 'lg' ? 'text-base xl:text-lg' : 'text-xs'} line-clamp-2 mb-1`}>
+            {product.name}
+          </p>
+          {size === 'lg' && (
+            <p className="text-white/90 font-bold text-lg xl:text-xl tabular-nums">{formatCRC(product.price)}</p>
+          )}
+          {size === 'md' && (
+            <p className="text-white/90 font-semibold text-xs tabular-nums">{formatCRC(product.price)}</p>
+          )}
+        </div>
+      </motion.div>
+    </Link>
+  );
+}
+
+/* ─── Hero Showcase — editorial product mosaic ─── */
+function HeroShowcase({ className = '', style }) {
+  const products = useFeatured(4);
+  const main = products?.[0];
+  const sec1 = products?.[1];
+  const sec2 = products?.[2];
+
   return (
     <div className={`relative overflow-hidden ${className}`} style={style}>
-      {/* Video — slight zoom for premium feel */}
-      <video
-        src="/videos/hero.mp4"
-        autoPlay muted loop playsInline
-        className="absolute inset-0 w-full h-full object-cover object-center scale-[1.03] transition-transform duration-[8000ms]"
-      />
+      {/* Soft pastel gradient background */}
+      <div className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(135deg, #FBF0F2 0%, #FEF7F0 45%, #F5EFE8 100%)',
+        }} />
 
-      {/* Top vignette */}
-      <div className="absolute inset-x-0 top-0 h-36 pointer-events-none z-10"
-        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.22), transparent)' }} />
-
-      {/* Bottom cinematic fade — strong, branded */}
-      <div className="absolute inset-x-0 bottom-0 pointer-events-none z-10"
-        style={{ height: '55%', background: 'linear-gradient(to top, rgba(15,9,11,0.82) 0%, rgba(26,14,20,0.45) 40%, transparent 100%)' }} />
-
-      {/* Left blend into white text panel (desktop only) */}
-      <div className="absolute inset-y-0 left-0 w-40 hidden md:block pointer-events-none z-10"
-        style={{ background: 'linear-gradient(to right, #fff 0%, rgba(255,255,255,0.85) 35%, rgba(255,255,255,0.3) 70%, transparent 100%)' }} />
-
-      {/* Subtle rose brand tint on the right side */}
-      <div className="absolute inset-0 pointer-events-none z-10"
-        style={{ background: 'radial-gradient(ellipse 70% 50% at 85% 15%, rgba(184,95,114,0.18) 0%, transparent 70%)' }} />
+      {/* Decorative blurred circles */}
+      <div className="absolute -top-24 -right-20 w-[420px] h-[420px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, rgba(184,95,114,0.25) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+      <div className="absolute -bottom-32 -left-24 w-[380px] h-[380px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, rgba(201,168,117,0.22) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+      <div className="absolute top-1/2 left-1/3 w-[200px] h-[200px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%)', filter: 'blur(30px)' }} />
 
       {/* Sparkles */}
       <SparkleLayer />
 
-      {/* Bottom overlay row */}
-      <div className="absolute inset-x-0 bottom-0 z-20 px-5 py-5 sm:px-8 sm:py-7 flex items-end justify-between">
+      {/* Content layout */}
+      <div className="relative w-full h-full flex items-center justify-center p-6 md:p-8">
 
-        {/* Left: store label */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.8, duration: 0.7, ease: [0.3,1,0.3,1] }}>
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
-            <span className="text-white/55 text-[10px] font-bold uppercase tracking-[0.22em]">Nuestro TikTok</span>
-          </div>
-          <p className="text-white font-display font-bold text-lg leading-tight drop-shadow-lg"
-            style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
-            JD Virtual Store
-          </p>
-        </motion.div>
+        {!main ? (
+          <div className="w-[280px] h-[360px] rounded-2xl bg-white/40 backdrop-blur-sm animate-pulse" />
+        ) : (
+          <>
+            {/* Featured (main) — central */}
+            <div className="relative z-20">
+              <ShowcaseCard product={main} size="lg" rotate={-2} animDelay={0.1} />
+            </div>
 
-        {/* Right: TikTok pill */}
-        <motion.a
-          href="https://www.tiktok.com/@jd_virtual_store"
-          target="_blank" rel="noopener noreferrer"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.0, duration: 0.5, type: 'spring', stiffness: 300, damping: 24 }}
-          whileHover={{ scale: 1.06, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-full"
-          style={{
-            background: 'rgba(255,255,255,0.12)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255,255,255,0.2)',
-          }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
-            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
-          </svg>
-          <span className="text-white text-[11px] font-bold tracking-wider">@jd_virtual_store</span>
-        </motion.a>
+            {/* Secondary card 1 — top right (desktop only) */}
+            {sec1 && (
+              <div className="hidden md:block absolute top-[8%] right-[6%] z-10">
+                <ShowcaseCard product={sec1} size="md" rotate={5} animDelay={0.3} />
+              </div>
+            )}
+
+            {/* Secondary card 2 — bottom left (desktop only) */}
+            {sec2 && (
+              <div className="hidden md:block absolute bottom-[10%] left-[6%] z-10">
+                <ShowcaseCard product={sec2} size="md" rotate={-6} animDelay={0.45} />
+              </div>
+            )}
+
+            {/* "View all" floating chip — desktop bottom right */}
+            <Link
+              to="/ofertas"
+              className="hidden md:flex absolute bottom-6 right-6 z-30 items-center gap-2 px-4 py-2.5 rounded-full font-semibold text-xs transition-all hover:scale-105"
+              style={{
+                background: 'rgba(255,255,255,0.85)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid rgba(184,95,114,0.2)',
+                color: '#B85F72',
+                boxShadow: '0 8px 24px -6px rgba(184,95,114,0.2)',
+              }}>
+              <span>Ver más productos</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );
@@ -211,56 +279,68 @@ function Hero({ onCatSelect }) {
 
   useEffect(() => {
     if (paused) return;
-    const t = setInterval(() => setCurrent((c) => (c + 1) % total), 5500);
+    const t = setInterval(() => setCurrent((c) => (c + 1) % total), 6000);
     return () => clearInterval(t);
   }, [paused, total]);
 
   const prev = () => { setPaused(true); setCurrent((c) => (c - 1 + total) % total); };
   const next = () => { setPaused(true); setCurrent((c) => (c + 1) % total); };
 
+  const ArrowRight = () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+    </svg>
+  );
+
   return (
-    <section className="relative overflow-hidden bg-white" style={{ minHeight: '88vh' }}>
+    <section className="relative bg-white">
+
+      {/* Soft decorative gradient — subtle */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full opacity-40"
+          style={{ background: 'radial-gradient(circle, rgba(184,95,114,0.15) 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-20 right-10 w-80 h-80 rounded-full opacity-30"
+          style={{ background: 'radial-gradient(circle, rgba(201,168,117,0.18) 0%, transparent 70%)' }} />
+      </div>
 
       {/* ─ MOBILE: TikTok top, text below ─ */}
-      <div className="md:hidden flex flex-col bg-white" style={{ minHeight: '88vh' }}>
+      <div className="md:hidden relative flex flex-col bg-white">
 
-        {/* Hero video */}
-        <HeroVideoPanel className="flex-shrink-0" style={{ height: 'min(62vw, 360px)', minHeight: 260 }} />
+        <HeroShowcase className="flex-shrink-0 w-full" style={{ height: 'min(58vw, 340px)', minHeight: 280 }} />
 
-        {/* Mobile text */}
-        <div className="flex-1 flex flex-col justify-center px-6 pt-5 pb-10 bg-white">
+        <div className="px-6 pt-7 pb-10 bg-white relative">
           <AnimatePresence mode="wait">
             <motion.div key={`mt-${current}`}
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.5, ease: [0.3,1,0.3,1] }}>
+              initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45, ease: [0.3,1,0.3,1] }}>
 
-              <span className="flex items-center gap-2 text-[11px] font-bold tracking-[0.22em] uppercase text-rose-500 mb-3">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-[10px] font-bold tracking-[0.18em] uppercase mb-4 border border-rose-100">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
                 {slide.eyebrow}
               </span>
 
-              <h1 className="font-display font-bold leading-[0.95] text-ink-900 whitespace-pre-line mb-4"
-                style={{ fontSize: 'clamp(2.6rem, 10vw, 4rem)' }}>
+              <h1 className="font-display font-bold leading-[0.95] text-ink-900 whitespace-pre-line mb-4 tracking-tight"
+                style={{ fontSize: 'clamp(2.5rem, 10vw, 3.5rem)' }}>
                 {slide.title}
               </h1>
 
-              <p className="text-ink-500 text-sm leading-relaxed mb-7 max-w-xs">{slide.sub}</p>
+              <p className="text-ink-500 text-[15px] leading-relaxed mb-7 max-w-sm">{slide.sub}</p>
 
-              <div className="flex flex-wrap gap-3 mb-8">
+              <div className="flex flex-wrap gap-2.5 mb-7">
                 <motion.button onClick={() => onCatSelect(slide.cat)}
                   whileTap={{ scale: 0.96 }}
                   className="inline-flex items-center gap-2 bg-ink-900 hover:bg-rose-500 text-white font-semibold px-7 py-3.5 rounded-full transition-all duration-300 text-sm shadow-btn">
-                  {slide.cta} ♡
+                  {slide.cta} <ArrowRight />
                 </motion.button>
                 <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#25D366] text-white font-semibold px-6 py-3.5 rounded-full transition-all duration-300 text-sm">
-                  <WaIcon /> Pedir
+                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-semibold px-6 py-3.5 rounded-full transition-all duration-300 text-sm shadow-btn">
+                  <WaIcon /> WhatsApp
                 </a>
               </div>
 
               {/* Nav dots */}
               <div className="flex items-center gap-3">
-                <button onClick={prev} className="w-8 h-8 rounded-full border border-ink-200 hover:border-rose-400 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
+                <button onClick={prev} className="w-9 h-9 rounded-full border border-ink-200 hover:border-rose-400 hover:bg-rose-50/40 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
                   <ChevronIcon dir="left" />
                 </button>
                 <div className="flex gap-1.5">
@@ -269,7 +349,7 @@ function Hero({ onCatSelect }) {
                       className={`rounded-full transition-all duration-300 ${i === current ? 'w-6 h-2 bg-ink-900' : 'w-2 h-2 bg-ink-200 hover:bg-ink-400'}`} />
                   ))}
                 </div>
-                <button onClick={next} className="w-8 h-8 rounded-full border border-ink-200 hover:border-rose-400 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
+                <button onClick={next} className="w-9 h-9 rounded-full border border-ink-200 hover:border-rose-400 hover:bg-rose-50/40 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
                   <ChevronIcon dir="right" />
                 </button>
               </div>
@@ -279,87 +359,76 @@ function Hero({ onCatSelect }) {
       </div>
 
       {/* ─ DESKTOP: split layout ─ */}
-      <div className="hidden md:grid" style={{ gridTemplateColumns: '42% 58%', minHeight: '88vh' }}>
+      <div className="hidden md:grid relative" style={{ gridTemplateColumns: '1fr 1fr', minHeight: '74vh' }}>
 
         {/* LEFT — text panel */}
-        <div className="relative flex flex-col justify-center px-10 lg:px-16 xl:px-20 py-24 bg-white z-10"
+        <div className="relative flex flex-col justify-center px-10 lg:px-16 xl:px-24 py-20 bg-white z-10"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}>
 
           <AnimatePresence mode="wait">
             <motion.div key={current}
-              initial={{ opacity: 0, x: -32 }}
+              initial={{ opacity: 0, x: -28 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 24 }}
-              transition={{ duration: 0.6, ease: [0.3, 1, 0.3, 1] }}>
+              exit={{ opacity: 0, x: 18 }}
+              transition={{ duration: 0.55, ease: [0.3, 1, 0.3, 1] }}>
 
               <motion.span
-                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="flex items-center gap-2 text-xs font-bold tracking-[0.22em] uppercase text-rose-500 mb-5">
+                initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 text-rose-600 text-[11px] font-bold tracking-[0.2em] uppercase mb-7 border border-rose-100">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
                 {slide.eyebrow}
               </motion.span>
 
-              <motion.p
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.5 }}
-                className="font-script text-rose-400 text-2xl sm:text-3xl mb-1 leading-none">
-                {slide.title.split('\n')[0]}
-              </motion.p>
-
               <motion.h1
-                initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.22, duration: 0.6, ease: [0.3, 1, 0.3, 1] }}
-                className="font-display font-bold text-ink-900 leading-[0.9] mb-6"
-                style={{ fontSize: 'clamp(3rem, 5vw, 5.5rem)' }}>
-                {slide.title.split('\n')[1] || slide.title}
+                initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.18, duration: 0.55, ease: [0.3, 1, 0.3, 1] }}
+                className="font-display font-bold text-ink-900 leading-[0.92] mb-7 whitespace-pre-line tracking-tight"
+                style={{ fontSize: 'clamp(2.8rem, 4.6vw, 4.8rem)' }}>
+                {slide.title}
               </motion.h1>
 
               <motion.p
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="text-ink-500 text-base leading-relaxed mb-10 max-w-xs">
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.28, duration: 0.5 }}
+                className="text-ink-500 text-base lg:text-lg leading-relaxed mb-10 max-w-md">
                 {slide.sub}
               </motion.p>
 
               <motion.div
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.38, duration: 0.5 }}
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.36, duration: 0.5 }}
                 className="flex flex-wrap gap-3 mb-12">
                 <motion.button
                   onClick={() => onCatSelect(slide.cat)}
                   whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                   className="inline-flex items-center gap-2 bg-ink-900 hover:bg-rose-500 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 shadow-btn hover:shadow-btn-hover">
-                  {slide.cta} ♡
+                  {slide.cta} <ArrowRight />
                 </motion.button>
                 <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-semibold px-7 py-4 rounded-full transition-all duration-300">
-                  <WaIcon /> Pedir
+                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-semibold px-7 py-4 rounded-full transition-all duration-300 shadow-btn">
+                  <WaIcon /> WhatsApp
                 </a>
               </motion.div>
 
+              {/* Inline mini stats */}
               <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                className="flex items-center gap-5 mb-10">
+                className="flex items-center gap-6 mb-10">
                 <div>
-                  <p className="text-lg font-bold text-ink-900 leading-none tabular-nums"><CountNum to={1000} duration={1.8} delay={0.6} />+</p>
-                  <p className="text-[10px] text-ink-400 mt-0.5 uppercase tracking-wider">Clientas</p>
+                  <p className="text-xl font-bold text-ink-900 leading-none tabular-nums"><CountNum to={1000} duration={1.8} delay={0.6} />+</p>
+                  <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-widest font-semibold">Clientas felices</p>
                 </div>
-                <div className="w-px h-7 bg-ink-200" />
+                <div className="w-px h-9 bg-ink-200" />
                 <div>
-                  <p className="text-lg font-bold text-ink-900 leading-none tabular-nums"><CountNum to={50} duration={1.5} delay={0.7} />+</p>
-                  <p className="text-[10px] text-ink-400 mt-0.5 uppercase tracking-wider">Marcas</p>
-                </div>
-                <div className="w-px h-7 bg-ink-200" />
-                <div>
-                  <p className="text-lg font-bold text-ink-900 leading-none">CR</p>
-                  <p className="text-[10px] text-ink-400 mt-0.5 uppercase tracking-wider">Todo el país</p>
+                  <p className="text-xl font-bold text-ink-900 leading-none tabular-nums"><CountNum to={50} duration={1.5} delay={0.7} />+</p>
+                  <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-widest font-semibold">Marcas originales</p>
                 </div>
               </motion.div>
 
               <div className="flex items-center gap-3">
-                <button onClick={prev} className="w-10 h-10 rounded-full border-2 border-ink-200 hover:border-rose-400 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
+                <button onClick={prev} className="w-10 h-10 rounded-full border-2 border-ink-200 hover:border-rose-400 hover:bg-rose-50/40 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
                   <ChevronIcon dir="left" />
                 </button>
                 <div className="flex gap-2">
@@ -368,7 +437,7 @@ function Hero({ onCatSelect }) {
                       className={`rounded-full transition-all duration-300 ${i === current ? 'w-7 h-2.5 bg-ink-900' : 'w-2.5 h-2.5 bg-ink-200 hover:bg-ink-400'}`} />
                   ))}
                 </div>
-                <button onClick={next} className="w-10 h-10 rounded-full border-2 border-ink-200 hover:border-rose-400 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
+                <button onClick={next} className="w-10 h-10 rounded-full border-2 border-ink-200 hover:border-rose-400 hover:bg-rose-50/40 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
                   <ChevronIcon dir="right" />
                 </button>
               </div>
@@ -377,7 +446,29 @@ function Hero({ onCatSelect }) {
         </div>
 
         {/* RIGHT — TikTok video */}
-        <HeroVideoPanel />
+        <HeroShowcase />
+      </div>
+
+      {/* ─ TRUST STRIP — bridges hero to next section ─ */}
+      <div className="relative bg-gradient-to-b from-cream-50/70 to-cream-100/30 border-y border-cream-200/70">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-3.5 sm:gap-4">
+          {TRUST.map((t, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ delay: i * 0.06, duration: 0.4 }}
+              className="flex items-center gap-2.5 sm:gap-3">
+              <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-base sm:text-lg"
+                style={{ background: 'linear-gradient(135deg, rgba(184,95,114,0.08), rgba(201,168,117,0.06))', border: '1px solid rgba(184,95,114,0.12)' }}>
+                {t.emoji}
+              </span>
+              <div className="min-w-0">
+                <p className="text-[12px] sm:text-[13px] font-bold text-ink-900 leading-tight truncate">{t.title}</p>
+                <p className="text-[10px] sm:text-[11px] text-ink-500 leading-tight truncate mt-0.5">{t.sub}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
