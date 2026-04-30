@@ -6,8 +6,10 @@ import FilterBar from '../components/ui/FilterBar';
 import { useProducts, useFeatured, useCategoryPreviews } from '../hooks/useProducts';
 import useGoogleReviews from '../hooks/useGoogleReviews';
 import SEO from '../components/ui/SEO';
-import { assetUrl } from '../lib/api';
+import api, { assetUrl } from '../lib/api';
 import { formatCRC } from '../lib/currency';
+
+const USE_API = import.meta.env.VITE_API_URL;
 
 /* ─── Slide config ─── */
 /* Si querés usar fotos custom, ponelas en /public/imgs/hero/ y cambiá las urls de abajo */
@@ -330,8 +332,25 @@ function HeroShowcase({ className = '', style }) {
   );
 }
 
-/* ─── Hero — editorial grid: big featured + 4 category cards ─── */
+/* ─── Hero wrapper — selects style based on admin settings ─── */
 function Hero({ onCatSelect }) {
+  const [heroStyle, setHeroStyle] = useState('grid');
+
+  useEffect(() => {
+    if (!USE_API) return;
+    api.get('/settings')
+      .then(({ data }) => { if (data?.heroStyle) setHeroStyle(data.heroStyle); })
+      .catch(() => {});
+  }, []);
+
+  if (heroStyle === 'video') {
+    return <HeroVideoLayout onCatSelect={onCatSelect} />;
+  }
+  return <HeroGridLayout onCatSelect={onCatSelect} />;
+}
+
+/* ─── Hero GRID — editorial grid: big featured + 4 category cards ─── */
+function HeroGridLayout({ onCatSelect }) {
   const [current, setCurrent] = useState(0);
   const [paused,  setPaused]  = useState(false);
 
@@ -471,6 +490,228 @@ function Hero({ onCatSelect }) {
       </div>
 
       {/* ─ TRUST STRIP — minimal & premium ─ */}
+      <div className="relative mt-4 sm:mt-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white border border-cream-200 rounded-2xl shadow-sm grid grid-cols-2 md:grid-cols-4 divide-y divide-x divide-cream-200 md:divide-y-0">
+            {TRUST.map((t, i) => (
+              <motion.div key={i}
+                initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ delay: i * 0.06, duration: 0.4 }}
+                className="flex items-center gap-3 px-4 sm:px-5 py-4 sm:py-5 first:border-l-0">
+                <span className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center flex-shrink-0 text-rose-500"
+                  style={{ background: 'linear-gradient(135deg, #FDF2F4 0%, #FBEAEE 100%)' }}>
+                  <t.Icon />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[12px] sm:text-sm font-bold text-ink-900 leading-tight">{t.title}</p>
+                  <p className="text-[10px] sm:text-[11px] text-ink-400 leading-tight mt-0.5 truncate">{t.sub}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Hero VIDEO layout — improved ─── */
+function HeroVideoLayout({ onCatSelect }) {
+  const [current, setCurrent] = useState(0);
+  const [paused, setPaused]   = useState(false);
+  const total = SLIDE_CONFIG.length;
+  const slide = SLIDE_CONFIG[current];
+
+  useEffect(() => {
+    if (paused) return;
+    const t = setInterval(() => setCurrent((c) => (c + 1) % total), 6000);
+    return () => clearInterval(t);
+  }, [paused, total]);
+
+  const ArrowRight = () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+    </svg>
+  );
+
+  return (
+    <section className="relative bg-white">
+
+      {/* MOBILE — video on top, text below */}
+      <div className="md:hidden relative flex flex-col bg-white">
+        <div className="relative w-full overflow-hidden" style={{ height: 'min(58vw, 340px)', minHeight: 280 }}>
+          <video src="/videos/hero.mp4" autoPlay muted loop playsInline
+            className="absolute inset-0 w-full h-full object-cover scale-[1.02]" />
+          {/* Subtle vignettes */}
+          <div className="absolute inset-x-0 bottom-0 h-2/3 pointer-events-none"
+            style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.55) 0%, rgba(15,9,11,0.15) 50%, transparent 100%)' }} />
+          {/* TikTok pill */}
+          <a href="https://www.tiktok.com/@jd_virtual_store" target="_blank" rel="noopener noreferrer"
+            className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/25"
+            style={{ background: 'rgba(255,255,255,0.15)' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+            </svg>
+            <span className="text-white text-[10px] font-bold tracking-wider">@jd_virtual_store</span>
+          </a>
+        </div>
+
+        <div className="px-6 pt-7 pb-10 bg-white">
+          <AnimatePresence mode="wait">
+            <motion.div key={`mt-${current}`}
+              initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45, ease: [0.3,1,0.3,1] }}>
+
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-[10px] font-bold tracking-[0.18em] uppercase mb-4 border border-rose-100">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                {slide.eyebrow}
+              </span>
+
+              <h1 className="font-display font-bold leading-[0.95] text-ink-900 whitespace-pre-line mb-4 tracking-tight"
+                style={{ fontSize: 'clamp(2.5rem, 10vw, 3.5rem)' }}>
+                {slide.title}
+              </h1>
+
+              <p className="text-ink-500 text-[15px] leading-relaxed mb-7 max-w-sm">{slide.sub}</p>
+
+              <div className="flex flex-wrap gap-2.5 mb-7">
+                <motion.button onClick={() => onCatSelect(slide.cat)}
+                  whileTap={{ scale: 0.96 }}
+                  className="inline-flex items-center gap-2 bg-ink-900 hover:bg-rose-500 text-white font-semibold px-7 py-3.5 rounded-full transition-all duration-300 text-sm shadow-btn">
+                  {slide.cta} <ArrowRight />
+                </motion.button>
+                <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-semibold px-6 py-3.5 rounded-full transition-all duration-300 text-sm shadow-btn">
+                  <WaIcon /> WhatsApp
+                </a>
+              </div>
+
+              <div className="flex gap-1.5">
+                {SLIDE_CONFIG.map((_, i) => (
+                  <button key={i} onClick={() => { setPaused(true); setCurrent(i); }}
+                    className={`rounded-full transition-all duration-300 ${i === current ? 'w-7 h-2 bg-ink-900' : 'w-2 h-2 bg-ink-200 hover:bg-ink-400'}`} />
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* DESKTOP — split 50/50 */}
+      <div className="hidden md:grid relative" style={{ gridTemplateColumns: '1fr 1fr', minHeight: '74vh' }}>
+
+        {/* LEFT — text panel */}
+        <div className="relative flex flex-col justify-center px-10 lg:px-16 xl:px-24 py-20 bg-white z-10"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}>
+
+          <AnimatePresence mode="wait">
+            <motion.div key={current}
+              initial={{ opacity: 0, x: -28 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 18 }}
+              transition={{ duration: 0.55, ease: [0.3, 1, 0.3, 1] }}>
+
+              <motion.span
+                initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 text-rose-600 text-[11px] font-bold tracking-[0.2em] uppercase mb-7 border border-rose-100">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                {slide.eyebrow}
+              </motion.span>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.18, duration: 0.55, ease: [0.3, 1, 0.3, 1] }}
+                className="font-display font-bold text-ink-900 leading-[0.92] mb-7 whitespace-pre-line tracking-tight"
+                style={{ fontSize: 'clamp(2.8rem, 4.6vw, 4.8rem)' }}>
+                {slide.title}
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.28, duration: 0.5 }}
+                className="text-ink-500 text-base lg:text-lg leading-relaxed mb-10 max-w-md">
+                {slide.sub}
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.36, duration: 0.5 }}
+                className="flex flex-wrap gap-3 mb-12">
+                <motion.button
+                  onClick={() => onCatSelect(slide.cat)}
+                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center gap-2 bg-ink-900 hover:bg-rose-500 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 shadow-btn hover:shadow-btn-hover">
+                  {slide.cta} <ArrowRight />
+                </motion.button>
+                <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-semibold px-7 py-4 rounded-full transition-all duration-300 shadow-btn">
+                  <WaIcon /> WhatsApp
+                </a>
+              </motion.div>
+
+              <div className="flex items-center gap-6 mb-10">
+                <div>
+                  <p className="text-xl font-bold text-ink-900 leading-none tabular-nums"><CountNum to={1000} duration={1.8} delay={0.6} />+</p>
+                  <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-widest font-semibold">Clientas felices</p>
+                </div>
+                <div className="w-px h-9 bg-ink-200" />
+                <div>
+                  <p className="text-xl font-bold text-ink-900 leading-none tabular-nums"><CountNum to={50} duration={1.5} delay={0.7} />+</p>
+                  <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-widest font-semibold">Marcas originales</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                {SLIDE_CONFIG.map((_, i) => (
+                  <button key={i} onClick={() => { setPaused(true); setCurrent(i); }}
+                    className={`rounded-full transition-all duration-300 ${i === current ? 'w-8 h-2.5 bg-ink-900' : 'w-2.5 h-2.5 bg-ink-200 hover:bg-ink-400'}`} />
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* RIGHT — Video panel */}
+        <div className="relative overflow-hidden">
+          <video src="/videos/hero.mp4" autoPlay muted loop playsInline
+            className="absolute inset-0 w-full h-full object-cover scale-[1.02]" />
+
+          {/* Soft vignettes */}
+          <div className="absolute inset-x-0 top-0 h-32 pointer-events-none"
+            style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.18), transparent)' }} />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none"
+            style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.7) 0%, rgba(15,9,11,0.2) 55%, transparent 100%)' }} />
+          {/* Left blend into white text */}
+          <div className="absolute inset-y-0 left-0 w-32 pointer-events-none"
+            style={{ background: 'linear-gradient(to right, rgba(255,255,255,0.5), transparent)' }} />
+          {/* Brand rose tint */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse 70% 50% at 90% 10%, rgba(184,95,114,0.15) 0%, transparent 70%)' }} />
+
+          {/* TikTok handle — bottom right */}
+          <a href="https://www.tiktok.com/@jd_virtual_store" target="_blank" rel="noopener noreferrer"
+            className="absolute bottom-6 right-6 flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-md border border-white/25 hover:scale-105 transition-transform"
+            style={{ background: 'rgba(255,255,255,0.15)' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+            </svg>
+            <span className="text-white text-[11px] font-bold tracking-wider">@jd_virtual_store</span>
+          </a>
+
+          {/* Bottom-left store label */}
+          <div className="absolute bottom-6 left-6 z-20">
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+              <span className="text-white/70 text-[10px] font-bold uppercase tracking-[0.22em]">En vivo en TikTok</span>
+            </div>
+            <p className="text-white font-display font-bold text-lg leading-tight" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
+              JD Virtual Store
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Trust strip — same as grid */}
       <div className="relative mt-4 sm:mt-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white border border-cream-200 rounded-2xl shadow-sm grid grid-cols-2 md:grid-cols-4 divide-y divide-x divide-cream-200 md:divide-y-0">

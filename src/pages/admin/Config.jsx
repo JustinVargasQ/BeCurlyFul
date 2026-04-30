@@ -12,6 +12,7 @@ const DEFAULTS = {
   address: '',
   heroTitle: 'Belleza auténtica',
   heroSub: 'Maquillaje y skincare de marcas originales.',
+  heroStyle: 'grid',
   shippingCostCorreos: 2500,
   shippingCostExpress: 4500,
   freeShippingFrom: 25000,
@@ -127,6 +128,82 @@ export default function AdminConfig() {
       {/* Hero */}
       <div className={sectionCls}>
         <p className="text-xs font-bold text-ink-400 uppercase tracking-widest">Página principal</p>
+
+        {/* Hero style selector */}
+        <div>
+          <label className={labelCls}>Estilo del hero</label>
+          <div className="grid grid-cols-2 gap-3">
+            {/* GRID option */}
+            <button type="button"
+              onClick={() => { setForm(f => ({ ...f, heroStyle: 'grid' })); setDirty(true); }}
+              className={`relative rounded-2xl overflow-hidden border-2 p-3 text-left transition-all ${
+                form.heroStyle === 'grid'
+                  ? 'border-rose-500 bg-rose-50/50 shadow-md'
+                  : 'border-cream-200 hover:border-rose-300 bg-white'
+              }`}>
+              {/* Mini preview */}
+              <div className="aspect-[2/1] rounded-lg overflow-hidden bg-cream-100 mb-2.5 flex gap-1 p-1">
+                <div className="flex-1 rounded-md bg-gradient-to-br from-rose-200 to-amber-100" />
+                <div className="flex-1 grid grid-cols-2 gap-1">
+                  <div className="rounded-md bg-rose-100" />
+                  <div className="rounded-md bg-amber-100" />
+                  <div className="rounded-md bg-cream-200" />
+                  <div className="rounded-md bg-rose-200" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-bold text-ink-900 leading-tight">Grid editorial</p>
+                  <p className="text-[10px] text-ink-400 mt-0.5">Foto + 4 categorías</p>
+                </div>
+                {form.heroStyle === 'grid' && (
+                  <div className="w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center flex-shrink-0">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                )}
+              </div>
+            </button>
+
+            {/* VIDEO option */}
+            <button type="button"
+              onClick={() => { setForm(f => ({ ...f, heroStyle: 'video' })); setDirty(true); }}
+              className={`relative rounded-2xl overflow-hidden border-2 p-3 text-left transition-all ${
+                form.heroStyle === 'video'
+                  ? 'border-rose-500 bg-rose-50/50 shadow-md'
+                  : 'border-cream-200 hover:border-rose-300 bg-white'
+              }`}>
+              {/* Mini preview */}
+              <div className="aspect-[2/1] rounded-lg overflow-hidden bg-cream-100 mb-2.5 flex gap-1 p-1">
+                <div className="flex-1 rounded-md bg-cream-50 flex flex-col justify-center items-start px-2 gap-1">
+                  <div className="w-4 h-1 rounded bg-rose-300" />
+                  <div className="w-8 h-1.5 rounded bg-ink-300" />
+                  <div className="w-6 h-1 rounded bg-ink-200" />
+                </div>
+                <div className="flex-1 rounded-md bg-gradient-to-br from-ink-700 to-rose-400 relative">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-4 h-4 rounded-full bg-white/40 backdrop-blur flex items-center justify-center">
+                      <svg width="6" height="6" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-bold text-ink-900 leading-tight">Video lateral</p>
+                  <p className="text-[10px] text-ink-400 mt-0.5">Texto + video TikTok</p>
+                </div>
+                {form.heroStyle === 'video' && (
+                  <div className="w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center flex-shrink-0">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                )}
+              </div>
+            </button>
+          </div>
+          <p className="text-[11px] text-ink-400 mt-2">
+            El estilo "Video" requiere que tengas un archivo en <code className="bg-cream-100 px-1 rounded text-rose-500">/public/videos/hero.mp4</code>
+          </p>
+        </div>
 
         <div>
           <label className={labelCls}>Título del hero</label>
