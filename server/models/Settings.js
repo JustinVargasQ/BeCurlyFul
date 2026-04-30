@@ -11,6 +11,7 @@ const settingsSchema = new Schema(
 
     heroTitle: { type: String, default: 'Belleza auténtica' },
     heroSub:   { type: String, default: 'Maquillaje y skincare de marcas originales.' },
+    heroStyle: { type: String, enum: ['grid', 'video'], default: 'grid' },
 
     shippingCostCorreos: { type: Number, default: 2500, min: 0 },
     shippingCostExpress: { type: Number, default: 4500, min: 0 },

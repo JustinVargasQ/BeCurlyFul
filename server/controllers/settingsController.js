@@ -17,7 +17,7 @@ exports.update = async (req, res, next) => {
   try {
     const allowed = [
       'storeName', 'whatsapp', 'email', 'address',
-      'heroTitle', 'heroSub',
+      'heroTitle', 'heroSub', 'heroStyle',
       'shippingCostCorreos', 'shippingCostExpress', 'freeShippingFrom',
       'bankInfo',
       'notificationEmail',

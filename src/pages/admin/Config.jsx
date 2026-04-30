@@ -40,7 +40,8 @@ export default function AdminConfig() {
     (async () => {
       try {
         const { data } = await api.get('/settings');
-        setForm({ ...DEFAULTS, ...data });
+        const localHeroStyle = (typeof window !== 'undefined' ? localStorage.getItem('heroStyle') : null);
+        setForm({ ...DEFAULTS, ...data, heroStyle: data?.heroStyle || localHeroStyle || DEFAULTS.heroStyle });
       } catch {
         toast.error('No se pudo cargar la configuración');
       } finally { setLoading(false); }
@@ -65,7 +66,11 @@ export default function AdminConfig() {
     setSaving(true);
     try {
       const { data } = await api.patch('/settings', form);
-      setForm({ ...DEFAULTS, ...data });
+      /* Preserve heroStyle even if backend doesn't return it (no schema support) */
+      const finalHeroStyle = data?.heroStyle || form.heroStyle || DEFAULTS.heroStyle;
+      setForm({ ...DEFAULTS, ...data, heroStyle: finalHeroStyle });
+      /* Persist to localStorage so the home page can read it as backup */
+      try { localStorage.setItem('heroStyle', finalHeroStyle); } catch {}
       setDirty(false);
       toast.success('Configuración guardada');
     } catch (err) {

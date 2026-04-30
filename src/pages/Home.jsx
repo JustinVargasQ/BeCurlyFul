@@ -332,15 +332,31 @@ function HeroShowcase({ className = '', style }) {
   );
 }
 
-/* ─── Hero wrapper — selects style based on admin settings ─── */
+/* ─── Hero wrapper — selects style based on admin settings + localStorage ─── */
 function Hero({ onCatSelect }) {
-  const [heroStyle, setHeroStyle] = useState('grid');
+  const [heroStyle, setHeroStyle] = useState(() => {
+    try { return localStorage.getItem('heroStyle') || 'grid'; } catch { return 'grid'; }
+  });
 
   useEffect(() => {
     if (!USE_API) return;
     api.get('/settings')
-      .then(({ data }) => { if (data?.heroStyle) setHeroStyle(data.heroStyle); })
+      .then(({ data }) => {
+        if (data?.heroStyle) {
+          setHeroStyle(data.heroStyle);
+          try { localStorage.setItem('heroStyle', data.heroStyle); } catch {}
+        }
+      })
       .catch(() => {});
+  }, []);
+
+  /* React to admin changes in the same tab */
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'heroStyle' && e.newValue) setHeroStyle(e.newValue);
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
   }, []);
 
   if (heroStyle === 'video') {
