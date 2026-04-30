@@ -17,6 +17,7 @@ const SLIDE_CONFIG = [
     sub:     'Maquillaje y skincare de marcas originales con envíos a todo Costa Rica.',
     cta:     'Ver catálogo',
     cat:     null,
+    img:     '/imgs/Skincare.jpeg',
   },
   {
     eyebrow: 'Skincare coreano',
@@ -24,6 +25,7 @@ const SLIDE_CONFIG = [
     sub:     'Productos auténticos con resultados reales para tu rutina diaria.',
     cta:     'Ver skincare',
     cat:     'skincare',
+    img:     '/imgs/Skincare.jpeg',
   },
   {
     eyebrow: 'Maquillaje 2025',
@@ -31,7 +33,16 @@ const SLIDE_CONFIG = [
     sub:     'Las marcas que amas al mejor precio en Costa Rica.',
     cta:     'Ver maquillaje',
     cat:     'maquillaje',
+    img:     '/imgs/Maquillaje.jpeg',
   },
+];
+
+/* ─── Quick categories for hero grid ─── */
+const HERO_CATEGORIES = [
+  { label: 'Maquillaje', cat: 'maquillaje', img: '/imgs/Maquillaje.jpeg' },
+  { label: 'Skincare',   cat: 'skincare',   img: '/imgs/Skincare.jpeg'   },
+  { label: 'Cabello',    cat: 'cabello',    img: '/imgs/Cabello.jpeg'    },
+  { label: 'Perfumes',   cat: 'perfumes',   img: '/imgs/Perfume.jpeg'    },
 ];
 
 const ChevronIcon = ({ dir }) => (
@@ -269,7 +280,7 @@ function HeroShowcase({ className = '', style }) {
   );
 }
 
-/* ─── Hero — split layout with TikTok video ─── */
+/* ─── Hero — editorial grid: big featured + 4 category cards ─── */
 function Hero({ onCatSelect }) {
   const [current, setCurrent] = useState(0);
   const [paused,  setPaused]  = useState(false);
@@ -283,9 +294,6 @@ function Hero({ onCatSelect }) {
     return () => clearInterval(t);
   }, [paused, total]);
 
-  const prev = () => { setPaused(true); setCurrent((c) => (c - 1 + total) % total); };
-  const next = () => { setPaused(true); setCurrent((c) => (c + 1) % total); };
-
   const ArrowRight = () => (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
@@ -294,180 +302,150 @@ function Hero({ onCatSelect }) {
 
   return (
     <section className="relative bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
 
-      {/* Soft decorative gradient — subtle */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full opacity-40"
-          style={{ background: 'radial-gradient(circle, rgba(184,95,114,0.15) 0%, transparent 70%)' }} />
-        <div className="absolute -bottom-20 right-10 w-80 h-80 rounded-full opacity-30"
-          style={{ background: 'radial-gradient(circle, rgba(201,168,117,0.18) 0%, transparent 70%)' }} />
-      </div>
+          {/* ─── BIG FEATURED CARD (left) — slide carousel ─── */}
+          <div className="relative rounded-3xl overflow-hidden bg-cream-100 group"
+            style={{ minHeight: '440px', aspectRatio: '1/1.05' }}
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}>
 
-      {/* ─ MOBILE: TikTok top, text below ─ */}
-      <div className="md:hidden relative flex flex-col bg-white">
+            {/* Image stack with crossfade */}
+            <AnimatePresence mode="sync">
+              <motion.img
+                key={`bg-${current}`}
+                src={slide.img}
+                alt=""
+                initial={{ opacity: 0, scale: 1.08 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.9, ease: [0.3, 1, 0.3, 1] }}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </AnimatePresence>
 
-        <HeroShowcase className="flex-shrink-0 w-full" style={{ height: 'min(58vw, 340px)', minHeight: 280 }} />
+            {/* Dark gradient overlay for text contrast */}
+            <div className="absolute inset-0 pointer-events-none"
+              style={{ background: 'linear-gradient(135deg, rgba(15,9,11,0.55) 0%, rgba(15,9,11,0.15) 45%, rgba(15,9,11,0.65) 100%)' }} />
 
-        <div className="px-6 pt-7 pb-10 bg-white relative">
-          <AnimatePresence mode="wait">
-            <motion.div key={`mt-${current}`}
-              initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45, ease: [0.3,1,0.3,1] }}>
+            {/* Brand tint */}
+            <div className="absolute inset-0 pointer-events-none"
+              style={{ background: 'radial-gradient(ellipse 60% 40% at 20% 110%, rgba(184,95,114,0.5) 0%, transparent 60%)' }} />
 
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-[10px] font-bold tracking-[0.18em] uppercase mb-4 border border-rose-100">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
-                {slide.eyebrow}
-              </span>
+            {/* Content */}
+            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-9 lg:p-12 text-white">
+              <AnimatePresence mode="wait">
+                <motion.div key={current}
+                  initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.55, ease: [0.3, 1, 0.3, 1] }}>
 
-              <h1 className="font-display font-bold leading-[0.95] text-ink-900 whitespace-pre-line mb-4 tracking-tight"
-                style={{ fontSize: 'clamp(2.5rem, 10vw, 3.5rem)' }}>
-                {slide.title}
-              </h1>
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase mb-4 border border-white/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-300 animate-pulse" />
+                    {slide.eyebrow}
+                  </span>
 
-              <p className="text-ink-500 text-[15px] leading-relaxed mb-7 max-w-sm">{slide.sub}</p>
+                  <h1 className="font-display font-bold leading-[0.92] whitespace-pre-line mb-4 tracking-tight"
+                    style={{ fontSize: 'clamp(2.5rem, 5.5vw, 4.5rem)', textShadow: '0 4px 24px rgba(0,0,0,0.3)' }}>
+                    {slide.title}
+                  </h1>
 
-              <div className="flex flex-wrap gap-2.5 mb-7">
-                <motion.button onClick={() => onCatSelect(slide.cat)}
-                  whileTap={{ scale: 0.96 }}
-                  className="inline-flex items-center gap-2 bg-ink-900 hover:bg-rose-500 text-white font-semibold px-7 py-3.5 rounded-full transition-all duration-300 text-sm shadow-btn">
-                  {slide.cta} <ArrowRight />
-                </motion.button>
-                <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-semibold px-6 py-3.5 rounded-full transition-all duration-300 text-sm shadow-btn">
-                  <WaIcon /> WhatsApp
-                </a>
-              </div>
+                  <p className="text-white/90 text-sm sm:text-base leading-relaxed mb-6 max-w-md drop-shadow-md">
+                    {slide.sub}
+                  </p>
 
-              {/* Nav dots */}
-              <div className="flex items-center gap-3">
-                <button onClick={prev} className="w-9 h-9 rounded-full border border-ink-200 hover:border-rose-400 hover:bg-rose-50/40 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
-                  <ChevronIcon dir="left" />
-                </button>
-                <div className="flex gap-1.5">
-                  {SLIDE_CONFIG.map((_, i) => (
-                    <button key={i} onClick={() => { setPaused(true); setCurrent(i); }}
-                      className={`rounded-full transition-all duration-300 ${i === current ? 'w-6 h-2 bg-ink-900' : 'w-2 h-2 bg-ink-200 hover:bg-ink-400'}`} />
-                  ))}
+                  <div className="flex flex-wrap gap-2.5 mb-5">
+                    <motion.button
+                      onClick={() => onCatSelect(slide.cat)}
+                      whileTap={{ scale: 0.97 }}
+                      whileHover={{ scale: 1.03 }}
+                      className="inline-flex items-center gap-2 bg-white text-ink-900 hover:bg-rose-500 hover:text-white font-bold px-7 py-3.5 rounded-full transition-all duration-300 text-sm shadow-lg">
+                      {slide.cta} <ArrowRight />
+                    </motion.button>
+                    <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-bold px-6 py-3.5 rounded-full transition-all duration-300 text-sm shadow-lg">
+                      <WaIcon /> WhatsApp
+                    </a>
+                  </div>
+
+                  {/* Slide dots */}
+                  <div className="flex gap-1.5">
+                    {SLIDE_CONFIG.map((_, i) => (
+                      <button key={i} onClick={() => { setPaused(true); setCurrent(i); }}
+                        className={`rounded-full transition-all duration-300 ${i === current ? 'w-8 h-2 bg-white' : 'w-2 h-2 bg-white/40 hover:bg-white/70'}`}
+                        aria-label={`Slide ${i + 1}`} />
+                    ))}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* ─── 4 CATEGORY CARDS (right) — 2x2 grid ─── */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {HERO_CATEGORIES.map((c, i) => (
+              <motion.button
+                key={c.cat}
+                onClick={() => onCatSelect(c.cat)}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.06, duration: 0.5, ease: [0.3, 1, 0.3, 1] }}
+                whileHover={{ y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative rounded-3xl overflow-hidden bg-cream-100 group text-left"
+                style={{ aspectRatio: '1/1', minHeight: '180px' }}>
+
+                {/* Image */}
+                <img
+                  src={c.img}
+                  alt={c.label}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+                  style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.7) 0%, rgba(15,9,11,0.2) 45%, transparent 100%)' }} />
+
+                {/* Hover rose tint */}
+                <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: 'linear-gradient(135deg, rgba(184,95,114,0.25) 0%, transparent 60%)' }} />
+
+                {/* Label + arrow */}
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 lg:p-6 flex items-end justify-between gap-2 text-white">
+                  <p className="font-display font-bold text-xl sm:text-2xl lg:text-3xl leading-tight drop-shadow-lg">
+                    {c.label}
+                  </p>
+                  <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all duration-300 group-hover:bg-rose-500 group-hover:border-rose-500 flex-shrink-0">
+                    <ArrowRight />
+                  </span>
                 </div>
-                <button onClick={next} className="w-9 h-9 rounded-full border border-ink-200 hover:border-rose-400 hover:bg-rose-50/40 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
-                  <ChevronIcon dir="right" />
-                </button>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+              </motion.button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ─ DESKTOP: split layout ─ */}
-      <div className="hidden md:grid relative" style={{ gridTemplateColumns: '1fr 1fr', minHeight: '74vh' }}>
-
-        {/* LEFT — text panel */}
-        <div className="relative flex flex-col justify-center px-10 lg:px-16 xl:px-24 py-20 bg-white z-10"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}>
-
-          <AnimatePresence mode="wait">
-            <motion.div key={current}
-              initial={{ opacity: 0, x: -28 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 18 }}
-              transition={{ duration: 0.55, ease: [0.3, 1, 0.3, 1] }}>
-
-              <motion.span
-                initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 text-rose-600 text-[11px] font-bold tracking-[0.2em] uppercase mb-7 border border-rose-100">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
-                {slide.eyebrow}
-              </motion.span>
-
-              <motion.h1
-                initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.18, duration: 0.55, ease: [0.3, 1, 0.3, 1] }}
-                className="font-display font-bold text-ink-900 leading-[0.92] mb-7 whitespace-pre-line tracking-tight"
-                style={{ fontSize: 'clamp(2.8rem, 4.6vw, 4.8rem)' }}>
-                {slide.title}
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.28, duration: 0.5 }}
-                className="text-ink-500 text-base lg:text-lg leading-relaxed mb-10 max-w-md">
-                {slide.sub}
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.36, duration: 0.5 }}
-                className="flex flex-wrap gap-3 mb-12">
-                <motion.button
-                  onClick={() => onCatSelect(slide.cat)}
-                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  className="inline-flex items-center gap-2 bg-ink-900 hover:bg-rose-500 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 shadow-btn hover:shadow-btn-hover">
-                  {slide.cta} <ArrowRight />
-                </motion.button>
-                <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-semibold px-7 py-4 rounded-full transition-all duration-300 shadow-btn">
-                  <WaIcon /> WhatsApp
-                </a>
-              </motion.div>
-
-              {/* Inline mini stats */}
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="flex items-center gap-6 mb-10">
-                <div>
-                  <p className="text-xl font-bold text-ink-900 leading-none tabular-nums"><CountNum to={1000} duration={1.8} delay={0.6} />+</p>
-                  <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-widest font-semibold">Clientas felices</p>
-                </div>
-                <div className="w-px h-9 bg-ink-200" />
-                <div>
-                  <p className="text-xl font-bold text-ink-900 leading-none tabular-nums"><CountNum to={50} duration={1.5} delay={0.7} />+</p>
-                  <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-widest font-semibold">Marcas originales</p>
+      {/* ─ TRUST STRIP ─ */}
+      <div className="relative mt-3 sm:mt-5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl py-4 sm:py-5 px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-3.5 sm:gap-4"
+            style={{ background: 'linear-gradient(135deg, #FBF0F2 0%, #FEF7F0 100%)', border: '1px solid rgba(184,95,114,0.12)' }}>
+            {TRUST.map((t, i) => (
+              <motion.div key={i}
+                initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ delay: i * 0.06, duration: 0.4 }}
+                className="flex items-center gap-2.5 sm:gap-3">
+                <span className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 text-lg bg-white shadow-sm border border-rose-100">
+                  {t.emoji}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[12px] sm:text-sm font-bold text-ink-900 leading-tight truncate">{t.title}</p>
+                  <p className="text-[10px] sm:text-[11px] text-ink-500 leading-tight truncate mt-0.5">{t.sub}</p>
                 </div>
               </motion.div>
-
-              <div className="flex items-center gap-3">
-                <button onClick={prev} className="w-10 h-10 rounded-full border-2 border-ink-200 hover:border-rose-400 hover:bg-rose-50/40 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
-                  <ChevronIcon dir="left" />
-                </button>
-                <div className="flex gap-2">
-                  {SLIDE_CONFIG.map((_, i) => (
-                    <button key={i} onClick={() => { setPaused(true); setCurrent(i); }}
-                      className={`rounded-full transition-all duration-300 ${i === current ? 'w-7 h-2.5 bg-ink-900' : 'w-2.5 h-2.5 bg-ink-200 hover:bg-ink-400'}`} />
-                  ))}
-                </div>
-                <button onClick={next} className="w-10 h-10 rounded-full border-2 border-ink-200 hover:border-rose-400 hover:bg-rose-50/40 flex items-center justify-center text-ink-600 hover:text-rose-500 transition-all">
-                  <ChevronIcon dir="right" />
-                </button>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* RIGHT — TikTok video */}
-        <HeroShowcase />
-      </div>
-
-      {/* ─ TRUST STRIP — bridges hero to next section ─ */}
-      <div className="relative bg-gradient-to-b from-cream-50/70 to-cream-100/30 border-y border-cream-200/70">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-3.5 sm:gap-4">
-          {TRUST.map((t, i) => (
-            <motion.div key={i}
-              initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-30px' }}
-              transition={{ delay: i * 0.06, duration: 0.4 }}
-              className="flex items-center gap-2.5 sm:gap-3">
-              <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-base sm:text-lg"
-                style={{ background: 'linear-gradient(135deg, rgba(184,95,114,0.08), rgba(201,168,117,0.06))', border: '1px solid rgba(184,95,114,0.12)' }}>
-                {t.emoji}
-              </span>
-              <div className="min-w-0">
-                <p className="text-[12px] sm:text-[13px] font-bold text-ink-900 leading-tight truncate">{t.title}</p>
-                <p className="text-[10px] sm:text-[11px] text-ink-500 leading-tight truncate mt-0.5">{t.sub}</p>
-              </div>
-            </motion.div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
