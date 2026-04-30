@@ -71,15 +71,20 @@ export default function MapAddressPicker({
   return (
     <div className="relative">
       <div className="flex gap-2">
-        <input
-          type="text"
-          required={required}
-          value={userDescription}
-          onChange={(e) => handleInputChange(e.target.value)}
-          placeholder={placeholder}
-          className={`flex-1 ${className}`}
-          autoComplete="off"
-        />
+        <div className="relative flex-1">
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-300 pointer-events-none z-10">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <input
+            type="text"
+            required={required}
+            value={userDescription}
+            onChange={(e) => handleInputChange(e.target.value)}
+            placeholder={placeholder}
+            className={`w-full pl-10 ${className}`}
+            autoComplete="off"
+          />
+        </div>
         {hasGoogleMapsKey && (
           <button
             type="button"

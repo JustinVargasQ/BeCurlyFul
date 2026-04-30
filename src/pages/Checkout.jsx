@@ -365,7 +365,7 @@ export default function Checkout() {
                   </div>
 
                   <div className="sm:col-span-2">
-                    <Field label="Dirección exacta" required error={errors.address} touched={touched.address} icon={<MapPinIcon />}>
+                    <Field label="Dirección exacta" required error={errors.address} touched={touched.address}>
                       <MapAddressPicker
                         required
                         value={form.address}
