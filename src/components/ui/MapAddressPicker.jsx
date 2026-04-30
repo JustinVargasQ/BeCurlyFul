@@ -4,10 +4,16 @@ import { loadGoogleMaps, hasGoogleMapsKey } from '../../lib/loadGoogleMaps';
 const CR_CENTER = { lat: 9.9281, lng: -84.0907 };
 const MAP_SEPARATOR = '\n📍 Ref. mapa: ';
 
-/* Extract user's description (strips any previous "Ref. mapa:" suffix) */
+/* Extract user's description (strips any "Ref. mapa:" suffix) */
 const getUserDescription = (text) => {
   if (!text) return '';
   return text.split(MAP_SEPARATOR)[0].trim();
+};
+
+/* Extract the map reference part if present */
+const getMapReference = (text) => {
+  if (!text || !text.includes(MAP_SEPARATOR)) return '';
+  return text.split(MAP_SEPARATOR)[1].trim();
 };
 
 export default function MapAddressPicker({
@@ -20,33 +26,47 @@ export default function MapAddressPicker({
 }) {
   const [showPreStep, setShowPreStep] = useState(false);
   const [open, setOpen] = useState(false);
-  const [picked, setPicked] = useState(null);
-  const [userDescription, setUserDescription] = useState('');
 
-  const handleMapButtonClick = () => {
-    setUserDescription(getUserDescription(value));
-    setShowPreStep(true);
+  /* What the user sees in the input — only their description (clean) */
+  const userDescription = getUserDescription(value);
+  const mapReference    = getMapReference(value);
+  const hasMapMarked    = !!mapReference;
+
+  /* When user types in the input, preserve the map ref if it exists */
+  const handleInputChange = (newDesc) => {
+    if (hasMapMarked) {
+      onChange?.(newDesc ? `${newDesc}${MAP_SEPARATOR}${mapReference}` : '');
+    } else {
+      onChange?.(newDesc);
+    }
   };
 
+  const handleMapButtonClick = () => setShowPreStep(true);
+
   const handlePreStepContinue = (text) => {
-    setUserDescription(text);
-    if (text.trim()) onChange?.(text);
+    /* Save user description (preserving any existing map ref) */
+    if (text.trim()) {
+      const combined = hasMapMarked ? `${text}${MAP_SEPARATOR}${mapReference}` : text;
+      onChange?.(combined);
+    }
     setShowPreStep(false);
     setOpen(true);
   };
 
   const handleMapConfirm = (result) => {
-    /* Combine user description + map's geocoded address */
-    const combined = userDescription
-      ? `${userDescription}${MAP_SEPARATOR}${result.address}`
+    const desc = getUserDescription(value);
+    const combined = desc
+      ? `${desc}${MAP_SEPARATOR}${result.address}`
       : result.address;
-    setPicked({ ...result, combined });
     onChange?.(combined);
     onPick?.({ address: combined, lat: result.lat, lng: result.lng });
     setOpen(false);
   };
 
-  const hasMapMarked = picked && picked.combined === value;
+  const handleClearMap = () => {
+    const desc = getUserDescription(value);
+    onChange?.(desc);
+  };
 
   return (
     <div className="relative">
@@ -54,8 +74,8 @@ export default function MapAddressPicker({
         <input
           type="text"
           required={required}
-          value={value || ''}
-          onChange={(e) => onChange?.(e.target.value)}
+          value={userDescription}
+          onChange={(e) => handleInputChange(e.target.value)}
           placeholder={placeholder}
           className={`flex-1 ${className}`}
           autoComplete="off"
@@ -64,28 +84,45 @@ export default function MapAddressPicker({
           <button
             type="button"
             onClick={handleMapButtonClick}
-            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold transition-colors shadow-btn"
-            title="Elegir ubicación en el mapa">
+            className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors shadow-btn ${
+              hasMapMarked
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                : 'bg-rose-500 hover:bg-rose-600 text-white'
+            }`}
+            title={hasMapMarked ? 'Cambiar ubicación' : 'Elegir ubicación en el mapa'}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/>
               <circle cx="12" cy="10" r="3"/>
             </svg>
-            <span className="hidden sm:inline">Mapa</span>
+            <span className="hidden sm:inline">{hasMapMarked ? 'Cambiar' : 'Mapa'}</span>
           </button>
         )}
       </div>
 
       {hasMapMarked && (
-        <div className="mt-1.5 bg-green-50 border border-green-200 rounded-lg px-3 py-2 space-y-1">
-          <p className="text-[11px] text-green-700 font-semibold flex items-center gap-1">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Ubicación marcada en el mapa
-          </p>
-          {picked.address && (
-            <p className="text-[10px] text-green-600 leading-snug pl-4">
-              📍 {picked.address}
-            </p>
-          )}
+        <div className="mt-2 rounded-xl overflow-hidden border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
+          <div className="px-3.5 py-2.5 flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <p className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">Ubicación marcada en el mapa</p>
+              </div>
+              <p className="text-xs text-emerald-700 leading-snug break-words">
+                <span className="text-emerald-500">📍</span> {mapReference}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleClearMap}
+              className="flex-shrink-0 text-emerald-400 hover:text-red-500 transition-colors p-0.5"
+              title="Quitar ubicación del mapa">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
         </div>
       )}
 
@@ -99,7 +136,7 @@ export default function MapAddressPicker({
 
       {open && (
         <MapPickerModal
-          userDescription={userDescription}
+          userDescription={getUserDescription(value)}
           onClose={() => setOpen(false)}
           onConfirm={handleMapConfirm}
         />
@@ -113,11 +150,11 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
   const [text, setText] = useState(initialText || '');
   const inputRef = useRef(null);
 
-  /* Auto-resize textarea to fit content */
+  /* Auto-resize textarea: starts at single-line height, grows up to ~5 rows */
   const autoSize = (el) => {
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+    el.style.height = Math.min(Math.max(el.scrollHeight, 44), 140) + 'px';
   };
 
   useEffect(() => {
@@ -137,85 +174,92 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
       className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
       onClick={onClose}>
       <div
-        className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg overflow-hidden"
+        className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-md overflow-hidden"
         onClick={(e) => e.stopPropagation()}>
 
-        {/* Header */}
-        <div className="px-5 pt-5 pb-4 border-b border-cream-100">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
-                style={{ background: 'linear-gradient(135deg,rgba(184,95,114,.15),rgba(201,168,117,.1))', border: '1px solid rgba(184,95,114,.2)' }}>
-                📍
-              </div>
-              <div>
-                <h3 className="font-display text-base font-bold text-ink-900 leading-tight">
-                  Ingresá tu dirección exacta
-                </h3>
-                <p className="text-[11px] text-ink-400 mt-0.5">Paso 1 de 2 — texto de la dirección</p>
-              </div>
-            </div>
-            <button type="button" onClick={onClose} className="p-1.5 hover:bg-cream-50 rounded-lg transition-colors flex-shrink-0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
+        {/* Compact header with close button */}
+        <div className="relative px-5 pt-5 pb-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-3 right-3 p-1.5 hover:bg-cream-50 rounded-lg transition-colors text-ink-400 hover:text-ink-700">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+
+          {/* Step indicator */}
+          <div className="flex items-center gap-1.5 mb-3">
+            <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold tracking-wide">PASO 1 DE 2</span>
+            <span className="text-[10px] text-ink-400 font-medium">Dirección + mapa</span>
           </div>
+
+          <h3 className="font-display text-lg font-bold text-ink-900 leading-tight">
+            ¿Dónde te entregamos? 📍
+          </h3>
+          <p className="text-xs text-ink-500 mt-1 leading-relaxed">
+            Escribí tu dirección con señas. En el siguiente paso marcás el punto exacto en el mapa —
+            <strong className="text-ink-700"> guardamos las dos</strong> para que el repartidor te encuentre fácil.
+          </p>
         </div>
 
-        <div className="p-5 space-y-3.5">
-          {/* Address input */}
+        <div className="px-5 pb-5 space-y-4">
+          {/* Address input — clean, single-line that grows */}
           <div>
-            <label className="block text-xs font-bold text-ink-600 uppercase tracking-wide mb-1.5">
-              Dirección completa con señas <span className="text-rose-400">*</span>
-            </label>
             <textarea
               ref={inputRef}
               value={text}
               onChange={(e) => { setText(e.target.value); autoSize(e.target); }}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && text.trim()) { e.preventDefault(); onContinue(text); } }}
               placeholder="Ej: Barrio Los Ángeles, 200m norte del parque, casa verde con portón negro"
-              rows={2}
-              className="w-full border border-cream-200 rounded-xl px-4 py-2.5 text-sm text-ink-900 placeholder-ink-300 focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all resize-none overflow-hidden leading-relaxed"
-              style={{ minHeight: '52px' }}
+              rows={1}
+              className="w-full border-2 border-cream-200 rounded-xl px-4 py-3 text-sm text-ink-900 placeholder-ink-300 focus:outline-none focus:border-rose-400 transition-all resize-none overflow-hidden leading-relaxed"
+              style={{ height: '44px' }}
             />
-            <p className="text-[10px] text-ink-400 mt-1">
-              Barrio, calle, número de casa y señas (color, referencias, etc.)
+            <p className="text-[10px] text-ink-400 mt-1.5 flex items-center gap-1">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              Incluí barrio, calle, número de casa, color y señas
             </p>
           </div>
 
-          {/* Map explanation tip — más compacto */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-3.5 py-2.5 flex items-start gap-2.5">
-            <span className="text-base flex-shrink-0 mt-0.5">🗺️</span>
-            <div>
-              <p className="text-[11px] font-bold text-blue-800 mb-0.5 leading-snug">
-                En el siguiente paso vas a marcar el punto exacto en el mapa
-              </p>
-              <p className="text-[10px] text-blue-700 leading-relaxed">
-                Vamos a guardar <strong>las dos cosas</strong>: tu descripción con señas + la ubicación del mapa,
-                para que el repartidor llegue sin problemas.
-              </p>
+          {/* Two-step flow visual indicator */}
+          <div className="flex items-stretch gap-2 bg-cream-50 rounded-xl p-2.5 border border-cream-200">
+            <div className="flex-1 flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-rose-500 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold text-ink-900 leading-tight">Texto con señas</p>
+                <p className="text-[10px] text-ink-400">Lo que escribís acá</p>
+              </div>
+            </div>
+            <div className="flex items-center text-ink-300">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+            <div className="flex-1 flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-cream-200 text-ink-500 flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold text-ink-700 leading-tight">Mapa exacto</p>
+                <p className="text-[10px] text-ink-400">Punto GPS</p>
+              </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-1">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-xl border border-cream-200 text-ink-700 hover:bg-cream-50 text-sm font-semibold transition-colors">
+              className="px-5 py-2.5 rounded-xl text-ink-500 hover:bg-cream-50 text-sm font-semibold transition-colors">
               Cancelar
             </button>
             <button
               type="button"
               onClick={() => onContinue(text)}
               disabled={!text.trim()}
-              className="flex-[2] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors shadow-btn">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors shadow-btn">
+              Continuar al mapa
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
               </svg>
-              Continuar al mapa →
             </button>
           </div>
         </div>
