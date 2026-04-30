@@ -311,13 +311,13 @@ function Hero({ onCatSelect }) {
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}>
 
-            {/* Image stack with crossfade */}
+            {/* Image stack with crossfade — let the photo breathe */}
             <AnimatePresence mode="sync">
               <motion.img
                 key={`bg-${current}`}
                 src={slide.img}
                 alt=""
-                initial={{ opacity: 0, scale: 1.08 }}
+                initial={{ opacity: 0, scale: 1.06 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.9, ease: [0.3, 1, 0.3, 1] }}
@@ -325,13 +325,9 @@ function Hero({ onCatSelect }) {
               />
             </AnimatePresence>
 
-            {/* Dark gradient overlay for text contrast */}
-            <div className="absolute inset-0 pointer-events-none"
-              style={{ background: 'linear-gradient(135deg, rgba(15,9,11,0.55) 0%, rgba(15,9,11,0.15) 45%, rgba(15,9,11,0.65) 100%)' }} />
-
-            {/* Brand tint */}
-            <div className="absolute inset-0 pointer-events-none"
-              style={{ background: 'radial-gradient(ellipse 60% 40% at 20% 110%, rgba(184,95,114,0.5) 0%, transparent 60%)' }} />
+            {/* Subtle gradient ONLY at the bottom for text contrast */}
+            <div className="absolute inset-x-0 bottom-0 h-2/3 pointer-events-none"
+              style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.65) 0%, rgba(15,9,11,0.2) 50%, transparent 100%)' }} />
 
             {/* Content */}
             <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-9 lg:p-12 text-white">
@@ -340,17 +336,18 @@ function Hero({ onCatSelect }) {
                   initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.55, ease: [0.3, 1, 0.3, 1] }}>
 
-                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase mb-4 border border-white/20">
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase mb-4 border border-white/30">
                     <span className="w-1.5 h-1.5 rounded-full bg-rose-300 animate-pulse" />
                     {slide.eyebrow}
                   </span>
 
                   <h1 className="font-display font-bold leading-[0.92] whitespace-pre-line mb-4 tracking-tight"
-                    style={{ fontSize: 'clamp(2.5rem, 5.5vw, 4.5rem)', textShadow: '0 4px 24px rgba(0,0,0,0.3)' }}>
+                    style={{ fontSize: 'clamp(2.5rem, 5.5vw, 4.5rem)', textShadow: '0 4px 28px rgba(0,0,0,0.55)' }}>
                     {slide.title}
                   </h1>
 
-                  <p className="text-white/90 text-sm sm:text-base leading-relaxed mb-6 max-w-md drop-shadow-md">
+                  <p className="text-white text-sm sm:text-base leading-relaxed mb-6 max-w-md"
+                    style={{ textShadow: '0 2px 14px rgba(0,0,0,0.5)' }}>
                     {slide.sub}
                   </p>
 
@@ -372,7 +369,7 @@ function Hero({ onCatSelect }) {
                   <div className="flex gap-1.5">
                     {SLIDE_CONFIG.map((_, i) => (
                       <button key={i} onClick={() => { setPaused(true); setCurrent(i); }}
-                        className={`rounded-full transition-all duration-300 ${i === current ? 'w-8 h-2 bg-white' : 'w-2 h-2 bg-white/40 hover:bg-white/70'}`}
+                        className={`rounded-full transition-all duration-300 ${i === current ? 'w-8 h-2 bg-white' : 'w-2 h-2 bg-white/50 hover:bg-white/80'}`}
                         aria-label={`Slide ${i + 1}`} />
                     ))}
                   </div>
@@ -395,29 +392,23 @@ function Hero({ onCatSelect }) {
                 className="relative rounded-3xl overflow-hidden bg-cream-100 group text-left"
                 style={{ aspectRatio: '1/1', minHeight: '180px' }}>
 
-                {/* Image */}
+                {/* Image — protagonist */}
                 <img
                   src={c.img}
                   alt={c.label}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
 
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 pointer-events-none transition-opacity duration-300"
-                  style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.7) 0%, rgba(15,9,11,0.2) 45%, transparent 100%)' }} />
+                {/* Subtle bottom gradient ONLY for text legibility */}
+                <div className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none"
+                  style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.55) 0%, rgba(15,9,11,0.1) 60%, transparent 100%)' }} />
 
-                {/* Hover rose tint */}
-                <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: 'linear-gradient(135deg, rgba(184,95,114,0.25) 0%, transparent 60%)' }} />
-
-                {/* Label + arrow */}
-                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 lg:p-6 flex items-end justify-between gap-2 text-white">
-                  <p className="font-display font-bold text-xl sm:text-2xl lg:text-3xl leading-tight drop-shadow-lg">
+                {/* Label only — clean white text with strong shadow */}
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 lg:p-6 text-white">
+                  <p className="font-display font-bold text-xl sm:text-2xl lg:text-3xl leading-tight"
+                    style={{ textShadow: '0 2px 16px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.4)' }}>
                     {c.label}
                   </p>
-                  <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all duration-300 group-hover:bg-rose-500 group-hover:border-rose-500 flex-shrink-0">
-                    <ArrowRight />
-                  </span>
                 </div>
               </motion.button>
             ))}
