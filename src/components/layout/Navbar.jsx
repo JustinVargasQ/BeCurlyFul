@@ -6,6 +6,7 @@ import useWishlist from '../../hooks/useWishlist';
 import { formatCRC } from '../../lib/currency';
 import api from '../../lib/api';
 import { trackSearch } from '../../lib/analytics';
+import UserButton from '../ui/UserButton';
 
 const ANNOUNCEMENTS = [
   '🚚 Envíos a todo Costa Rica · Desde ₡2,000',
@@ -279,6 +280,9 @@ export default function Navbar() {
                 className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-green-600 hover:text-green-700 px-3 py-2 rounded-full hover:bg-green-50 transition-colors">
                 <WaIcon /> 8804-5100
               </a>
+
+              {/* User */}
+              <UserButton />
 
               {/* Wishlist */}
               <Link to="/favoritos"

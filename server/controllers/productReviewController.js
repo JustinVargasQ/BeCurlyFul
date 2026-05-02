@@ -1,5 +1,6 @@
 const ProductReview = require('../models/ProductReview');
 const Product       = require('../models/Product');
+const User          = require('../models/User');
 
 async function syncRating(productId) {
   const reviews = await ProductReview.find({ product: productId, approved: true });
@@ -24,18 +25,39 @@ exports.getByProduct = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
-    const { productId, authorName, rating, comment } = req.body;
-    if (!productId || !authorName?.trim() || !rating) {
+    /* Require user login */
+    if (!req.user?.id) {
+      return res.status(401).json({ error: 'Iniciá sesión para dejar una reseña' });
+    }
+    const { productId, rating, comment } = req.body;
+    if (!productId || !rating) {
       return res.status(400).json({ error: 'Datos incompletos' });
     }
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(401).json({ error: 'Usuario no encontrado' });
+
+    /* Prevent duplicate review per product/user (caught by index too, but cleaner error) */
+    const existing = await ProductReview.findOne({ product: productId, userId: user._id });
+    if (existing) {
+      return res.status(409).json({ error: 'Ya dejaste una reseña para este producto' });
+    }
+
     await ProductReview.create({
-      product:    productId,
-      authorName: authorName.trim(),
-      rating:     Math.min(5, Math.max(1, Number(rating))),
-      comment:    (comment || '').trim(),
+      product:      productId,
+      userId:       user._id,
+      authorName:   user.name,
+      authorAvatar: user.picture || '',
+      rating:       Math.min(5, Math.max(1, Number(rating))),
+      comment:      (comment || '').trim(),
     });
     res.status(201).json({ ok: true });
-  } catch (err) { next(err); }
+  } catch (err) {
+    if (err?.code === 11000) {
+      return res.status(409).json({ error: 'Ya dejaste una reseña para este producto' });
+    }
+    next(err);
+  }
 };
 
 exports.adminGetAll = async (req, res, next) => {

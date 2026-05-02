@@ -34,19 +34,24 @@ export default function ServerWakeup() {
     }, 1000);
 
     const ping = async () => {
+      let success = false;
       try {
-        await fetch(`${API}/health`, { method: 'GET', signal: AbortSignal.timeout(35000) });
+        const res = await fetch(`${API}/health`, { method: 'GET', signal: AbortSignal.timeout(50000) });
+        success = res.ok;
       } catch { /* ignorar — el error se verá en los datos de la tienda */ }
 
       if (!mounted) return;
-      clearTimeout(showTimer); // cancelar si aún no apareció
+      clearTimeout(showTimer);
+
+      /* Avisar a los hooks que ya pueden re-intentar fetch */
+      if (success) {
+        try { window.dispatchEvent(new CustomEvent('jd:server-ready')); } catch {}
+      }
 
       if (shown) {
-        // El overlay ya se mostró → mostrar "¡Lista!" y cerrarlo
         setStatus('ready');
         setTimeout(() => { if (mounted) setShow(false); }, 900);
       }
-      // Si `shown` es false el overlay nunca apareció → no hacer nada
     };
 
     ping();

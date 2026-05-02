@@ -17,6 +17,7 @@ const rateLimit     = require('express-rate-limit');
 const mongoSanitize = require('./middleware/sanitize');
 
 const authRoutes          = require('./routes/auth');
+const userRoutes          = require('./routes/users');
 const productRoutes       = require('./routes/products');
 const orderRoutes         = require('./routes/orders');
 const settingsRoutes      = require('./routes/settings');
@@ -107,6 +108,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 /* ─── Routes ─── */
 app.use('/api/auth',            authLimiter, authRoutes);
+app.use('/api/users',           apiLimiter,  userRoutes);
 app.use('/api/products',        apiLimiter,  productRoutes);
 app.use('/api/orders',          apiLimiter,  orderRoutes);
 app.use('/api/settings',        apiLimiter,  settingsRoutes);

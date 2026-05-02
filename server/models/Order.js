@@ -15,6 +15,7 @@ const orderItemSchema = new Schema(
 const orderSchema = new Schema(
   {
     orderNumber: { type: String, unique: true },   // JD-2024-0001
+    userId: { type: Schema.Types.ObjectId, ref: 'User', default: null, index: true },
     customer: {
       name:     { type: String, required: true },
       phone:    { type: String, required: true },

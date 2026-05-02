@@ -12,6 +12,7 @@ import Checkout from './pages/Checkout';
 import Confirmation from './pages/Confirmation';
 import OrderTracking from './pages/OrderTracking';
 import Wishlist from './pages/Wishlist';
+import MiCuenta from './pages/MiCuenta';
 import Offers from './pages/Offers';
 import HowToBuy from './pages/HowToBuy';
 import Privacy from './pages/Privacy';
@@ -84,6 +85,7 @@ export default function App() {
         <Route path="/checkout" element={<StorefrontLayout><Checkout /></StorefrontLayout>} />
         <Route path="/confirmacion" element={<StorefrontLayout><Confirmation /></StorefrontLayout>} />
         <Route path="/favoritos" element={<StorefrontLayout><Wishlist /></StorefrontLayout>} />
+        <Route path="/mi-cuenta" element={<StorefrontLayout><MiCuenta /></StorefrontLayout>} />
         <Route path="/ofertas" element={<StorefrontLayout><Offers /></StorefrontLayout>} />
         <Route path="/pedido" element={<StorefrontLayout><OrderTracking /></StorefrontLayout>} />
         <Route path="/pedido/:number" element={<StorefrontLayout><OrderTracking /></StorefrontLayout>} />

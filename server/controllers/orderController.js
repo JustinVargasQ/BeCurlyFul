@@ -116,6 +116,7 @@ exports.create = async (req, res, next) => {
 
     const order = await Order.create({
       customer,
+      userId: req.user?.id || null,
       items: validatedItems,
       subtotal,
       discount,

@@ -8,6 +8,8 @@ import { formatCRC } from '../lib/currency';
 import { assetUrl } from '../lib/api';
 import ProductCard from '../components/ui/ProductCard';
 import SEO from '../components/ui/SEO';
+import LoginModal from '../components/ui/LoginModal';
+import useUserStore from '../store/userStore';
 
 /* ── Icons ── */
 const StarIcon = ({ filled }) => (
@@ -80,11 +82,14 @@ function StarPicker({ value, onChange }) {
 function ReviewsSection({ product }) {
   const [reviews, setReviews]       = useState([]);
   const [loadingR, setLoadingR]     = useState(true);
-  const [name, setName]             = useState('');
   const [rating, setRating]         = useState(0);
   const [comment, setComment]       = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted]   = useState(false);
+  const [showLogin, setShowLogin]   = useState(false);
+  const [errorMsg, setErrorMsg]     = useState('');
+
+  const user = useUserStore((s) => s.user);
 
   useEffect(() => {
     const pid = product?._id || product?.id;
@@ -99,14 +104,18 @@ function ReviewsSection({ product }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim() || !rating) return;
+    if (!user) { setShowLogin(true); return; }
+    if (!rating) return;
     setSubmitting(true);
+    setErrorMsg('');
     try {
       const pid = product?._id || product?.id;
       const { default: api } = await import('../lib/api');
-      await api.post('/product-reviews', { productId: pid, authorName: name, rating, comment });
+      await api.post('/product-reviews', { productId: pid, rating, comment });
       setSubmitted(true);
-    } catch { setSubmitted(true); }
+    } catch (err) {
+      setErrorMsg(err.response?.data?.error || 'No se pudo enviar la reseña');
+    }
     finally { setSubmitting(false); }
   };
 
@@ -135,9 +144,14 @@ function ReviewsSection({ product }) {
                 {reviews.map((r) => (
                   <div key={r._id} className="bg-white border border-cream-100 rounded-2xl p-5 shadow-card">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-bold text-xs flex-shrink-0">
-                        {r.authorName?.[0]?.toUpperCase() || '?'}
-                      </div>
+                      {r.authorAvatar ? (
+                        <img src={r.authorAvatar} alt={r.authorName}
+                          className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-bold text-xs flex-shrink-0">
+                          {r.authorName?.[0]?.toUpperCase() || '?'}
+                        </div>
+                      )}
                       <div>
                         <p className="font-semibold text-ink-900 text-sm">{r.authorName}</p>
                         <div className="flex gap-0.5">
@@ -171,13 +185,31 @@ function ReviewsSection({ product }) {
                 <p className="font-semibold text-ink-900">¡Gracias por tu reseña!</p>
                 <p className="text-sm text-ink-400 mt-1">Será publicada después de revisión.</p>
               </div>
+            ) : !user ? (
+              <div className="text-center py-4">
+                <div className="text-3xl mb-2">🔒</div>
+                <p className="font-semibold text-ink-900 mb-1">Iniciá sesión para dejar tu reseña</p>
+                <p className="text-xs text-ink-500 mb-4">Solo tarda un segundo con tu cuenta de Google</p>
+                <button onClick={() => setShowLogin(true)}
+                  className="bg-ink-900 hover:bg-rose-500 text-white font-bold px-5 py-2.5 rounded-full transition-colors text-sm shadow-btn">
+                  Iniciar sesión con Google
+                </button>
+              </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-ink-500 uppercase tracking-widest mb-1.5 block">Tu nombre</label>
-                  <input value={name} onChange={(e) => setName(e.target.value)} required
-                    placeholder="Nombre o apodo"
-                    className="w-full border border-cream-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-rose-400 transition-colors bg-white" />
+                {/* User identity (auto-filled, read-only) */}
+                <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-cream-200">
+                  {user.picture ? (
+                    <img src={user.picture} alt={user.name} className="w-9 h-9 rounded-full object-cover" />
+                  ) : (
+                    <span className="w-9 h-9 rounded-full bg-rose-500 text-white text-xs font-bold flex items-center justify-center">
+                      {user.name?.[0]?.toUpperCase()}
+                    </span>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-ink-900 truncate">{user.name}</p>
+                    <p className="text-[10px] text-ink-400 truncate">Reseña verificada</p>
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-ink-500 uppercase tracking-widest mb-1.5 block">Calificación</label>
@@ -189,7 +221,12 @@ function ReviewsSection({ product }) {
                     placeholder="¿Qué te pareció el producto?"
                     className="w-full border border-cream-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-rose-400 transition-colors resize-none bg-white" />
                 </div>
-                <button type="submit" disabled={submitting || !name.trim() || !rating}
+                {errorMsg && (
+                  <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                    {errorMsg}
+                  </p>
+                )}
+                <button type="submit" disabled={submitting || !rating}
                   className="w-full py-3 rounded-xl font-semibold text-sm bg-rose-500 hover:bg-rose-600 text-white transition-colors disabled:opacity-50">
                   {submitting ? 'Enviando...' : 'Enviar reseña'}
                 </button>
@@ -198,6 +235,11 @@ function ReviewsSection({ product }) {
           </div>
         </div>
       </div>
+      <LoginModal
+        open={showLogin}
+        onClose={() => setShowLogin(false)}
+        title="Iniciá sesión para reseñar"
+        subtitle="Tu reseña aparecerá con tu nombre y foto de Google" />
     </section>
   );
 }

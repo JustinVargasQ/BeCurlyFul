@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useCart from '../hooks/useCart';
@@ -7,6 +7,7 @@ import { buildWhatsAppMessage } from '../lib/whatsapp';
 import MapAddressPicker from '../components/ui/MapAddressPicker';
 import api from '../lib/api';
 import { trackBeginCheckout, trackPurchase } from '../lib/analytics';
+import useUserStore from '../store/userStore';
 
 const USE_API   = import.meta.env.VITE_API_URL;
 const MAPS_KEY  = import.meta.env.VITE_GOOGLE_MAPS_KEY;
@@ -148,8 +149,28 @@ export default function Checkout() {
   } = useCart();
 
   const navigate  = useNavigate();
+  const user      = useUserStore((s) => s.user);
   const [shipping, setShipping] = useState('correos');
-  const [form, setForm] = useState({ name:'', phone:'', email:'', province:'Puntarenas', address:'', notes:'', lat:null, lng:null });
+  const [form, setForm] = useState({
+    name:  user?.name  || '',
+    phone: '',
+    email: user?.email || '',
+    province: 'Puntarenas',
+    address: '',
+    notes: '',
+    lat: null,
+    lng: null,
+  });
+
+  /* Auto-fill when user logs in mid-checkout */
+  useEffect(() => {
+    if (!user) return;
+    setForm((f) => ({
+      ...f,
+      name:  f.name  || user.name  || '',
+      email: f.email || user.email || '',
+    }));
+  }, [user]);
   const [errors,  setErrors]  = useState({});
   const [touched, setTouched] = useState({});
 

@@ -5,12 +5,26 @@ const SERVER_ORIGIN = BASE_URL.replace(/\/api\/?$/, '');
 
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: 45000, // Render free tier cold starts can take 30-50s
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('jd-admin-token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  /* Admin routes use the admin token */
+  const adminToken = localStorage.getItem('jd-admin-token');
+  if (adminToken && config.url?.includes('/admin')) {
+    config.headers.Authorization = `Bearer ${adminToken}`;
+    return config;
+  }
+  /* Otherwise prefer user token if exists, fallback to admin */
+  try {
+    const userPersist = JSON.parse(localStorage.getItem('jd-user') || 'null');
+    const userToken = userPersist?.state?.token;
+    if (userToken) {
+      config.headers.Authorization = `Bearer ${userToken}`;
+      return config;
+    }
+  } catch {}
+  if (adminToken) config.headers.Authorization = `Bearer ${adminToken}`;
   return config;
 });
 

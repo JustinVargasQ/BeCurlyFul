@@ -24,6 +24,7 @@ export function useProducts({ cat = 'todos', brand = '', q = '' } = {}) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(null);
+  const [retryTick, setRetryTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,13 +47,48 @@ export function useProducts({ cat = 'todos', brand = '', q = '' } = {}) {
     if (brand) params.brand = brand;
     if (q)     params.q = q;
 
-    api.get('/products', { params })
-      .then(({ data }) => { if (!cancelled) setProducts((data.products || []).map(normalize)); })
-      .catch((err)     => { if (!cancelled) setError(err.message); })
-      .finally(()      => { if (!cancelled) setLoading(false); });
+    let attempt = 0;
+    const maxAttempts = 3;
+
+    const tryFetch = () => {
+      api.get('/products', { params })
+        .then(({ data }) => {
+          if (cancelled) return;
+          setProducts((data.products || []).map(normalize));
+          setError(null);
+          setLoading(false);
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          attempt += 1;
+          if (attempt < maxAttempts) {
+            /* Retry with exponential backoff: 2s, 4s */
+            setTimeout(tryFetch, attempt * 2000);
+          } else {
+            setError(err.message);
+            setLoading(false);
+          }
+        });
+    };
+
+    tryFetch();
 
     return () => { cancelled = true; };
-  }, [cat, brand, q]);
+  }, [cat, brand, q, retryTick]);
+
+  /* Re-fetch when server wakes up (cold start scenarios) */
+  useEffect(() => {
+    if (!USE_API) return;
+    const onReady = () => {
+      /* Only refetch if we have no products (initial fetch failed silently) */
+      setProducts((prev) => {
+        if (prev.length === 0) setRetryTick((t) => t + 1);
+        return prev;
+      });
+    };
+    window.addEventListener('jd:server-ready', onReady);
+    return () => window.removeEventListener('jd:server-ready', onReady);
+  }, []);
 
   return { products, loading, error, total: products.length };
 }
@@ -103,16 +139,47 @@ export function useBrands() {
 /* ── useFeatured — top sellers from orders, fallback to badge products ── */
 export function useFeatured(limit = 4) {
   const [products, setProducts] = useState([]);
+  const [retryTick, setRetryTick] = useState(0);
 
   useEffect(() => {
     if (!USE_API) {
       setProducts(normalizeLocal(LOCAL_PRODUCTS.filter((p) => p.badge).slice(0, limit)));
       return;
     }
-    api.get('/products/top-sellers', { params: { limit } })
-      .then(({ data }) => setProducts((data.products || []).map(normalize)))
-      .catch(() => setProducts([]));
-  }, [limit]);
+
+    let cancelled = false;
+    let attempt = 0;
+    const maxAttempts = 3;
+
+    const tryFetch = () => {
+      api.get('/products/top-sellers', { params: { limit } })
+        .then(({ data }) => { if (!cancelled) setProducts((data.products || []).map(normalize)); })
+        .catch(() => {
+          if (cancelled) return;
+          attempt += 1;
+          if (attempt < maxAttempts) {
+            setTimeout(tryFetch, attempt * 2000);
+          }
+        });
+    };
+
+    tryFetch();
+
+    return () => { cancelled = true; };
+  }, [limit, retryTick]);
+
+  /* Re-fetch when server wakes up */
+  useEffect(() => {
+    if (!USE_API) return;
+    const onReady = () => {
+      setProducts((prev) => {
+        if (prev.length === 0) setRetryTick((t) => t + 1);
+        return prev;
+      });
+    };
+    window.addEventListener('jd:server-ready', onReady);
+    return () => window.removeEventListener('jd:server-ready', onReady);
+  }, []);
 
   return products;
 }

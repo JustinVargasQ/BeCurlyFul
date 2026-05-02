@@ -1,9 +1,10 @@
 const router      = require('express').Router();
 const ctrl        = require('../controllers/orderController');
 const requireAuth = require('../middleware/auth');
+const { optionalUser } = require('../middleware/userAuth');
 
-/* Public */
-router.post('/',                    ctrl.create);
+/* Public — checkout works for guests AND logged-in users */
+router.post('/',                    optionalUser, ctrl.create);
 router.get('/track/:number',        ctrl.getByNumber);
 
 /* Admin */
