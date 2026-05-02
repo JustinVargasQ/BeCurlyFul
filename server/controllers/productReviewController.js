@@ -66,6 +66,7 @@ exports.adminGetAll = async (req, res, next) => {
     if (req.query.approved !== undefined) filter.approved = req.query.approved === 'true';
     const reviews = await ProductReview.find(filter)
       .populate('product', 'name slug')
+      .populate('userId', 'email name picture createdAt')
       .sort({ createdAt: -1 })
       .limit(200);
     res.json(reviews);

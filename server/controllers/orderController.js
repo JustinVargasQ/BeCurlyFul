@@ -185,7 +185,9 @@ exports.adminGetAll = async (req, res, next) => {
 
     const skip = (Number(page) - 1) * Number(limit);
     const [orders, total] = await Promise.all([
-      Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
+      Order.find(filter)
+        .populate('userId', 'email name picture')
+        .sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
       Order.countDocuments(filter),
     ]);
     res.json({ orders, total, page: Number(page), pages: Math.ceil(total / limit) });
@@ -194,7 +196,8 @@ exports.adminGetAll = async (req, res, next) => {
 
 exports.adminGetOne = async (req, res, next) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id)
+      .populate('userId', 'email name picture createdAt');
     if (!order) return res.status(404).json({ error: 'Pedido no encontrado' });
     res.json(order);
   } catch (err) { next(err); }
