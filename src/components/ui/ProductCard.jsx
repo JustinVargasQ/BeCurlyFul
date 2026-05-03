@@ -4,6 +4,7 @@ import { motion, useMotionValue, useSpring } from 'framer-motion';
 import useCart from '../../hooks/useCart';
 import useWishlist from '../../hooks/useWishlist';
 import { formatCRC } from '../../lib/currency';
+import QuickViewModal from './QuickViewModal';
 
 const StarIcon = ({ filled }) => (
   <svg width="11" height="11" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" className={filled ? 'text-amber-400' : 'text-ink-200'}>
@@ -13,6 +14,11 @@ const StarIcon = ({ filled }) => (
 const CartPlusIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+  </svg>
+);
+const EyeIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
   </svg>
 );
 const HeartIcon = ({ filled }) => (
@@ -39,6 +45,7 @@ export default function ProductCard({ product, index = 0 }) {
   const [hovered, setHovered] = useState(false);
   const [imgIdx, setImgIdx]   = useState(0);
   const [imgError, setImgError] = useState(false);
+  const [quickView, setQuickView] = useState(false);
   const intervalRef           = useRef(null);
   const cardRef               = useRef(null);
 
@@ -99,7 +106,8 @@ export default function ProductCard({ product, index = 0 }) {
   };
 
   return (
-    /* perspective wrapper — needed for 3D tilt to look correct */
+    <>
+    {/* perspective wrapper — needed for 3D tilt to look correct */}
     <div style={{ perspective: '900px' }}>
       <motion.div
         ref={cardRef}
@@ -210,6 +218,16 @@ export default function ProductCard({ product, index = 0 }) {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  setQuickView(true);
+                }}
+                title="Vista rápida"
+                className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white/90 hover:bg-white text-ink-700 hover:text-rose-500 rounded-xl shadow-lg transition-colors backdrop-blur-sm">
+                <EyeIcon />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   window.open(`https://wa.me/50688045100?text=${encodeURIComponent(`Hola! Me interesa: ${product.name} a ${formatCRC(product.price)}`)}`, '_blank', 'noopener');
                 }}
                 className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white rounded-xl shadow-lg transition-colors">
@@ -276,5 +294,10 @@ export default function ProductCard({ product, index = 0 }) {
         </Link>
       </motion.div>
     </div>
+
+    {quickView && (
+      <QuickViewModal product={product} onClose={() => setQuickView(false)} />
+    )}
+    </>
   );
 }
