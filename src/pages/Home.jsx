@@ -3,8 +3,10 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate, useInView } from 'framer-motion';
 import ProductCard from '../components/ui/ProductCard';
 import FilterBar from '../components/ui/FilterBar';
+import HeroDecorations from '../components/ui/HeroDecorations';
 import { useProducts, useFeatured, useCategoryPreviews } from '../hooks/useProducts';
 import useGoogleReviews from '../hooks/useGoogleReviews';
+import { useHomeAnimations } from '../hooks/useHomeAnimations';
 import SEO from '../components/ui/SEO';
 import api, { assetUrl } from '../lib/api';
 import { formatCRC } from '../lib/currency';
@@ -391,8 +393,9 @@ function HeroGridLayout({ onCatSelect }) {
   );
 
   return (
-    <section className="relative bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-2">
+    <section className="relative bg-white overflow-hidden">
+      <HeroDecorations />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-2 z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
 
           {/* ─── BIG FEATURED CARD (left) — slide carousel ─── */}
@@ -2032,6 +2035,7 @@ function FloatingWa() {
 export default function Home() {
   const [selectedCat, setSelectedCat] = useState(null);
   const catalogRef    = useRef(null);
+  const homeRef       = useRef(null);
 
   const handleCatSelect = (cat) => {
     setSelectedCat(cat || 'todos');
@@ -2046,8 +2050,10 @@ export default function Home() {
     return () => window.removeEventListener('jd:selectcat', fn);
   }, []);
 
+  useHomeAnimations(homeRef);
+
   return (
-    <main>
+    <main ref={homeRef}>
       <SEO />
       <Hero onCatSelect={handleCatSelect} />
       <CategoryRow onCatSelect={handleCatSelect} />
