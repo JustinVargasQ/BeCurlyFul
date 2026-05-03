@@ -43,9 +43,11 @@ export default function MiCuenta() {
     return (
       <main className="min-h-screen pt-24 pb-20 bg-cream-50">
         <div className="max-w-md mx-auto px-4 text-center">
-          <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl"
+          <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-rose-500"
             style={{ background: 'linear-gradient(135deg,rgba(184,95,114,.15),rgba(201,168,117,.1))', border: '1px solid rgba(184,95,114,.2)' }}>
-            🔒
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
           </div>
           <h1 className="font-display text-2xl font-bold text-ink-900 mb-2">Iniciá sesión</h1>
           <p className="text-sm text-ink-500 mb-6">Para ver tu cuenta y tus pedidos</p>
@@ -120,7 +122,12 @@ export default function MiCuenta() {
               </div>
             ) : orders.length === 0 ? (
               <div className="bg-white rounded-3xl border border-cream-100 p-10 text-center">
-                <div className="text-4xl mb-3">📦</div>
+                <div className="w-14 h-14 rounded-full bg-cream-100 mx-auto mb-4 flex items-center justify-center text-ink-400">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/>
+                  </svg>
+                </div>
                 <p className="text-ink-700 font-semibold mb-1">Aún no tenés pedidos</p>
                 <p className="text-sm text-ink-400 mb-5">Cuando hagas tu primera compra aparecerá acá.</p>
                 <Link to="/" className="inline-block bg-rose-500 hover:bg-rose-600 text-white font-bold px-5 py-2.5 rounded-full transition-colors text-sm">

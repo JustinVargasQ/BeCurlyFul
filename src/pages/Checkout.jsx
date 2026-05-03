@@ -13,10 +13,27 @@ const USE_API   = import.meta.env.VITE_API_URL;
 const MAPS_KEY  = import.meta.env.VITE_GOOGLE_MAPS_KEY;
 const PLACE_ID  = 'ChIJozibdVQxoI8R8UWRnLA1T6w';
 const PROVINCES = ['San José','Alajuela','Cartago','Heredia','Guanacaste','Puntarenas','Limón'];
+const ShipBoxIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/>
+  </svg>
+);
+const ShipBoltIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </svg>
+);
+const ShipHomeIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>
+);
+
 const SHIPPING  = {
-  correos: { label: 'Correos de CR',         sub: '3-5 días hábiles',             price: 2500, icon: '📦' },
-  express: { label: 'Express Puntarenas',    sub: 'Mismo día / día siguiente',    price: 1500, icon: '⚡' },
-  pickup:  { label: 'Retiro en El Roble',    sub: 'Gratis · Lun–Sáb 9am–7pm',    price: 0,    icon: '🏠' },
+  correos: { label: 'Correos de CR',         sub: '3-5 días hábiles',             price: 2500, Icon: ShipBoxIcon  },
+  express: { label: 'Express Puntarenas',    sub: 'Mismo día / día siguiente',    price: 1500, Icon: ShipBoltIcon },
+  pickup:  { label: 'Retiro en El Roble',    sub: 'Gratis · Lun–Sáb 9am–7pm',    price: 0,    Icon: ShipHomeIcon },
 };
 const SINPE_NUMBER = '8673-7114';
 const SINPE_NAME   = 'Justin Vargas Quiros';
@@ -109,13 +126,13 @@ function Field({ label, required, hint, error, touched, icon, children }) {
 }
 
 /* ── Section card ── */
-function Section({ step, icon, title, sub, children }) {
+function Section({ step, Icon, title, sub, children }) {
   return (
     <div className="bg-white rounded-2xl shadow-card border border-cream-100 overflow-hidden">
       <div className="px-6 py-5 border-b border-cream-100 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base flex-shrink-0"
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-rose-500"
           style={{ background: 'linear-gradient(135deg,rgba(184,95,114,.12),rgba(201,168,117,.08))', border:'1px solid rgba(184,95,114,.18)' }}>
-          {icon}
+          {Icon ? <Icon /> : null}
         </div>
         <div>
           <h2 className="font-display text-base font-bold text-ink-900 leading-tight">{title}</h2>
@@ -127,6 +144,19 @@ function Section({ step, icon, title, sub, children }) {
     </div>
   );
 }
+
+const SectionUserIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+const SectionTruckIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/>
+    <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>
+    <circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>
+  </svg>
+);
 
 const inputBase = 'w-full border rounded-xl px-4 py-3 text-ink-900 placeholder-ink-300 focus:outline-none transition-all bg-white text-sm';
 const inputOk   = `${inputBase} border-emerald-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`;
@@ -331,7 +361,7 @@ export default function Checkout() {
           <div className="space-y-5">
 
             {/* Contact */}
-            <Section step="1/2" icon="👤" title="Datos de contacto" sub="Información para coordinar tu pedido">
+            <Section step="1/2" Icon={SectionUserIcon} title="Datos de contacto" sub="Información para coordinar tu pedido">
               <div className="grid sm:grid-cols-2 gap-4">
 
                 <Field label="Nombre completo" required error={errors.name} touched={touched.name} icon={<UserIcon />}>
@@ -417,7 +447,11 @@ export default function Checkout() {
                         : <div className="h-32 bg-cream-100 flex items-center justify-center text-ink-400 text-sm">Mapa no disponible</div>
                       }
                       <div className="bg-cream-50 px-4 py-3 flex items-start gap-2.5">
-                        <span className="text-base mt-0.5">📍</span>
+                        <span className="text-rose-500 mt-0.5 flex-shrink-0">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                          </svg>
+                        </span>
                         <div>
                           <p className="text-sm font-semibold text-ink-900">JD Virtual Store · El Roble, Puntarenas</p>
                           <p className="text-xs text-ink-400 mt-0.5">Te confirmamos el punto exacto por WhatsApp</p>
@@ -449,7 +483,7 @@ export default function Checkout() {
             </Section>
 
             {/* Shipping */}
-            <Section step="2/2" icon="🚚" title="Método de envío" sub="Elegí cómo recibir tu pedido">
+            <Section step="2/2" Icon={SectionTruckIcon} title="Método de envío" sub="Elegí cómo recibir tu pedido">
               <div className="space-y-2.5">
                 {Object.entries(SHIPPING).map(([key, val]) => (
                   <label key={key}
@@ -459,7 +493,9 @@ export default function Checkout() {
                         : 'border-cream-200 hover:border-rose-200 bg-white'
                     }`}>
                     <input type="radio" name="shipping" value={key} checked={shipping === key} onChange={() => setShipping(key)} className="accent-rose-500 flex-shrink-0" />
-                    <span className="text-xl flex-shrink-0">{val.icon}</span>
+                    <span className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${shipping === key ? 'bg-rose-100 text-rose-500' : 'bg-cream-100 text-ink-500'} transition-colors`}>
+                      <val.Icon />
+                    </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-ink-900">{val.label}</p>
                       <p className="text-xs text-ink-400 mt-0.5">{val.sub}</p>

@@ -2,18 +2,19 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { loadGoogleMaps, hasGoogleMapsKey } from '../../lib/loadGoogleMaps';
 
 const CR_CENTER = { lat: 9.9281, lng: -84.0907 };
-const MAP_SEPARATOR = '\n📍 Ref. mapa: ';
+const MAP_SEPARATOR = '\nRef. mapa: ';
+/* Tolerate old data that used 📍 as the marker */
+const MAP_SEPARATOR_RX = /\n(?:📍\s*)?Ref\. mapa:\s*/;
 
-/* Extract user's description (strips any "Ref. mapa:" suffix) */
 const getUserDescription = (text) => {
   if (!text) return '';
-  return text.split(MAP_SEPARATOR)[0].trim();
+  return text.split(MAP_SEPARATOR_RX)[0].trim();
 };
 
-/* Extract the map reference part if present */
 const getMapReference = (text) => {
-  if (!text || !text.includes(MAP_SEPARATOR)) return '';
-  return text.split(MAP_SEPARATOR)[1].trim();
+  if (!text) return '';
+  const parts = text.split(MAP_SEPARATOR_RX);
+  return parts.length > 1 ? parts[1].trim() : '';
 };
 
 export default function MapAddressPicker({
@@ -192,7 +193,7 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
           </div>
 
           <h3 className="font-display text-lg font-bold text-ink-900 leading-tight">
-            ¿Dónde te entregamos? 📍
+            ¿Dónde te entregamos?
           </h3>
           <p className="text-xs text-ink-500 mt-1 leading-relaxed">
             Escribí tu dirección con señas. En el siguiente paso marcás el punto exacto en el mapa —
@@ -421,7 +422,12 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
         {userDescription && (
           <div className="px-4 sm:px-5 pt-3 pb-1">
             <div className="bg-cream-50 border border-cream-200 rounded-xl px-3 py-2 flex items-start gap-2">
-              <span className="text-xs flex-shrink-0 mt-0.5">📝</span>
+              <span className="text-ink-400 flex-shrink-0 mt-0.5">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </span>
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-bold text-ink-500 uppercase tracking-widest">Tu descripción</p>
                 <p className="text-xs text-ink-700 leading-snug mt-0.5 break-words">{userDescription}</p>
@@ -460,14 +466,19 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
                   <line x1="2" y1="12" x2="5" y2="12"/>
                   <line x1="19" y1="12" x2="22" y2="12"/>
                 </svg>
-                📍 Localizarme automáticamente
+                Localizarme automáticamente
               </>
             )}
           </button>
 
           {locError && (
             <div className="mt-2 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
-              <span className="text-amber-500 flex-shrink-0 mt-0.5">⚠️</span>
+              <span className="text-amber-500 flex-shrink-0 mt-0.5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </span>
               <p className="text-xs text-amber-700 leading-relaxed">{locError}</p>
             </div>
           )}
@@ -488,7 +499,11 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
           {mapError && (
             <div className="absolute inset-0 flex items-center justify-center z-10 bg-cream-50 p-6 text-center">
               <div>
-                <p className="text-2xl mb-2">🗺️</p>
+                <span className="inline-flex w-10 h-10 rounded-full bg-red-50 items-center justify-center text-red-500 mb-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </span>
                 <p className="text-red-500 text-sm">{mapError}</p>
               </div>
             </div>
@@ -504,7 +519,12 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
               {geocoding
                 ? <span className="text-ink-300 italic">Obteniendo dirección...</span>
                 : hasMarked && address
-                  ? <>📍 {address}</>
+                  ? <span className="inline-flex items-start gap-1.5">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-rose-500 mt-0.5 flex-shrink-0">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      <span>{address}</span>
+                    </span>
                   : <span className="text-ink-300 italic">Usá el GPS o tocá el mapa para marcar tu ubicación exacta</span>
               }
             </p>

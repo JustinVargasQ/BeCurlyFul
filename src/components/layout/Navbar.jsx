@@ -9,9 +9,9 @@ import { trackSearch } from '../../lib/analytics';
 import UserButton from '../ui/UserButton';
 
 const ANNOUNCEMENTS = [
-  '🚚 Envíos a todo Costa Rica · Desde ₡2,000',
-  '✨ Productos originales 100% auténticos',
-  '💬 Atención personalizada por WhatsApp · 8804-5100',
+  'Envíos a todo Costa Rica desde ₡2,000',
+  'Productos 100% originales y auténticos',
+  'Atención personalizada por WhatsApp · 8804-5100',
 ];
 
 const CATEGORIES = [
@@ -21,7 +21,7 @@ const CATEGORIES = [
   { label: 'Perfumes',   path: '/?cat=perfumes'   },
   { label: 'Cabello',    path: '/?cat=cabello'    },
   { label: 'Todo',       path: '/'                },
-  { label: '🏷️ Ofertas', path: '/ofertas'         },
+  { label: 'Ofertas',    path: '/ofertas',  highlight: true },
 ];
 
 /* ── Icons ── */

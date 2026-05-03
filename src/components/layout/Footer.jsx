@@ -26,11 +26,11 @@ const CAT_LINKS = [
 ];
 
 const PAGE_LINKS = [
-  { label: '🏷️ Ofertas',        href: '/ofertas'      },
-  { label: '❤️ Favoritos',      href: '/favoritos'     },
-  { label: '🔍 Rastrear pedido', href: '/pedido'       },
-  { label: '🛒 ¿Cómo comprar?', href: '/como-comprar' },
-  { label: '🔒 Privacidad',     href: '/privacidad'   },
+  { label: 'Ofertas',         href: '/ofertas'      },
+  { label: 'Favoritos',       href: '/favoritos'    },
+  { label: 'Rastrear pedido', href: '/pedido'       },
+  { label: '¿Cómo comprar?',  href: '/como-comprar' },
+  { label: 'Privacidad',      href: '/privacidad'   },
 ];
 
 export default function Footer() {
@@ -125,23 +125,29 @@ export default function Footer() {
             <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-rose-400 mb-5">Contacto</p>
             <ul className="space-y-3 text-sm text-white/50 mb-6">
               <li className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs flex-shrink-0"
+                <span className="w-7 h-7 rounded-lg flex items-center justify-center text-green-400 flex-shrink-0"
                   style={{ background: 'rgba(37,211,102,0.15)', border: '1px solid rgba(37,211,102,0.2)' }}>
-                  💬
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
                 </span>
                 WhatsApp 8804-5100
               </li>
               <li className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs flex-shrink-0"
+                <span className="w-7 h-7 rounded-lg flex items-center justify-center text-rose-300 flex-shrink-0"
                   style={{ background: 'rgba(184,95,114,0.15)', border: '1px solid rgba(184,95,114,0.2)' }}>
-                  📍
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
                 </span>
                 El Roble, Puntarenas
               </li>
               <li className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs flex-shrink-0"
+                <span className="w-7 h-7 rounded-lg flex items-center justify-center text-rose-300 flex-shrink-0"
                   style={{ background: 'rgba(184,95,114,0.15)', border: '1px solid rgba(184,95,114,0.2)' }}>
-                  🕐
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
                 </span>
                 Lun–Sáb · 9am–7pm
               </li>

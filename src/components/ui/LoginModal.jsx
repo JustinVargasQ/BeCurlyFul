@@ -47,36 +47,44 @@ export default function LoginModal({ open, onClose, title = 'Iniciá sesión', s
           {/* Centering wrapper — full viewport, scrollable on small screens */}
           <div className="min-h-screen flex items-center justify-center p-3 sm:p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              initial={{ opacity: 0, scale: 0.96, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.25, ease: [0.3, 1, 0.3, 1] }}
-              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden my-auto"
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.28, ease: [0.3, 1, 0.3, 1] }}
+              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[380px] overflow-hidden my-auto"
               onClick={(e) => e.stopPropagation()}>
 
               {/* Close button */}
               <button onClick={onClose}
                 aria-label="Cerrar"
-                className="absolute top-2.5 right-2.5 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white hover:bg-cream-100 text-ink-400 hover:text-ink-700 transition-colors shadow-sm border border-cream-100">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full text-ink-400 hover:text-ink-900 hover:bg-cream-100 transition-colors">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>
               </button>
 
-              {/* Compact header */}
-              <div className="px-5 sm:px-6 pt-6 pb-3 flex items-center gap-3 pr-12">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ background: 'linear-gradient(135deg,rgba(184,95,114,.15),rgba(201,168,117,.1))', border: '1px solid rgba(184,95,114,.2)' }}>
-                  ✨
+              {/* Header — editorial, no icon box */}
+              <div className="px-7 pt-9 pb-5">
+                {/* Brand accent line */}
+                <div className="flex items-center gap-2 mb-5">
+                  <span className="block w-8 h-px bg-rose-400" />
+                  <span className="text-[10px] font-bold tracking-[0.22em] uppercase text-rose-500">JD Virtual</span>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-display text-base sm:text-lg font-bold text-ink-900 leading-tight">{title}</h3>
-                  <p className="text-[11px] sm:text-xs text-ink-500 leading-snug mt-0.5">{subtitle}</p>
-                </div>
+
+                <h3 className="font-display text-2xl font-bold text-ink-900 leading-[1.1] tracking-tight pr-6">
+                  {title}
+                </h3>
+                <p className="text-[13px] text-ink-500 leading-relaxed mt-2">
+                  {subtitle}
+                </p>
               </div>
 
+              {/* Divider */}
+              <div className="mx-7 border-t border-cream-100" />
+
               {/* Body */}
-              <div className="px-5 sm:px-6 pb-5 pt-2 space-y-3">
+              <div className="px-7 pt-5 pb-6 space-y-5">
+                {/* Google button */}
                 <div className="flex justify-center">
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
@@ -86,7 +94,7 @@ export default function LoginModal({ open, onClose, title = 'Iniciá sesión', s
                     text="signin_with"
                     locale="es"
                     theme="outline"
-                    width="260"
+                    width="290"
                   />
                 </div>
 
@@ -95,31 +103,38 @@ export default function LoginModal({ open, onClose, title = 'Iniciá sesión', s
                     <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
                     </svg>
-                    Iniciando sesión...
+                    Iniciando sesión…
                   </p>
                 )}
 
-                {/* Benefits — inline icons row */}
-                <div className="bg-cream-50 rounded-xl px-3 py-2.5">
-                  <div className="grid grid-cols-3 gap-1 text-center">
-                    <div className="px-1">
-                      <p className="text-base mb-0.5">📦</p>
-                      <p className="text-[9px] text-ink-600 leading-tight font-medium">Tus pedidos</p>
-                    </div>
-                    <div className="px-1">
-                      <p className="text-base mb-0.5">⭐</p>
-                      <p className="text-[9px] text-ink-600 leading-tight font-medium">Reseñas</p>
-                    </div>
-                    <div className="px-1">
-                      <p className="text-base mb-0.5">⚡</p>
-                      <p className="text-[9px] text-ink-600 leading-tight font-medium">Más rápido</p>
-                    </div>
-                  </div>
-                </div>
+                {/* Benefits — refined list */}
+                <ul className="space-y-2 pt-1">
+                  {[
+                    'Tu historial de pedidos en un solo lugar',
+                    'Reseñas verificadas con tu cuenta',
+                    'Checkout más rápido en tu próxima compra',
+                  ].map((b, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-[12px] text-ink-700 leading-snug">
+                      <span className="flex-shrink-0 w-4 h-4 rounded-full bg-rose-50 flex items-center justify-center mt-px">
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="text-rose-500">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      </span>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
 
-                <p className="text-[10px] text-ink-400 text-center">
-                  Solo guardamos nombre, email y foto.
-                </p>
+                {/* Privacy footnote */}
+                <div className="pt-3 border-t border-cream-100">
+                  <p className="text-[10px] text-ink-400 leading-relaxed flex items-start gap-1.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-px text-ink-300">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Solo accedemos a tu nombre, email y foto de perfil. Nunca compartimos tus datos.
+                  </p>
+                </div>
               </div>
             </motion.div>
           </div>

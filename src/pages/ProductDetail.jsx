@@ -136,7 +136,11 @@ function ReviewsSection({ product }) {
               </div>
             ) : reviews.length === 0 ? (
               <div className="bg-cream-50 rounded-2xl p-8 text-center">
-                <div className="text-2xl mb-2">⭐</div>
+                <div className="w-10 h-10 rounded-full bg-white mx-auto mb-3 flex items-center justify-center text-amber-400">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                </div>
                 <p className="text-sm text-ink-400">Sé el primero en dejar una reseña.</p>
               </div>
             ) : (
@@ -181,13 +185,21 @@ function ReviewsSection({ product }) {
             <h3 className="font-semibold text-ink-900 mb-4">Dejar una reseña</h3>
             {submitted ? (
               <div className="text-center py-6">
-                <div className="text-3xl mb-2">🎉</div>
+                <div className="w-12 h-12 rounded-full bg-green-50 mx-auto mb-3 flex items-center justify-center text-green-500">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
                 <p className="font-semibold text-ink-900">¡Gracias por tu reseña!</p>
                 <p className="text-sm text-ink-400 mt-1">Será publicada después de revisión.</p>
               </div>
             ) : !user ? (
               <div className="text-center py-4">
-                <div className="text-3xl mb-2">🔒</div>
+                <div className="w-12 h-12 rounded-full bg-rose-50 mx-auto mb-3 flex items-center justify-center text-rose-500">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
                 <p className="font-semibold text-ink-900 mb-1">Iniciá sesión para dejar tu reseña</p>
                 <p className="text-xs text-ink-500 mb-4">Solo tarda un segundo con tu cuenta de Google</p>
                 <button onClick={() => setShowLogin(true)}

@@ -220,7 +220,12 @@ function ShowcaseCard({ product, size = 'md', rotate = 0, animDelay = 0 }) {
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (
-          <div className="absolute inset-0 bg-cream-100 flex items-center justify-center text-3xl">💄</div>
+          <div className="absolute inset-0 bg-cream-100 flex items-center justify-center text-cream-300">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/>
+            </svg>
+          </div>
         )}
 
         {/* Gradient bottom overlay */}
@@ -930,9 +935,11 @@ function LocationSocialBar() {
               <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-rose-400 mb-4">Ubicación</p>
 
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-base"
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-rose-300"
                   style={{ background: 'rgba(184,95,114,0.18)', border: '1px solid rgba(184,95,114,0.25)' }}>
-                  📍
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
                 </div>
                 <div>
                   <p className="text-white font-semibold text-sm leading-tight">El Roble, Puntarenas</p>
@@ -1014,11 +1021,32 @@ function BrandMarquee() {
 }
 
 /* ─── Stats strip — rose gradient with animated counters ─── */
+const StatHeart = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+const StatSparkle = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 3v3M12 18v3M5 12H2M22 12h-3M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12M19.07 19.07l-2.12-2.12M7.05 7.05 4.93 4.93"/>
+  </svg>
+);
+const StatPin = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+  </svg>
+);
+const StatShield = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
+  </svg>
+);
+
 const STATS = [
-  { to: 1200, suffix: '+', label: 'Clientas felices',    emoji: '💕' },
-  { to: 50,   suffix: '+', label: 'Marcas originales',   emoji: '✨' },
-  { to: 3,    suffix: '',  label: 'Años en Costa Rica',  emoji: '🇨🇷' },
-  { to: 100,  suffix: '%', label: 'Originales garantizados', emoji: '✅' },
+  { to: 1200, suffix: '+', label: 'Clientas felices',         Icon: StatHeart   },
+  { to: 50,   suffix: '+', label: 'Marcas originales',        Icon: StatSparkle },
+  { to: 3,    suffix: '',  label: 'Años en Costa Rica',       Icon: StatPin     },
+  { to: 100,  suffix: '%', label: 'Originales garantizados',  Icon: StatShield  },
 ];
 
 function StatsStrip() {
@@ -1045,9 +1073,9 @@ function StatsStrip() {
               whileHover={{ y: -4 }}
               className="flex flex-col items-center text-center group cursor-default">
 
-              {/* Emoji in glass bubble */}
+              {/* Icon in glass bubble */}
               <div
-                className="w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-4 transition-transform duration-300 group-hover:scale-110"
+                className="w-16 h-16 rounded-full flex items-center justify-center mb-4 text-white transition-transform duration-300 group-hover:scale-110"
                 style={{
                   background: 'rgba(255,255,255,0.14)',
                   backdropFilter: 'blur(10px)',
@@ -1056,7 +1084,7 @@ function StatsStrip() {
                   boxShadow: '0 4px 20px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.3)',
                 }}
               >
-                {s.emoji}
+                <s.Icon />
               </div>
 
               <p className="text-4xl sm:text-5xl font-bold text-white leading-none tabular-nums tracking-tight">
@@ -1166,7 +1194,7 @@ function FeaturedSection() {
           transition={{ duration: 0.55 }}
           className="flex items-end justify-between mb-8">
           <div>
-            <span className="section-label">🔥 Tendencias</span>
+            <span className="section-label">Tendencias</span>
             <h2 className="section-title animated-underline">Favoritas del momento</h2>
           </div>
           <Link to="/?featured=true"
@@ -1264,21 +1292,38 @@ function PromoBanner() {
 }
 
 /* ─── Guarantee section — 3 promise cards ─── */
+const GuarShield = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
+  </svg>
+);
+const GuarRefresh = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+  </svg>
+);
+const GuarChat = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+
 const GUARANTEES = [
   {
-    emoji: '✅',
+    Icon: GuarShield,
     title: 'Originales 100%',
     desc:  'Trabajamos directo con distribuidores oficiales. Cada producto es auténtico o te devolvemos tu dinero.',
   },
   {
-    emoji: '🔄',
+    Icon: GuarRefresh,
     title: 'Cambios sin complicaciones',
     desc:  'Si algo no está bien con tu pedido, lo resolvemos. Escríbenos por WhatsApp y coordinamos.',
   },
   {
-    emoji: '💬',
+    Icon: GuarChat,
     title: 'Asesoría personalizada',
-    desc:  'No sabés qué tono elegir? Te ayudamos. Respondemos rápido y con gusto por WhatsApp.',
+    desc:  '¿No sabés qué tono elegir? Te ayudamos. Respondemos rápido y con gusto por WhatsApp.',
   },
 ];
 
@@ -1312,14 +1357,14 @@ function GuaranteeSection() {
               <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-t-2xl"
                 style={{ background: 'linear-gradient(90deg, #C9A875, #B85F72)' }} />
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-5 transition-transform duration-300 group-hover:scale-110"
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5 text-rose-500 transition-transform duration-300 group-hover:scale-110"
                 style={{
                   background: 'linear-gradient(135deg, rgba(184,95,114,0.14) 0%, rgba(201,168,117,0.09) 100%)',
                   border: '1px solid rgba(184,95,114,0.22)',
                   boxShadow: '0 4px 16px rgba(184,95,114,0.13)',
                 }}
               >
-                {g.emoji}
+                <g.Icon />
               </div>
               <h3 className="font-display text-lg font-semibold text-ink-900 mb-2 group-hover:text-rose-500 transition-colors duration-300">
                 {g.title}
@@ -1355,7 +1400,7 @@ function SkeletonCard() {
 
 /* ─── Stories row — horizontal scrollable category bubbles ─── */
 const STORIES = [
-  { label: 'Todos',      cat: 'todos',     emoji: '✨', bg: 'linear-gradient(135deg,#B85F72,#93485A)' },
+  { label: 'Todos',      cat: 'todos',     bg: 'linear-gradient(135deg,#B85F72,#93485A)' },
   { label: 'Skin care',  cat: 'skincare',  img: '/imgs/Skincare.jpeg'   },
   { label: 'Maquillaje', cat: 'maquillaje',img: '/imgs/Maquillaje.jpeg' },
   { label: 'Accesorios', cat: 'accesorios',img: '/imgs/Accesorios.jpeg' },
@@ -1388,9 +1433,9 @@ function StoriesRow({ cat, onCat }) {
                   <img src={s.img} alt={s.label}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-xl"
+                  <div className="w-full h-full flex items-center justify-center font-display font-bold text-white text-base"
                     style={{ background: s.bg }}>
-                    {s.emoji}
+                    {s.label.charAt(0)}
                   </div>
                 )}
               </div>
@@ -1592,7 +1637,7 @@ function TestimonialCard({ t }) {
         <div className="mb-4 flex items-center gap-2 py-2">
           <span className="text-2xl text-rose-400 leading-none">{rating.toFixed(1)}</span>
           <span className="text-xs text-ink-400 italic">
-            {rating >= 5 ? 'Calificación perfecta ✨' : `Calificó con ${rounded} estrellas`}
+            {rating >= 5 ? 'Calificación perfecta' : `Calificó con ${rounded} estrellas`}
           </span>
         </div>
       )}
@@ -1780,10 +1825,27 @@ function AboutSection() {
 }
 
 /* ─── How it works / Shipping — timeline steps ─── */
+const StepBag = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+  </svg>
+);
+const StepCard = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+  </svg>
+);
+const StepBox = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/>
+  </svg>
+);
+
 const HOW_STEPS = [
-  { num: '01', emoji: '🛍️', title: 'Elegí tu producto', desc: 'Explorá el catálogo y encontrá exactamente lo que querés.' },
-  { num: '02', emoji: '💳', title: 'Pagá con SINPE', desc: 'Transferencia bancaria o SINPE Móvil. Rápido, fácil y seguro.' },
-  { num: '03', emoji: '📦', title: 'Recibís en casa', desc: 'Correos de CR a todo el país, Express Puntarenas o retiro gratis.' },
+  { num: '01', Icon: StepBag,  title: 'Elegí tu producto', desc: 'Explorá el catálogo y encontrá exactamente lo que querés.' },
+  { num: '02', Icon: StepCard, title: 'Pagá con SINPE',    desc: 'Transferencia bancaria o SINPE Móvil. Rápido, fácil y seguro.' },
+  { num: '03', Icon: StepBox,  title: 'Recibís en casa',   desc: 'Correos de CR a todo el país, Express Puntarenas o retiro gratis.' },
 ];
 
 function ShippingSection() {
@@ -1816,10 +1878,10 @@ function ShippingSection() {
 
               {/* Icon circle */}
               <motion.div
-                whileHover={{ scale: 1.1, rotate: [0, -4, 4, 0] }}
+                whileHover={{ scale: 1.06 }}
                 transition={{ duration: 0.4 }}
-                className="relative z-10 w-20 h-20 rounded-full border-2 border-rose-200 group-hover:border-rose-400 bg-white flex flex-col items-center justify-center mb-6 shadow-card group-hover:shadow-btn transition-all duration-300">
-                <span className="text-2xl">{s.emoji}</span>
+                className="relative z-10 w-20 h-20 rounded-full border-2 border-rose-200 group-hover:border-rose-400 bg-white flex flex-col items-center justify-center mb-6 shadow-card group-hover:shadow-btn transition-all duration-300 text-rose-500">
+                <s.Icon />
                 <span className="text-[9px] font-bold text-rose-400 tracking-[0.18em] mt-0.5">{s.num}</span>
               </motion.div>
 
@@ -1868,7 +1930,12 @@ function TrackOrderSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}>
-          <span className="text-3xl mb-4 block">📦</span>
+          <span className="inline-flex w-12 h-12 rounded-full bg-rose-50 items-center justify-center text-rose-500 mb-4">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/>
+            </svg>
+          </span>
           <h2 className="font-display text-2xl sm:text-3xl font-semibold text-ink-900 mb-2">¿Ya hiciste un pedido?</h2>
           <p className="text-ink-400 text-sm mb-8">Ingresá tu número de orden para ver el estado en tiempo real.</p>
           <form onSubmit={handleSubmit} className="flex gap-2 max-w-sm mx-auto">

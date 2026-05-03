@@ -83,9 +83,11 @@ export default function Offers() {
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.3,1,0.3,1] }}>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-rose-300"
                   style={{ background: 'rgba(184,95,114,0.25)', border: '1px solid rgba(184,95,114,0.4)' }}>
-                  🏷️
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+                  </svg>
                 </div>
                 <span className="text-xs font-bold tracking-[0.22em] uppercase text-rose-400">Descuentos activos</span>
               </div>
@@ -158,7 +160,11 @@ export default function Offers() {
           </div>
         ) : offers.length === 0 ? (
           <div className="text-center py-24">
-            <div className="text-5xl mb-4">🏷️</div>
+            <div className="w-16 h-16 rounded-full bg-rose-50 mx-auto mb-4 flex items-center justify-center text-rose-400">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+              </svg>
+            </div>
             <p className="text-ink-500 text-lg font-medium mb-2">No hay ofertas activas en este momento.</p>
             <p className="text-ink-400 text-sm mb-6">Volvé pronto — actualizamos descuentos regularmente.</p>
             <Link to="/" className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold px-6 py-3 rounded-full transition-colors text-sm shadow-btn">

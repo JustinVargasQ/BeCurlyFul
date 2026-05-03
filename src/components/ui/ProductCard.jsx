@@ -243,7 +243,7 @@ export default function ProductCard({ product, index = 0 }) {
               </div>
             ) : product.reviews >= 30 ? (
               <div className="flex items-center gap-1.5 mb-2">
-                <span className="text-[10px]">🔥</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse flex-shrink-0" />
                 <span className="text-[11px] font-semibold text-rose-500">Muy buscado</span>
               </div>
             ) : null}

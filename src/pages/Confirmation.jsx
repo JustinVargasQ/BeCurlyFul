@@ -103,11 +103,35 @@ function AnimatedCheck() {
 }
 
 /* ── Step item ── */
+const StepCheckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+const StepBoxIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/>
+  </svg>
+);
+const StepCardIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+  </svg>
+);
+const StepTruckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/>
+    <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>
+    <circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>
+  </svg>
+);
+
 const STEPS = [
-  { icon: '✅', text: 'Recibimos tu pedido por WhatsApp' },
-  { icon: '📦', text: 'Confirmamos disponibilidad de productos' },
-  { icon: '💳', text: 'Te indicamos cómo pagar (SINPE / transferencia)' },
-  { icon: '🚚', text: 'Coordinamos el envío a tu dirección' },
+  { Icon: StepCheckIcon, text: 'Recibimos tu pedido por WhatsApp' },
+  { Icon: StepBoxIcon,   text: 'Confirmamos disponibilidad de productos' },
+  { Icon: StepCardIcon,  text: 'Te indicamos cómo pagar (SINPE / transferencia)' },
+  { Icon: StepTruckIcon, text: 'Coordinamos el envío a tu dirección' },
 ];
 
 export default function Confirmation() {
@@ -170,7 +194,9 @@ export default function Confirmation() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.85 + i * 0.08 }}
                   className="flex items-center gap-3 text-sm text-ink-600">
-                  <span className="text-base flex-shrink-0">{s.icon}</span>
+                  <span className="w-7 h-7 rounded-full bg-white border border-cream-200 flex items-center justify-center text-rose-500 flex-shrink-0">
+                    <s.Icon />
+                  </span>
                   {s.text}
                 </motion.div>
               ))}
@@ -185,7 +211,7 @@ export default function Confirmation() {
             className="flex flex-col sm:flex-row gap-3">
             <Link to="/"
               className="flex-1 inline-flex items-center justify-center bg-rose-500 hover:bg-rose-600 text-white font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 text-sm shadow-btn hover:shadow-btn-hover">
-              Seguir comprando ♡
+              Seguir comprando
             </Link>
             {orderNumber && (
               <Link to={`/pedido/${orderNumber}`}

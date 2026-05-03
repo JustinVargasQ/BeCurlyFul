@@ -126,8 +126,10 @@ export default function ServerWakeup() {
                     <div className="absolute inset-0 rounded-full border-2 border-rose-500/30 animate-ping" />
                     <div className="absolute inset-2 rounded-full border-2 border-rose-400/50 animate-ping"
                       style={{ animationDelay: '0.3s' }} />
-                    <div className="absolute inset-0 rounded-full flex items-center justify-center">
-                      <span className="text-2xl">🌸</span>
+                    <div className="absolute inset-0 rounded-full flex items-center justify-center text-rose-400">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 3v3M12 18v3M5 12H2M22 12h-3M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12M19.07 19.07l-2.12-2.12M7.05 7.05 4.93 4.93"/>
+                      </svg>
                     </div>
                   </div>
 

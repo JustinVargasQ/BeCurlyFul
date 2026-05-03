@@ -36,7 +36,9 @@
       "Bash(node -e \"const r = require\\('./node_modules/react-countup/build/index.js'\\); console.log\\(typeof r.default || typeof r\\)\")",
       "Bash(node -e \"const pkg = require\\('./node_modules/framer-motion/package.json'\\); console.log\\(pkg.version\\)\")",
       "Bash(node -e \"const pkg = require\\('C:/Users/justi/Desktop/Zayin/VOStudio/node_modules/lenis/package.json'\\); console.log\\(pkg.version\\)\")",
-      "Read(//c/Users/justi/Desktop/**)"
+      "Read(//c/Users/justi/Desktop/**)",
+      "Bash(grep -rEln \"[\\\\xF0\\\\x9F\\\\x80-\\\\xBF\\\\xF0\\\\x9F\\\\x90-\\\\x9F][\\\\x80-\\\\xBF]{2,3}|🚚|📦|✅|💬|💳|📍|⭐|⚡|🎉|🔒|👋|🌸|💄|✨|❤️|🎨|🛍️|🎁|👤|📞|📲|✉\" --include=\"*.jsx\" --include=\"*.js\")",
+      "Bash(grep -v \"^//\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\justi\\Desktop\\Zayin\\VOStudio"
