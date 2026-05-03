@@ -265,7 +265,9 @@ export default function AdminCoupons() {
         </div>
       ) : coupons.length === 0 ? (
         <div className="bg-white rounded-2xl border border-cream-100 shadow-card p-10 text-center">
-          <div className="w-16 h-16 mx-auto rounded-full bg-rose-50 flex items-center justify-center text-3xl mb-4">🎟️</div>
+          <div className="w-16 h-16 mx-auto rounded-full bg-rose-50 flex items-center justify-center text-rose-400 mb-4">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12V7H4v10h16v-5"/><path d="M4 12h16"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/></svg>
+          </div>
           <h3 className="font-display text-lg font-bold text-ink-900 mb-1">Aún no hay cupones</h3>
           <p className="text-sm text-ink-400 mb-5">Creá uno para ofrecer descuentos en el checkout.</p>
           <button onClick={openCreate}
@@ -275,7 +277,9 @@ export default function AdminCoupons() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white rounded-2xl border border-cream-100 shadow-card p-10 text-center">
-          <div className="text-3xl mb-3">🔍</div>
+          <div className="flex justify-center mb-3 text-ink-300">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </div>
           <p className="text-ink-400 font-medium">No hay cupones con ese filtro.</p>
           <button onClick={() => { setSearch(''); setStatus('todos'); }}
             className="mt-3 text-xs text-rose-500 font-semibold hover:underline">Limpiar filtros</button>

@@ -83,7 +83,9 @@ function ProductRow({ p, toggle, remove }) {
         <div className="flex items-center gap-3">
           {img
             ? <img src={img} alt={p.name} className="w-10 h-10 object-cover rounded-xl flex-shrink-0 border border-cream-200" />
-            : <div className="w-10 h-10 rounded-xl bg-cream-100 flex-shrink-0 flex items-center justify-center text-ink-300 text-xs">📷</div>
+            : <div className="w-10 h-10 rounded-xl bg-cream-100 flex-shrink-0 flex items-center justify-center text-ink-300">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </div>
           }
           <div className="min-w-0">
             <p className="font-semibold text-ink-900 text-sm truncate max-w-[180px]">{p.name}</p>
@@ -151,7 +153,9 @@ function ProductCard({ p, toggle, remove }) {
     <div className={`bg-white rounded-2xl border border-cream-100 shadow-card p-4 flex gap-3 ${!isActive ? 'opacity-60' : ''}`}>
       {img
         ? <img src={img} alt={p.name} className="w-14 h-14 object-cover rounded-xl flex-shrink-0 border border-cream-100" />
-        : <div className="w-14 h-14 rounded-xl bg-cream-100 flex-shrink-0 flex items-center justify-center text-ink-300">📷</div>
+        : <div className="w-14 h-14 rounded-xl bg-cream-100 flex-shrink-0 flex items-center justify-center text-ink-300">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
       }
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-0.5">
@@ -201,7 +205,7 @@ function generateCatalog(products) {
     const img = p.images?.[0] || p.img || '';
     const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
     return `<div style="border:1px solid #eee;border-radius:12px;overflow:hidden;break-inside:avoid">
-      ${img ? `<img src="${img}" alt="${p.name}" style="width:100%;height:160px;object-fit:cover">` : `<div style="width:100%;height:160px;background:#f5f0f0;display:flex;align-items:center;justify-content:center;font-size:32px">🌸</div>`}
+      ${img ? `<img src="${img}" alt="${p.name}" style="width:100%;height:160px;object-fit:cover">` : `<div style="width:100%;height:160px;background:#f5f0f0;display:flex;align-items:center;justify-content:center;color:#ccc"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>`}
       <div style="padding:12px">
         <p style="font-size:10px;color:#B85F72;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin:0 0 2px">${p.brand || ''}</p>
         <p style="font-size:13px;font-weight:600;color:#111;margin:0 0 6px;line-height:1.3">${p.name}</p>

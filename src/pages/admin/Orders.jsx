@@ -6,6 +6,16 @@ import QRCode from 'qrcode';
 
 const USE_API = import.meta.env.VITE_API_URL;
 
+const ClipboardIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>;
+const ClockOrdIcon  = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const WalletOrdIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>;
+const HourglOrdIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const PhoneIcon     = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.55 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.06 6.06l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+const MailIcon      = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
+const PinIcon       = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>;
+const CameraIcon    = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>;
+const InboxIcon     = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>;
+
 const STATUS_CONFIG = {
   pendiente:  { label: 'Pendiente',  dot: 'bg-yellow-400', badge: 'bg-yellow-50 text-yellow-700 border-yellow-200'  },
   confirmado: { label: 'Confirmado', dot: 'bg-blue-400',   badge: 'bg-blue-50 text-blue-700 border-blue-200'        },
@@ -70,13 +80,13 @@ async function printOrder(order) {
         <div class="qr-box">
           <img src="${qrDataUrl}" alt="QR ubicación" width="140" height="140" style="display:block;border-radius:8px" />
           <div class="qr-info">
-            <div style="font-weight:bold;font-size:13px;color:#111;margin-bottom:6px">📲 Ubicación exacta</div>
+            <div style="font-weight:bold;font-size:13px;color:#111;margin-bottom:6px">Ubicación exacta</div>
             <div style="font-size:12px;color:#444;margin-bottom:8px;line-height:1.5">
               ${order.customer?.address || ''}<br>
               <span style="color:#888">${order.customer?.province || ''}</span>
             </div>
             <div style="font-size:11px;color:#B85F72;font-weight:600;border:1px solid #B85F72;border-radius:6px;padding:5px 8px;display:inline-block">
-              📍 Escaneá el QR para ver la ubicación exacta en Google Maps
+              Escaneá el QR para ver la ubicación exacta en Google Maps
             </div>
           </div>
         </div>
@@ -156,7 +166,7 @@ async function printOrder(order) {
     </div>
 
     <div class="footer">JD Virtual Store &nbsp;·&nbsp; Hoja del paquete &nbsp;·&nbsp; Impreso el ${new Date().toLocaleDateString('es-CR')}</div>
-    <button class="print-btn" onclick="window.print()">🖨️ Imprimir hoja del paquete</button>
+    <button class="print-btn" onclick="window.print()">Imprimir hoja del paquete</button>
   </body></html>`);
   w.document.close();
 }
@@ -167,9 +177,9 @@ function ConfirmPrintModal({ order, onPrint, onDismiss }) {
     <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-scale-in">
         <div className="px-6 pt-6 pb-4 text-center">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
             style={{ background: 'linear-gradient(135deg,#dbeafe,#eff6ff)', border: '1px solid #bfdbfe' }}>
-            ✅
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <h3 className="font-display text-lg font-bold text-ink-900 mb-1">¡Orden confirmada!</h3>
           <p className="text-sm text-ink-500 leading-relaxed">
@@ -318,17 +328,17 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onSearchPh
                     )}
                   </div>
                   {order.userId?.email && (
-                    <a href={`mailto:${order.userId.email}`} className="text-[11px] text-blue-600 hover:underline block truncate">
-                      ✉ {order.userId.email}
+                    <a href={`mailto:${order.userId.email}`} className="text-[11px] text-blue-600 hover:underline flex items-center gap-1 truncate">
+                      <MailIcon /> {order.userId.email}
                     </a>
                   )}
                   {!order.userId && order.customer?.email && (
-                    <a href={`mailto:${order.customer.email}`} className="text-[11px] text-ink-500 hover:underline block truncate">
-                      ✉ {order.customer.email}
+                    <a href={`mailto:${order.customer.email}`} className="text-[11px] text-ink-500 hover:underline flex items-center gap-1 truncate">
+                      <MailIcon /> {order.customer.email}
                     </a>
                   )}
-                  <a href={`tel:${order.customer?.phone}`} className="text-sm text-ink-500 hover:text-rose-500 transition-colors block">
-                    📞 {order.customer?.phone}
+                  <a href={`tel:${order.customer?.phone}`} className="text-sm text-ink-500 hover:text-rose-500 transition-colors flex items-center gap-1.5">
+                    <PhoneIcon /> {order.customer?.phone}
                   </a>
                 </div>
               </div>
@@ -342,11 +352,11 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onSearchPh
                 <div className="mt-3 flex items-start gap-3 bg-cream-50 rounded-xl p-3 border border-cream-200">
                   <img src={qrDataUrl} alt="QR ubicación" className="w-16 h-16 rounded-lg flex-shrink-0 border border-cream-200" />
                   <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-ink-600 mb-0.5">📲 Ubicación en mapa</p>
+                    <p className="text-[11px] font-bold text-ink-600 mb-0.5 flex items-center gap-1"><PinIcon /> Ubicación en mapa</p>
                     <p className="text-[10px] text-ink-400 leading-relaxed">
                       Escaneá el QR para ver la dirección exacta del cliente en Google Maps.
                       {order.customer?.lat && order.customer?.lng && (
-                        <span className="block mt-1 text-green-600 font-semibold">✓ Coordenadas GPS registradas</span>
+                        <span className="block mt-1 text-green-600 font-semibold flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Coordenadas GPS registradas</span>
                       )}
                     </p>
                     <a
@@ -380,7 +390,7 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onSearchPh
                 <div key={i} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                   {item.image
                     ? <img src={assetUrl(item.image)} alt={item.name} className="w-12 h-12 object-cover rounded-xl border border-cream-200 flex-shrink-0" />
-                    : <div className="w-12 h-12 rounded-xl bg-cream-100 flex-shrink-0 flex items-center justify-center text-ink-300 text-xs">📷</div>
+                    : <div className="w-12 h-12 rounded-xl bg-cream-100 flex-shrink-0 flex items-center justify-center text-ink-300"><CameraIcon /></div>
                   }
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-ink-900 text-sm truncate">{item.name}</p>
@@ -494,7 +504,7 @@ function Pagination({ page, pages, onChange }) {
 function StatCard({ icon, label, value, accent, bg }) {
   return (
     <div className="bg-white rounded-2xl border border-cream-100 shadow-card p-4 sm:p-5 flex items-start gap-3">
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ background: bg }}>
+      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: bg, color: accent }}>
         {icon}
       </div>
       <div className="min-w-0">
@@ -543,7 +553,9 @@ function NoApi() {
         <p className="text-ink-400 text-sm mt-1">Gestión de pedidos</p>
       </div>
       <div className="bg-white rounded-2xl border border-cream-100 shadow-card p-10 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-cream-100 flex items-center justify-center text-3xl mx-auto mb-5">📦</div>
+        <div className="w-16 h-16 rounded-2xl bg-cream-100 flex items-center justify-center text-ink-400 mx-auto mb-5">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>
+        </div>
         <h2 className="font-display text-xl font-semibold text-ink-900 mb-2">Backend no conectado</h2>
         <p className="text-ink-400 text-sm max-w-sm mx-auto leading-relaxed">
           Configurá <code className="bg-cream-100 px-1.5 py-0.5 rounded text-rose-500 text-xs">VITE_API_URL</code> en el archivo{' '}
@@ -733,10 +745,10 @@ export default function AdminOrders() {
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <StatCard icon="📋" label="Total órdenes"   value={stats.totalOrders}              accent="#B85F72" bg="#FBF0F2" />
-          <StatCard icon="🕐" label="Hoy"             value={stats.todayOrders}              accent="#3B82F6" bg="#EFF6FF" />
-          <StatCard icon="💰" label="Ingresos semana" value={formatCRC(stats.weekRevenue)}   accent="#16A34A" bg="#F0FDF4" />
-          <StatCard icon="⏳" label="Pendientes"      value={stats.statusCounts?.pendiente || 0} accent="#D97706" bg="#FFFBEB" />
+          <StatCard icon={<ClipboardIcon />} label="Total órdenes"   value={stats.totalOrders}              accent="#B85F72" bg="#FBF0F2" />
+          <StatCard icon={<ClockOrdIcon />}  label="Hoy"             value={stats.todayOrders}              accent="#3B82F6" bg="#EFF6FF" />
+          <StatCard icon={<WalletOrdIcon />} label="Ingresos semana" value={formatCRC(stats.weekRevenue)}   accent="#16A34A" bg="#F0FDF4" />
+          <StatCard icon={<HourglOrdIcon />} label="Pendientes"      value={stats.statusCounts?.pendiente || 0} accent="#D97706" bg="#FFFBEB" />
         </div>
       )}
 
@@ -803,7 +815,7 @@ export default function AdminOrders() {
         </div>
       ) : orders.length === 0 ? (
         <div className="bg-white rounded-2xl border border-cream-100 shadow-card p-14 text-center">
-          <div className="text-3xl mb-3">📭</div>
+          <div className="flex justify-center mb-3 text-ink-300"><InboxIcon /></div>
           <p className="text-ink-400 font-medium">
             {debouncedQ
               ? `No hay resultados para "${debouncedQ}".`

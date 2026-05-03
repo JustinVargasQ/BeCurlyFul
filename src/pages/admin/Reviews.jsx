@@ -186,14 +186,14 @@ export default function AdminReviews() {
         {/* Tabs */}
         <div className="flex gap-2">
           {[
-            { key: 'pending',  label: 'Pendientes', emoji: '⏳' },
-            { key: 'approved', label: 'Aprobadas',  emoji: '✅' },
-          ].map(({ key, label, emoji }) => (
+            { key: 'pending',  label: 'Pendientes', icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+            { key: 'approved', label: 'Aprobadas',  icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> },
+          ].map(({ key, label, icon }) => (
             <button key={key} onClick={() => { setTab(key); setSearch(''); setRating(0); }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                 tab === key ? 'bg-ink-900 text-white' : 'bg-cream-50 border border-cream-200 text-ink-600 hover:bg-cream-100'
               }`}>
-              <span>{emoji}</span>
+              <span>{icon}</span>
               {label}
             </button>
           ))}
@@ -288,7 +288,15 @@ export default function AdminReviews() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white rounded-2xl border border-cream-100 shadow-card p-14 text-center">
-          <div className="text-3xl mb-3">{reviews.length === 0 ? (tab === 'pending' ? '✅' : '⭐') : '🔍'}</div>
+          <div className="flex justify-center mb-3 text-ink-300">
+            {reviews.length === 0 ? (
+              tab === 'pending'
+                ? <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                : <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            ) : (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            )}
+          </div>
           <p className="text-ink-400 font-medium">
             {reviews.length === 0
               ? tab === 'pending' ? 'No hay reseñas pendientes.' : 'No hay reseñas aprobadas.'
@@ -378,12 +386,16 @@ export default function AdminReviews() {
                       </span>
                     </div>
                     {r.userId?.email && (
-                      <p className="text-[11px] text-ink-400 mb-1 truncate">
-                        ✉ {r.userId.email}
+                      <p className="text-[11px] text-ink-400 mb-1 truncate flex items-center gap-1">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        {r.userId.email}
                       </p>
                     )}
                     {r.product && (
-                      <p className="text-xs text-rose-500 font-semibold mb-1.5">📦 {r.product.name}</p>
+                      <p className="text-xs text-rose-500 font-semibold mb-1.5 flex items-center gap-1">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>
+                        {r.product.name}
+                      </p>
                     )}
                     {r.comment && (
                       <p className="text-sm text-ink-600 leading-relaxed">"{r.comment}"</p>

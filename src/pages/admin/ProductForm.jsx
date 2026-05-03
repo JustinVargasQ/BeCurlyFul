@@ -36,7 +36,7 @@ function SectionCard({ icon, title, action, children, className = '' }) {
     <div className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden ${className}`}>
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
         <div className="flex items-center gap-2.5">
-          <span className="text-base">{icon}</span>
+          <span className="flex items-center text-gray-400">{icon}</span>
           <span className="text-xs font-bold text-gray-600 uppercase tracking-widest">{title}</span>
         </div>
         {action}
@@ -205,7 +205,9 @@ export default function ProductForm() {
   if (!USE_API) {
     return (
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-3xl mx-auto mb-5">📦</div>
+        <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-300 mx-auto mb-5">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>
+        </div>
         <h2 className="font-display text-xl font-semibold text-gray-900 mb-2">Backend no conectado</h2>
         <p className="text-gray-400 text-sm max-w-sm mx-auto leading-relaxed">
           Configurá <code className="bg-gray-100 px-1.5 py-0.5 rounded text-rose-500 text-xs">VITE_API_URL</code> para crear y editar productos.
@@ -284,7 +286,7 @@ export default function ProductForm() {
         <div className="lg:col-span-2 space-y-5">
 
           {/* Información básica */}
-          <SectionCard icon="📝" title="Datos del producto">
+          <SectionCard icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>} title="Datos del producto">
             <div>
               <label className={labelCls}>Nombre del producto *</label>
               <input value={form.name} onChange={setField('name')}
@@ -337,7 +339,7 @@ export default function ProductForm() {
           </SectionCard>
 
           {/* Características */}
-          <SectionCard icon="✨" title="Puntos clave del producto"
+          <SectionCard icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>} title="Puntos clave del producto"
             action={
               <button type="button" onClick={addFeature}
                 className="text-xs text-rose-500 hover:text-rose-600 font-bold flex items-center gap-1">
@@ -364,7 +366,7 @@ export default function ProductForm() {
           </SectionCard>
 
           {/* Variantes */}
-          <SectionCard icon="🎨" title="Opciones del producto"
+          <SectionCard icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/></svg>} title="Opciones del producto"
             action={
               <button type="button" onClick={addVariant}
                 className="text-xs text-rose-500 hover:text-rose-600 font-bold flex items-center gap-1">
@@ -418,7 +420,7 @@ export default function ProductForm() {
             <div className="bg-amber-50 border border-amber-200 rounded-2xl overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4 border-b border-amber-100">
                 <div className="flex items-center gap-2.5">
-                  <span className="text-base">⏳</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   <span className="text-xs font-bold text-amber-700 uppercase tracking-widest">
                     Lista de espera — {restockReqs.length} persona{restockReqs.length !== 1 ? 's' : ''}
                   </span>
@@ -453,7 +455,7 @@ export default function ProductForm() {
           )}
 
           {/* Imágenes */}
-          <SectionCard icon="🖼️" title="Fotos del producto"
+          <SectionCard icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>} title="Fotos del producto"
             action={
               <button type="button" onClick={() => fileRef.current?.click()}
                 disabled={!isEdit || uploading}
@@ -480,7 +482,9 @@ export default function ProductForm() {
               <div
                 onClick={() => isEdit && fileRef.current?.click()}
                 className={`border-2 border-dashed border-gray-200 rounded-xl p-10 text-center ${isEdit ? 'cursor-pointer hover:border-rose-300 hover:bg-rose-50/30 transition-colors' : ''}`}>
-                <div className="text-3xl mb-2">📷</div>
+                <div className="flex justify-center mb-2 text-gray-300">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </div>
                 <p className="text-sm text-gray-400">{isEdit ? 'Hacé clic para subir imágenes' : 'Sin imágenes todavía'}</p>
                 <p className="text-[11px] text-gray-300 mt-1">JPG, PNG, WebP · máx 5 MB c/u</p>
               </div>
@@ -520,7 +524,7 @@ export default function ProductForm() {
         <div className="space-y-5 lg:sticky lg:top-6 lg:self-start">
 
           {/* Precio e inventario */}
-          <SectionCard icon="💰" title="Precio y stock">
+          <SectionCard icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>} title="Precio y stock">
             <div>
               <label className={labelCls}>Precio de venta *</label>
               <div className="relative">
@@ -563,7 +567,7 @@ export default function ProductForm() {
           </SectionCard>
 
           {/* Etiqueta */}
-          <SectionCard icon="🏷️" title="Etiqueta especial">
+          <SectionCard icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>} title="Etiqueta especial">
             <p className="text-[11px] text-gray-400 -mt-1">Aparece como un chip encima de la foto del producto en la tienda.</p>
             <div>
               <label className={labelCls}>Texto de la etiqueta</label>

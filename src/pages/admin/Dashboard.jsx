@@ -19,6 +19,17 @@ const MenuIcon    = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="
 const CloseIcon   = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>;
 const LogoutIcon  = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
 const StoreIcon   = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+const BoxStatIcon  = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>;
+const ShopBagIcon  = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>;
+const WalletIcon   = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>;
+const ClockStatIcon= () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const AddStatIcon  = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+const GlobeIcon    = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>;
+const ChatStatIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
+const GuideDocIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>;
+const GuideImgIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>;
+const GuideEyeIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+const GuideBoxIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>;
 
 const NAV = [
   { to: '/admin',            label: 'Dashboard',    icon: <DashIcon />,    exact: true },
@@ -52,8 +63,8 @@ const STATUS_LABELS = {
 function StatCard({ icon, label, value, sub, accent = '#B85F72', bg = '#FBF0F2' }) {
   return (
     <div className="bg-white rounded-2xl p-5 shadow-card border border-cream-100 flex items-start gap-4">
-      <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-        style={{ background: bg }}>
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+        style={{ background: bg, color: accent }}>
         {icon}
       </div>
       <div className="min-w-0">
@@ -70,7 +81,7 @@ function QuickCard({ icon, label, sub, to, href, bg = 'bg-rose-50', hover = 'hov
   const cls = `flex items-center gap-3 p-4 ${bg} ${hover} rounded-xl transition-colors group`;
   const inner = (
     <>
-      <div className="w-10 h-10 rounded-xl bg-white/70 flex items-center justify-center text-xl flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+      <div className="w-10 h-10 rounded-xl bg-white/70 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform text-ink-600">
         {icon}
       </div>
       <div>
@@ -223,7 +234,9 @@ function LowStock({ products }) {
       {low.map((p) => (
         <Link key={p._id || p.id} to={`/admin/productos/${p._id || p.id}/editar`}
           className="flex items-center gap-3 py-2.5 hover:bg-cream-50/60 -mx-2 px-2 rounded-lg transition-colors">
-          <div className="w-9 h-9 rounded-lg bg-cream-100 flex-shrink-0 flex items-center justify-center text-xs">📦</div>
+          <div className="w-9 h-9 rounded-lg bg-cream-100 flex-shrink-0 flex items-center justify-center text-ink-400">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>
+          </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-ink-900 truncate">{p.name}</p>
             <p className="text-[11px] text-ink-400 truncate">{p.brand}</p>
@@ -245,10 +258,10 @@ function GuiaInicio() {
   if (dismissed) return null;
 
   const pasos = [
-    { n: '1', icon: '📝', title: 'Crear el producto', desc: 'Ir a Productos → Nuevo producto. Ponele nombre, marca, categoría y precio.' },
-    { n: '2', icon: '🖼️', title: 'Subir las fotos',   desc: 'Guardá el producto primero y luego subí las fotos. La primera foto es la principal.' },
-    { n: '3', icon: '👁️', title: 'Activarlo',          desc: 'Activá el toggle "Mostrar en la tienda" para que las clientas puedan verlo.' },
-    { n: '4', icon: '📦', title: 'Recibir pedidos',    desc: 'Los pedidos llegan aquí en Órdenes y también por WhatsApp directamente.' },
+    { n: '1', icon: <GuideDocIcon />, title: 'Crear el producto', desc: 'Ir a Productos → Nuevo producto. Ponele nombre, marca, categoría y precio.' },
+    { n: '2', icon: <GuideImgIcon />, title: 'Subir las fotos',  desc: 'Guardá el producto primero y luego subí las fotos. La primera foto es la principal.' },
+    { n: '3', icon: <GuideEyeIcon />, title: 'Activarlo',         desc: 'Activá el toggle "Mostrar en la tienda" para que las clientas puedan verlo.' },
+    { n: '4', icon: <GuideBoxIcon />, title: 'Recibir pedidos',   desc: 'Los pedidos llegan aquí en Órdenes y también por WhatsApp directamente.' },
   ];
 
   return (
@@ -268,7 +281,7 @@ function GuiaInicio() {
           <div key={p.n} className="bg-white rounded-xl p-4 border border-rose-100/60 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">{p.n}</span>
-              <span className="text-base">{p.icon}</span>
+              <span className="text-rose-400 flex items-center">{p.icon}</span>
             </div>
             <p className="text-[12px] font-bold text-gray-800 mb-1">{p.title}</p>
             <p className="text-[11px] text-gray-400 leading-relaxed">{p.desc}</p>
@@ -345,7 +358,7 @@ function DashboardHome({ adminName }) {
       <div className="bg-ink-900 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
         <div className="pointer-events-none absolute -top-8 -right-8 w-48 h-48 rounded-full bg-rose-500/15 blur-3xl" />
         <div className="relative z-10">
-          <p className="text-white/50 text-sm mb-1">{greeting} ✨</p>
+          <p className="text-white/50 text-sm mb-1">{greeting}</p>
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-white">
             {adminName ? `Hola, ${adminName.split(' ')[0]}!` : '¡Bienvenida!'}
           </h1>
@@ -359,13 +372,13 @@ function DashboardHome({ adminName }) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard icon="📦" label="Productos"     value={productCount}
+        <StatCard icon={<BoxStatIcon />} label="Productos"     value={productCount}
           sub={USE_API ? `${activeCount} activos` : 'En catálogo'} accent="#B85F72" bg="#FBF0F2" />
-        <StatCard icon="🛍️" label="Pedidos hoy"   value={stats ? stats.todayOrders : (USE_API ? '...' : '—')}
+        <StatCard icon={<ShopBagIcon />} label="Pedidos hoy"   value={stats ? stats.todayOrders : (USE_API ? '...' : '—')}
           sub={stats ? `${stats.totalOrders} en total` : (USE_API ? 'Cargando' : 'Requiere backend')} accent="#3B82F6" bg="#EFF6FF" />
-        <StatCard icon="💰" label="Ventas 7 días" value={stats ? formatCRC(stats.weekRevenue) : (USE_API ? '...' : '—')}
+        <StatCard icon={<WalletIcon />} label="Ventas 7 días" value={stats ? formatCRC(stats.weekRevenue) : (USE_API ? '...' : '—')}
           sub="Últimos 7 días" accent="#16A34A" bg="#F0FDF4" />
-        <StatCard icon="⏳" label="Pendientes"    value={stats ? pending : (USE_API ? '...' : '—')}
+        <StatCard icon={<ClockStatIcon />} label="Pendientes"    value={stats ? pending : (USE_API ? '...' : '—')}
           sub={pending > 0 ? 'Por atender' : 'Al día'} accent="#D97706" bg="#FFFBEB" />
       </div>
 
@@ -408,9 +421,9 @@ function DashboardHome({ adminName }) {
       <div className="bg-white rounded-2xl shadow-card border border-cream-100 p-5 sm:p-6">
         <p className="text-xs font-bold text-ink-400 uppercase tracking-widest mb-4">Accesos rápidos</p>
         <div className="grid sm:grid-cols-3 gap-3">
-          <QuickCard icon="➕" label="Nuevo producto"  sub="Agregar al catálogo" to="/admin/productos/nuevo" bg="bg-rose-50"  hover="hover:bg-rose-100" />
-          <QuickCard icon="🌐" label="Ver tienda"       sub="Abrir sitio público"  href="/" bg="bg-cream-50" hover="hover:bg-cream-100" />
-          <QuickCard icon="💬" label="WhatsApp"         sub="Atender pedidos"       href="https://wa.me/50688045100" bg="bg-green-50" hover="hover:bg-green-100" />
+          <QuickCard icon={<AddStatIcon />} label="Nuevo producto"  sub="Agregar al catálogo" to="/admin/productos/nuevo" bg="bg-rose-50"  hover="hover:bg-rose-100" />
+          <QuickCard icon={<GlobeIcon />}    label="Ver tienda"       sub="Abrir sitio público"  href="/" bg="bg-cream-50" hover="hover:bg-cream-100" />
+          <QuickCard icon={<ChatStatIcon />} label="WhatsApp"         sub="Atender pedidos"       href="https://wa.me/50688045100" bg="bg-green-50" hover="hover:bg-green-100" />
         </div>
       </div>
     </div>
