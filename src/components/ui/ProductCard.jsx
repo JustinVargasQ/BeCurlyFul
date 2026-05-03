@@ -16,19 +16,9 @@ const CartPlusIcon = () => (
     <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
   </svg>
 );
-const EyeIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-  </svg>
-);
 const HeartIcon = ({ filled }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-  </svg>
-);
-const WaIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
   </svg>
 );
 
@@ -120,11 +110,13 @@ export default function ProductCard({ product, index = 0 }) {
         onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
       >
-        <Link to={`/producto/${product.slug}`}
-          className="group block bg-white rounded-2xl overflow-hidden border border-cream-200 hover:border-rose-200 hover:shadow-card-hover transition-all duration-500">
+        <div className="group block bg-white rounded-2xl overflow-hidden border border-cream-200 hover:border-rose-200 hover:shadow-card-hover transition-all duration-500">
 
-          {/* ── Image ── */}
-          <div className="relative overflow-hidden bg-cream-50" style={{ aspectRatio: '1' }}>
+          {/* ── Image — click opens quick view ── */}
+          <div
+            onClick={() => setQuickView(true)}
+            className="relative overflow-hidden bg-cream-50 cursor-pointer"
+            style={{ aspectRatio: '1' }}>
             {currentImg && !imgError ? (
               <>
                 <motion.img
@@ -200,44 +192,25 @@ export default function ProductCard({ product, index = 0 }) {
               )}
             </div>
 
-            {/* Action buttons — reveal on hover */}
+            {/* Single CTA — reveal on hover */}
             <motion.div
               initial={false}
               animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 10 }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="absolute bottom-0 inset-x-0 p-3 flex gap-2">
+              className={`absolute bottom-0 inset-x-0 p-3 ${hovered ? '' : 'pointer-events-none'}`}>
               <button onClick={handleAdd} disabled={outOfStock}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-lg ${
+                className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-lg ${
                   outOfStock ? 'bg-ink-200 text-ink-400 cursor-not-allowed' :
-                  added ? 'bg-green-500 text-white scale-95' : 'bg-white text-ink-900 hover:bg-ink-900 hover:text-white'
+                  added ? 'bg-green-500 text-white scale-95' : 'bg-white text-ink-900 hover:bg-rose-500 hover:text-white'
                 }`}>
                 <CartPlusIcon />
                 {outOfStock ? 'Agotado' : added ? '¡Agregado!' : 'Al carrito'}
               </button>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setQuickView(true);
-                }}
-                title="Vista rápida"
-                className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white/90 hover:bg-white text-ink-700 hover:text-rose-500 rounded-xl shadow-lg transition-colors backdrop-blur-sm">
-                <EyeIcon />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  window.open(`https://wa.me/50688045100?text=${encodeURIComponent(`Hola! Me interesa: ${product.name} a ${formatCRC(product.price)}`)}`, '_blank', 'noopener');
-                }}
-                className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white rounded-xl shadow-lg transition-colors">
-                <WaIcon />
-              </button>
             </motion.div>
           </div>
 
-          {/* ── Info ── */}
-          <div className="p-4">
+          {/* ── Info — links to full product page ── */}
+          <Link to={`/producto/${product.slug}`} className="block p-4">
             <p className="text-[11px] text-ink-400 font-semibold uppercase tracking-widest mb-1">{product.brand || 'JD Virtual'}</p>
             <h3 className="text-sm font-semibold text-ink-900 leading-snug mb-2.5 line-clamp-2 group-hover:text-rose-500 transition-colors duration-200">
               {product.name}
@@ -290,8 +263,8 @@ export default function ProductCard({ product, index = 0 }) {
                 </span>
               </motion.div>
             )}
-          </div>
-        </Link>
+          </Link>
+        </div>
       </motion.div>
     </div>
 
