@@ -29,6 +29,7 @@ import InstallBanner from './components/ui/InstallBanner';
 import PromoBanner from './components/ui/PromoBanner';
 import ServerWakeup from './components/ui/ServerWakeup';
 import WhatsAppFloat from './components/ui/WhatsAppFloat';
+import ChatbotWidget from './components/ui/ChatbotWidget';
 
 function StorefrontLayout({ children }) {
   const location = useLocation();
@@ -77,6 +78,7 @@ export default function App() {
       <Toaster />
       <InstallBanner />
       <WhatsAppFloat />
+      <ChatbotWidget />
       <PageTracker />
       <Routes>
         {/* Public storefront */}

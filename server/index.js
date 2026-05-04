@@ -25,6 +25,7 @@ const reviewsRoutes       = require('./routes/reviews');
 const couponsRoutes       = require('./routes/coupons');
 const restockRoutes       = require('./routes/restock');
 const productReviewRoutes = require('./routes/productReviews');
+const chatbotRoutes       = require('./routes/chatbot');
 const errorHandler        = require('./middleware/errorHandler');
 
 const app  = express();
@@ -103,6 +104,12 @@ const orderLimiter = rateLimit({
   message: { error: 'Demasiados pedidos. Esperá un momento.' },
 });
 
+const chatbotLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,                      // 20 mensajes por minuto por IP — protege la cuota gratis de Gemini
+  message: { error: 'Demasiados mensajes al asistente. Esperá un momento.' },
+});
+
 /* ─── Serve uploads (static files) ─── */
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -116,6 +123,7 @@ app.use('/api/reviews',         apiLimiter,  reviewsRoutes);
 app.use('/api/coupons',         apiLimiter,  couponsRoutes);
 app.use('/api/restock',         apiLimiter,  restockRoutes);
 app.use('/api/product-reviews', apiLimiter,  productReviewRoutes);
+app.use('/api/chatbot',         chatbotLimiter, chatbotRoutes);
 
 app.get('/api/health', (req, res) =>
   res.json({ status: 'ok', time: new Date().toISOString() })
