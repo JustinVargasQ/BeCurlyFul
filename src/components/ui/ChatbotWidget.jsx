@@ -204,30 +204,153 @@ export default function ChatbotWidget() {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button — eye-catching with glow, breathing, sparkles, tooltip */}
       <AnimatePresence>
         {visible && !open && (
-          <motion.button
-            onClick={() => setOpen(true)}
-            aria-label="Abrir asistente JD"
+          <motion.div
             initial={{ opacity: 0, scale: 0.5, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-            className="fixed bottom-24 right-5 z-40 flex items-center justify-center w-14 h-14 rounded-full shadow-btn-hover"
-            style={{
-              background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)',
-            }}>
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L13.5 7.5L19 9L13.5 10.5L12 16L10.5 10.5L5 9L10.5 7.5L12 2Z" fill="white" stroke="none"/>
-              <path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25L19 14Z" fill="white" stroke="none"/>
-            </svg>
-            {unread && (
-              <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-coral rounded-full border-2 border-white" />
-            )}
-          </motion.button>
+            transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+            className="fixed bottom-6 right-5 z-40">
+
+            {/* Tooltip label — appears periodically */}
+            <motion.div
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: [0, 1, 1, 0], x: [10, 0, 0, 10] }}
+              transition={{
+                duration: 4,
+                times: [0, 0.15, 0.85, 1],
+                repeat: Infinity,
+                repeatDelay: 8,
+                delay: 3,
+              }}
+              className="absolute right-[72px] top-1/2 -translate-y-1/2 whitespace-nowrap pointer-events-none">
+              <div className="relative bg-white px-3.5 py-2 rounded-2xl shadow-card border border-rose-100">
+                <p className="text-xs font-semibold text-ink-900">
+                  ¡Hola! Soy <span className="text-rose-500">JD</span> ✨
+                </p>
+                <p className="text-[10px] text-ink-500">Tu asesora de belleza IA</p>
+                <div
+                  className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r border-b border-rose-100"
+                  style={{ transform: 'translateY(-50%) rotate(-45deg)' }}
+                />
+              </div>
+            </motion.div>
+
+            {/* Outer glow ring — soft pulsing aura */}
+            <motion.span
+              animate={{
+                scale: [1, 1.35, 1],
+                opacity: [0.55, 0, 0.55],
+              }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut' }}
+              className="absolute inset-0 rounded-full pointer-events-none"
+              style={{
+                background: 'radial-gradient(circle, rgba(184,95,114,0.6) 0%, rgba(201,168,117,0.3) 60%, transparent 100%)',
+                filter: 'blur(8px)',
+              }}
+            />
+
+            {/* Second pulse ring — offset timing for layered effect */}
+            <motion.span
+              animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut', delay: 1.2 }}
+              className="absolute inset-0 rounded-full pointer-events-none border-2"
+              style={{ borderColor: 'rgba(184,95,114,0.5)' }}
+            />
+
+            {/* Floating sparkle particles */}
+            {[
+              { x: -18, y: -22, delay: 0,    size: 6 },
+              { x: 22,  y: -14, delay: 1.2,  size: 4 },
+              { x: -12, y: 24,  delay: 2.1,  size: 5 },
+              { x: 26,  y: 18,  delay: 0.8,  size: 3 },
+            ].map((s, i) => (
+              <motion.span
+                key={i}
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale: [0, 1, 0],
+                  y: [s.y, s.y - 12, s.y],
+                }}
+                transition={{
+                  duration: 2.4,
+                  repeat: Infinity,
+                  delay: s.delay,
+                  ease: 'easeInOut',
+                }}
+                className="absolute top-1/2 left-1/2 pointer-events-none"
+                style={{
+                  width: s.size,
+                  height: s.size,
+                  background: '#C9A875',
+                  borderRadius: '50%',
+                  boxShadow: '0 0 8px #C9A875',
+                  transform: `translate(${s.x}px, ${s.y}px)`,
+                }}
+              />
+            ))}
+
+            {/* Main button with breathing animation */}
+            <motion.button
+              onClick={() => setOpen(true)}
+              aria-label="Abrir asistente JD"
+              animate={{ scale: [1, 1.04, 1] }}
+              transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+              whileHover={{ scale: 1.12, rotate: -3 }}
+              whileTap={{ scale: 0.92 }}
+              className="relative flex items-center justify-center w-16 h-16 rounded-full overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 35%, #E39DAB 60%, #C9A875 100%)',
+                boxShadow:
+                  '0 4px 20px rgba(184,95,114,0.45), 0 8px 32px rgba(201,168,117,0.3), inset 0 1px 0 rgba(255,255,255,0.4)',
+              }}>
+
+              {/* Animated shimmer overlay */}
+              <motion.span
+                animate={{ backgroundPosition: ['200% 0%', '-200% 0%'] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    'linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)',
+                  backgroundSize: '200% 100%',
+                }}
+              />
+
+              {/* Sparkle icon */}
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 24 24"
+                fill="white"
+                className="relative drop-shadow-sm">
+                <path d="M12 2L13.5 7.5L19 9L13.5 10.5L12 16L10.5 10.5L5 9L10.5 7.5L12 2Z"/>
+                <path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25L19 14Z"/>
+                <path d="M5 16L5.5 17.5L7 18L5.5 18.5L5 20L4.5 18.5L3 18L4.5 17.5L5 16Z"/>
+              </svg>
+
+              {/* "IA" badge — bottom-right of button */}
+              <span
+                className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold text-white tracking-wider"
+                style={{
+                  background: 'linear-gradient(135deg, #1A1414 0%, #2E2626 100%)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                }}>
+                IA
+              </span>
+
+              {/* Unread indicator */}
+              {unread && (
+                <motion.span
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                  className="absolute top-1 right-1 w-3.5 h-3.5 bg-coral rounded-full border-2 border-white"
+                />
+              )}
+            </motion.button>
+          </motion.div>
         )}
       </AnimatePresence>
 

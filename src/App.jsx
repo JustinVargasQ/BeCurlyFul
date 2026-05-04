@@ -28,7 +28,6 @@ import useAuthStore from './store/authStore';
 import InstallBanner from './components/ui/InstallBanner';
 import PromoBanner from './components/ui/PromoBanner';
 import ServerWakeup from './components/ui/ServerWakeup';
-import WhatsAppFloat from './components/ui/WhatsAppFloat';
 import ChatbotWidget from './components/ui/ChatbotWidget';
 
 function StorefrontLayout({ children }) {
@@ -77,7 +76,6 @@ export default function App() {
       <ServerWakeup />
       <Toaster />
       <InstallBanner />
-      <WhatsAppFloat />
       <ChatbotWidget />
       <PageTracker />
       <Routes>
