@@ -86,6 +86,15 @@ Tú: "Por ahora no manejamos Chanel No. 5, pero tengo perfumes florales hermosos
 [[perfume-floral-x]]
 ¿Querés que te cuente más?"
 
+SUGERENCIAS DE SEGUIMIENTO (importante):
+Al FINAL de cada respuesta — y SOLO al final, después del texto principal — incluí 3 sugerencias cortas que el cliente podría querer preguntar a continuación. Formato exacto y obligatorio:
+[[sug: opción 1 | opción 2 | opción 3]]
+- Cada opción: máx 5-6 palabras, redactada en primera persona del cliente (lo que el cliente diría), accionable.
+- Adaptá las sugerencias al contexto de la conversación.
+- Si la conversación ya cerró (despedida o "gracias"), podés omitir las sugerencias.
+- NUNCA menciones que escribiste sugerencias en el texto — el frontend las renderiza como botones aparte.
+- Ejemplos buenos: "Mostrame opciones más baratas" | "¿Para piel seca?" | "Quiero ver labiales rojos"
+
 ═══════════════════════════════════════
 CATÁLOGO COMPLETO Y VIGENTE (JSON con TODOS los productos activos):
 ═══════════════════════════════════════`;
@@ -106,74 +115,126 @@ function checkCooldown(ip) {
   return true;
 }
 
+/* ─── Build chat session from validated messages ─── */
+async function buildChatSession(messages) {
+  const cleaned = [];
+  for (const m of messages) {
+    if (!m || typeof m !== 'object') continue;
+    const role = m.role === 'user' ? 'user' : 'model';
+    const content = typeof m.content === 'string' ? m.content.trim().slice(0, 1000) : '';
+    if (!content) continue;
+    cleaned.push({ role, parts: [{ text: content }] });
+  }
+  if (cleaned.length === 0 || cleaned[cleaned.length - 1].role !== 'user') {
+    const err = new Error('El último mensaje debe ser del usuario.');
+    err.status = 400;
+    throw err;
+  }
+
+  const catalog = await getCatalogContext();
+  const systemInstruction = `${SYSTEM_PROMPT}\n${JSON.stringify(catalog)}`;
+
+  const model = genAI.getGenerativeModel({
+    model: MODEL_NAME,
+    systemInstruction,
+    generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
+  });
+
+  const history = cleaned.slice(0, -1);
+  const lastMsg = cleaned[cleaned.length - 1].parts[0].text;
+
+  // Gemini requires history to start with 'user' role
+  const idx = history.findIndex((h) => h.role === 'user');
+  const validHistory = idx === -1 ? [] : history.slice(idx);
+
+  return { chat: model.startChat({ history: validHistory }), lastMsg };
+}
+
+/* ─── Initial validation (returns null on success, error response otherwise) ─── */
+function validateRequest(req, res) {
+  if (!genAI) {
+    res.status(503).json({ error: 'El asistente IA no está configurado. Falta GEMINI_API_KEY.' });
+    return false;
+  }
+  const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+  if (!checkCooldown(ip)) {
+    res.status(429).json({ error: 'Esperá un momento antes de enviar otro mensaje.' });
+    return false;
+  }
+  const { messages } = req.body || {};
+  if (!Array.isArray(messages) || messages.length === 0) {
+    res.status(400).json({ error: 'Se requiere un array de mensajes.' });
+    return false;
+  }
+  if (messages.length > 30) {
+    res.status(400).json({ error: 'Conversación demasiado larga.' });
+    return false;
+  }
+  return true;
+}
+
+function mapAIError(err) {
+  if (err?.message?.includes('API key') || err?.status === 401 || err?.status === 403) {
+    return { status: 503, error: 'Error de autenticación con el servicio IA.' };
+  }
+  if (err?.status === 429) {
+    return { status: 429, error: 'El servicio IA está saturado. Intentá en un momento.' };
+  }
+  return null;
+}
+
 exports.chat = async (req, res, next) => {
   try {
-    if (!genAI) {
-      return res.status(503).json({
-        error: 'El asistente IA no está configurado. Falta GEMINI_API_KEY.',
-      });
-    }
-
-    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
-    if (!checkCooldown(ip)) {
-      return res.status(429).json({ error: 'Esperá un momento antes de enviar otro mensaje.' });
-    }
-
-    const { messages } = req.body || {};
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({ error: 'Se requiere un array de mensajes.' });
-    }
-    if (messages.length > 30) {
-      return res.status(400).json({ error: 'Conversación demasiado larga.' });
-    }
-
-    // Validate & sanitize messages
-    const cleaned = [];
-    for (const m of messages) {
-      if (!m || typeof m !== 'object') continue;
-      const role = m.role === 'user' ? 'user' : 'model';
-      const content = typeof m.content === 'string' ? m.content.trim().slice(0, 1000) : '';
-      if (!content) continue;
-      cleaned.push({ role, parts: [{ text: content }] });
-    }
-    if (cleaned.length === 0 || cleaned[cleaned.length - 1].role !== 'user') {
-      return res.status(400).json({ error: 'El último mensaje debe ser del usuario.' });
-    }
-
-    const catalog = await getCatalogContext();
-    const systemInstruction = `${SYSTEM_PROMPT}\n${JSON.stringify(catalog)}`;
-
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-      systemInstruction,
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 600,
-      },
-    });
-
-    // Gemini chat: split history (all but last) + send last
-    const history = cleaned.slice(0, -1);
-    const lastMsg = cleaned[cleaned.length - 1].parts[0].text;
-
-    // Gemini requires history to start with 'user' role
-    const validHistory = (() => {
-      const idx = history.findIndex((h) => h.role === 'user');
-      return idx === -1 ? [] : history.slice(idx);
-    })();
-
-    const chat = model.startChat({ history: validHistory });
+    if (!validateRequest(req, res)) return;
+    const { chat, lastMsg } = await buildChatSession(req.body.messages);
     const result = await chat.sendMessage(lastMsg);
-    const text = result.response.text();
-
-    res.json({ reply: text });
+    res.json({ reply: result.response.text() });
   } catch (err) {
-    if (err?.message?.includes('API key') || err?.status === 401 || err?.status === 403) {
-      return res.status(503).json({ error: 'Error de autenticación con el servicio IA.' });
-    }
-    if (err?.status === 429) {
-      return res.status(429).json({ error: 'El servicio IA está saturado. Intentá en un momento.' });
-    }
+    const mapped = mapAIError(err);
+    if (mapped) return res.status(mapped.status).json({ error: mapped.error });
+    if (err.status === 400) return res.status(400).json({ error: err.message });
     next(err);
+  }
+};
+
+/* ─── Streaming endpoint (Server-Sent Events) ─── */
+exports.chatStream = async (req, res, next) => {
+  try {
+    if (!validateRequest(req, res)) return;
+
+    let chatSession;
+    try {
+      chatSession = await buildChatSession(req.body.messages);
+    } catch (err) {
+      if (err.status === 400) return res.status(400).json({ error: err.message });
+      throw err;
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders?.();
+
+    let aborted = false;
+    req.on('close', () => { aborted = true; });
+
+    try {
+      const result = await chatSession.chat.sendMessageStream(chatSession.lastMsg);
+      for await (const chunk of result.stream) {
+        if (aborted) break;
+        const text = chunk.text();
+        if (text) res.write(`data: ${JSON.stringify({ delta: text })}\n\n`);
+      }
+      if (!aborted) res.write('data: [DONE]\n\n');
+    } catch (err) {
+      const mapped = mapAIError(err);
+      const payload = mapped ? { error: mapped.error } : { error: 'Error generando la respuesta.' };
+      res.write(`data: ${JSON.stringify(payload)}\n\n`);
+    }
+    res.end();
+  } catch (err) {
+    if (!res.headersSent) next(err);
+    else { try { res.end(); } catch {} }
   }
 };

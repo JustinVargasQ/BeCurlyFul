@@ -43,7 +43,8 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\justi\\\\Desktop\\\\Zayin\\\\JdVirtual\" -Force)",
       "Bash(Select-Object Name, Mode)",
       "Bash(grep -v \"^\\\\\\\\.\")",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "PowerShell(npm run build 2>&1)"
     ],
     "additionalDirectories": [
       "c:\\Users\\justi\\Desktop\\Zayin\\VOStudio"

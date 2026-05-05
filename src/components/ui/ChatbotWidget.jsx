@@ -2,9 +2,29 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, Link } from 'react-router-dom';
 import api from '../../lib/api';
+import useCartStore from '../../store/cartStore';
+import useToastStore from '../../store/toastStore';
 
 const STORAGE_KEY = 'jd-chatbot-history';
 const MAX_STORED_MESSAGES = 20;
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+
+/* Strip the suggestions marker [[sug: a | b | c]] from a (possibly partial) text */
+function stripSugMarker(text) {
+  const idx = text.indexOf('[[sug');
+  return idx === -1 ? text : text.slice(0, idx).trimEnd();
+}
+
+/* Extract suggestions from a complete model reply. Returns ["a","b","c"] or []. */
+function extractSuggestions(text) {
+  const m = text.match(/\[\[sug:\s*([^\]]+)\]\]/i);
+  if (!m) return [];
+  return m[1]
+    .split('|')
+    .map((s) => s.trim().replace(/^["']|["']$/g, ''))
+    .filter(Boolean)
+    .slice(0, 4);
+}
 
 const WELCOME = {
   role: 'model',
@@ -39,6 +59,10 @@ function parseMessage(text) {
 function ProductPill({ slug }) {
   const [product, setProduct] = useState(null);
   const [error, setError] = useState(false);
+  const [added, setAdded] = useState(false);
+  const addItem = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.openCart);
+  const toastSuccess = useToastStore((s) => s.success);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,32 +83,71 @@ function ProductPill({ slug }) {
     );
   }
 
+  const outOfStock = product.stock === 0;
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (outOfStock || added) return;
+    addItem(product, 1);
+    setAdded(true);
+    openCart();
+    toastSuccess(`${product.name} agregado al carrito`);
+    setTimeout(() => setAdded(false), 1800);
+  };
+
   return (
-    <Link
-      to={`/producto/${product.slug}`}
-      className="flex items-center gap-3 my-2 p-2 bg-white rounded-xl border border-rose-100 hover:border-rose-300 hover:shadow-sm transition-all group">
-      <img
-        src={product.images?.[0] || '/placeholder.png'}
-        alt={product.name}
-        className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
-        loading="lazy"
-      />
-      <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-ink-900 truncate group-hover:text-rose-600">
-          {product.name}
-        </p>
-        <p className="text-xs text-ink-500 truncate">{product.brand}</p>
-        <p className="text-xs font-semibold text-rose-600">
-          ₡{product.price.toLocaleString('es-CR')}
-        </p>
-      </div>
-    </Link>
+    <div className="my-2 flex items-center gap-2 p-2 bg-white rounded-xl border border-rose-100 hover:border-rose-300 hover:shadow-sm transition-all group">
+      <Link to={`/producto/${product.slug}`} className="flex items-center gap-3 flex-1 min-w-0">
+        <img
+          src={product.images?.[0] || '/placeholder.png'}
+          alt={product.name}
+          className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
+          loading="lazy"
+        />
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-medium text-ink-900 truncate group-hover:text-rose-600">
+            {product.name}
+          </p>
+          <p className="text-xs text-ink-500 truncate">{product.brand}</p>
+          <p className="text-xs font-semibold text-rose-600">
+            ₡{product.price.toLocaleString('es-CR')}
+          </p>
+        </div>
+      </Link>
+      <button
+        onClick={handleAdd}
+        disabled={outOfStock || added}
+        aria-label={outOfStock ? 'Agotado' : 'Agregar al carrito'}
+        title={outOfStock ? 'Agotado' : 'Agregar al carrito'}
+        className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all ${
+          outOfStock
+            ? 'bg-cream-100 text-ink-300 cursor-not-allowed'
+            : added
+              ? 'bg-emerald-500 text-white scale-95'
+              : 'bg-rose-500 text-white hover:bg-rose-600 active:scale-95'
+        }`}>
+        {added ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+        )}
+      </button>
+    </div>
   );
 }
 
-function MessageBubble({ msg }) {
+function MessageBubble({ msg, isStreaming }) {
   const isUser = msg.role === 'user';
-  const parts = isUser ? [{ type: 'text', value: msg.content }] : parseMessage(msg.content);
+  const visibleText = isUser ? msg.content : stripSugMarker(msg.content);
+  const parts = isUser ? [{ type: 'text', value: visibleText }] : parseMessage(visibleText);
+  const isEmpty = !isUser && visibleText.length === 0;
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-2`}>
@@ -94,12 +157,23 @@ function MessageBubble({ msg }) {
             ? 'bg-rose-500 text-white rounded-br-sm'
             : 'bg-cream-50 text-ink-900 rounded-bl-sm'
         }`}>
-        {parts.map((p, i) =>
-          p.type === 'text' ? (
-            <span key={i} className="whitespace-pre-wrap">{p.value}</span>
-          ) : (
-            <ProductPill key={i} slug={p.slug} />
+        {isEmpty && isStreaming ? (
+          <div className="flex gap-1 py-0.5">
+            <span className="w-1.5 h-1.5 bg-rose-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}/>
+            <span className="w-1.5 h-1.5 bg-rose-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}/>
+            <span className="w-1.5 h-1.5 bg-rose-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}/>
+          </div>
+        ) : (
+          parts.map((p, i) =>
+            p.type === 'text' ? (
+              <span key={i} className="whitespace-pre-wrap">{p.value}</span>
+            ) : (
+              <ProductPill key={i} slug={p.slug} />
+            )
           )
+        )}
+        {isStreaming && !isEmpty && (
+          <span className="inline-block w-1.5 h-3 ml-0.5 bg-rose-400 rounded-sm align-middle animate-pulse" />
         )}
       </div>
     </div>
@@ -167,7 +241,9 @@ export default function ChatbotWidget() {
 
     const userMsg = { role: 'user', content: trimmed };
     const next = [...messages, userMsg];
-    setMessages(next);
+
+    // Add user msg + empty placeholder for streaming model reply
+    setMessages([...next, { role: 'model', content: '', streaming: true }]);
     setInput('');
     setLoading(true);
 
@@ -178,13 +254,88 @@ export default function ChatbotWidget() {
           content: m.content,
         })),
       };
-      const res = await api.post('/chatbot', payload);
-      const reply = res.data?.reply || 'No pude generar una respuesta. Intentá de nuevo.';
-      setMessages((prev) => [...prev, { role: 'model', content: reply }]);
+
+      const res = await fetch(`${API_BASE}/chatbot/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok || !res.body) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.error || 'Hubo un error. Intentá de nuevo en un momento.');
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullText = '';
+      let streamError = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        // SSE events are separated by blank lines
+        const events = buffer.split('\n\n');
+        buffer = events.pop() || '';
+
+        for (const evt of events) {
+          const dataLine = evt.split('\n').find((l) => l.startsWith('data: '));
+          if (!dataLine) continue;
+          const data = dataLine.slice(6);
+          if (data === '[DONE]') continue;
+          try {
+            const json = JSON.parse(data);
+            if (json.error) { streamError = json.error; continue; }
+            if (json.delta) {
+              fullText += json.delta;
+              setMessages((prev) => {
+                const copy = [...prev];
+                const lastIdx = copy.length - 1;
+                if (lastIdx >= 0 && copy[lastIdx].role === 'model') {
+                  copy[lastIdx] = { ...copy[lastIdx], content: fullText };
+                }
+                return copy;
+              });
+            }
+          } catch {}
+        }
+      }
+
+      // Stream finished — extract suggestions, finalize message
+      const suggestions = extractSuggestions(fullText);
+      const finalContent = streamError
+        ? streamError
+        : (fullText || 'No pude generar una respuesta. Intentá de nuevo.');
+
+      setMessages((prev) => {
+        const copy = [...prev];
+        const lastIdx = copy.length - 1;
+        if (lastIdx >= 0 && copy[lastIdx].role === 'model') {
+          copy[lastIdx] = {
+            role: 'model',
+            content: finalContent,
+            suggestions: streamError ? [] : suggestions,
+          };
+        }
+        return copy;
+      });
+
       if (!open) setUnread(true);
     } catch (err) {
-      const msg = err.response?.data?.error || 'Hubo un error. Intentá de nuevo en un momento.';
-      setMessages((prev) => [...prev, { role: 'model', content: msg }]);
+      const msg = err.message || 'Hubo un error. Intentá de nuevo en un momento.';
+      setMessages((prev) => {
+        const copy = [...prev];
+        const lastIdx = copy.length - 1;
+        if (lastIdx >= 0 && copy[lastIdx].role === 'model') {
+          copy[lastIdx] = { role: 'model', content: msg };
+        } else {
+          copy.push({ role: 'model', content: msg });
+        }
+        return copy;
+      });
     } finally {
       setLoading(false);
     }
@@ -400,21 +551,18 @@ export default function ChatbotWidget() {
 
             {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 bg-cream-50/30">
-              {messages.map((m, i) => <MessageBubble key={i} msg={m} />)}
+              {messages.map((m, i) => {
+                const isLast = i === messages.length - 1;
+                return (
+                  <MessageBubble
+                    key={i}
+                    msg={m}
+                    isStreaming={isLast && loading && m.role === 'model'}
+                  />
+                );
+              })}
 
-              {loading && (
-                <div className="flex justify-start mb-2">
-                  <div className="bg-cream-50 rounded-2xl rounded-bl-sm px-3 py-2">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-rose-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}/>
-                      <span className="w-2 h-2 bg-rose-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}/>
-                      <span className="w-2 h-2 bg-rose-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}/>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Quick prompts shown only on initial state */}
+              {/* Initial quick prompts */}
               {messages.length === 1 && !loading && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {QUICK_PROMPTS.map((q) => (
@@ -427,6 +575,30 @@ export default function ChatbotWidget() {
                   ))}
                 </div>
               )}
+
+              {/* Contextual follow-up suggestions — only on the latest model message, when not streaming */}
+              {!loading && (() => {
+                const lastMsg = messages[messages.length - 1];
+                if (!lastMsg || lastMsg.role !== 'model') return null;
+                const sugs = lastMsg.suggestions || [];
+                if (sugs.length === 0) return null;
+                return (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="mt-1 mb-2 flex flex-wrap gap-1.5">
+                    {sugs.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => send(s)}
+                        className="text-xs px-3 py-1.5 bg-white border border-rose-200 text-rose-600 rounded-full hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 transition-colors">
+                        {s}
+                      </button>
+                    ))}
+                  </motion.div>
+                );
+              })()}
             </div>
 
             {/* Input */}
