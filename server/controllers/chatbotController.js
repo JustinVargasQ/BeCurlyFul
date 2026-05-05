@@ -17,27 +17,28 @@ async function getCatalogContext() {
   if (catalogCache.data && now - catalogCache.ts < CATALOG_TTL) {
     return catalogCache.data;
   }
+  // Cap catalog to keep prompt size reasonable (avoids Gemini TPM rate limits).
+  // 100 products is plenty for product recommendations.
   const products = await Product.find({ isActive: true })
-    .select('name slug brand category price oldPrice description features stock badge rating')
+    .select('name slug brand category price oldPrice description stock badge')
     .sort({ createdAt: -1 })
+    .limit(100)
     .lean();
 
   const compact = products.map((p) => ({
-    nombre: p.name,
-    slug: p.slug,
-    marca: p.brand,
-    categoria: p.category,
-    precio: p.price,
-    precioAnterior: p.oldPrice || undefined,
-    descripcion: (p.description || '').slice(0, 250),
-    caracteristicas: (p.features || []).slice(0, 5),
-    stock: p.stock === null ? 'disponible' : (p.stock > 0 ? `${p.stock} disponibles` : 'agotado'),
-    badge: p.badge || undefined,
-    rating: p.rating || undefined,
+    n: p.name,                                          // nombre
+    s: p.slug,                                          // slug
+    m: p.brand,                                         // marca
+    c: p.category,                                      // categoria
+    p: p.price,                                         // precio
+    op: p.oldPrice || undefined,                        // precio anterior
+    d: (p.description || '').slice(0, 120),             // descripcion compacta
+    st: p.stock === null ? 'ok' : (p.stock > 0 ? 'ok' : 'agotado'),
+    b: p.badge || undefined,
   }));
 
   catalogCache = { data: compact, ts: now };
-  console.log(`📦 Catálogo cargado: ${compact.length} productos activos`);
+  console.log(`📦 Catálogo cargado: ${compact.length} productos | ~${Math.round(JSON.stringify(compact).length / 4)} tokens`);
   return compact;
 }
 
@@ -149,8 +150,21 @@ REGLAS GENERALES:
 - No pidás datos sensibles.
 
 ═══════════════════════════════════════
-CATÁLOGO COMPLETO Y VIGENTE (JSON con TODOS los productos activos):
-═══════════════════════════════════════`;
+CATÁLOGO COMPLETO Y VIGENTE
+═══════════════════════════════════════
+
+Diccionario de campos del JSON:
+- "n" = nombre del producto
+- "s" = slug (lo que vas en [[s]])
+- "m" = marca
+- "c" = categoría
+- "p" = precio en colones
+- "op" = precio anterior (si tiene descuento)
+- "d" = descripción
+- "st" = stock ("ok" disponible, "agotado" no recomendar)
+- "b" = badge (ej: "OFERTA")
+
+JSON:`;
 
 /* ─── Per-IP simple cooldown to prevent abuse ─── */
 const recentRequests = new Map();
@@ -226,7 +240,27 @@ exports.chat = async (req, res, next) => {
     })();
 
     const chat = model.startChat({ history: validHistory });
-    const result = await chat.sendMessage(lastMsg);
+
+    // Retry with exponential backoff for transient 429/503 errors
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    let result, lastErr;
+    const delays = [0, 1500, 3000]; // 3 attempts: immediate, +1.5s, +3s
+    for (const delay of delays) {
+      if (delay > 0) await sleep(delay);
+      try {
+        result = await chat.sendMessage(lastMsg);
+        lastErr = null;
+        break;
+      } catch (e) {
+        lastErr = e;
+        const status = e?.status || e?.response?.status;
+        const transient = status === 429 || status === 503 || status === 500;
+        if (!transient) throw e; // non-retryable
+        console.warn(`⚠️ Gemini ${status} — reintentando...`);
+      }
+    }
+    if (lastErr) throw lastErr;
+
     let text = result.response.text();
 
     // Diagnostics
@@ -242,11 +276,27 @@ exports.chat = async (req, res, next) => {
 
     res.json({ reply: text });
   } catch (err) {
-    if (err?.message?.includes('API key') || err?.status === 401 || err?.status === 403) {
+    const status = err?.status || err?.response?.status;
+    const message = err?.message || String(err);
+
+    console.error('❌ Error en /api/chatbot:', {
+      status,
+      message: message.slice(0, 300),
+      details: err?.errorDetails || err?.response?.data || undefined,
+    });
+
+    if (message.includes('API key') || status === 401 || status === 403) {
       return res.status(503).json({ error: 'Error de autenticación con el servicio IA.' });
     }
-    if (err?.status === 429) {
-      return res.status(429).json({ error: 'El servicio IA está saturado. Intentá en un momento.' });
+    if (status === 429) {
+      return res.status(429).json({
+        error: 'Mucha demanda en este momento. Esperá unos segundos y volvé a intentar 🙏',
+      });
+    }
+    if (status === 503 || status === 500) {
+      return res.status(503).json({
+        error: 'El servicio IA está temporalmente fuera de línea. Probá en un momento.',
+      });
     }
     next(err);
   }
