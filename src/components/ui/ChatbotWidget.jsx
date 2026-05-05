@@ -81,7 +81,13 @@ function ProductPill({ slug, onLoaded }) {
     setTimeout(() => setAdded(false), 2200);
   };
 
-  if (error) return null;
+  if (error) {
+    return (
+      <div className="my-2 p-2 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-700">
+        ⚠️ Producto "<span className="font-mono">{slug}</span>" no disponible. Probá pidiéndome otra opción.
+      </div>
+    );
+  }
 
   if (!product) {
     return (
