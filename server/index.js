@@ -1,11 +1,18 @@
 require('dotenv').config();
 
 /* ─── Validate required env vars before anything else ─── */
-const REQUIRED_ENV = ['MONGO_URI', 'JWT_SECRET', 'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'];
+const REQUIRED_ENV = ['MONGO_URI', 'JWT_SECRET'];
+const OPTIONAL_ENV = ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'];
+
 const missingEnv = REQUIRED_ENV.filter((k) => !process.env[k]);
 if (missingEnv.length) {
-  console.error(`❌ Variables de entorno faltantes: ${missingEnv.join(', ')}`);
+  console.error(`❌ Variables de entorno requeridas faltantes: ${missingEnv.join(', ')}`);
   process.exit(1);
+}
+
+const missingOptional = OPTIONAL_ENV.filter((k) => !process.env[k]);
+if (missingOptional.length) {
+  console.warn(`⚠️  Variables opcionales faltantes (uploads de imágenes deshabilitados): ${missingOptional.join(', ')}`);
 }
 
 const express       = require('express');

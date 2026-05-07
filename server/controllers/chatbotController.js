@@ -6,7 +6,12 @@ const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
 let genAI = null;
-if (GEMINI_KEY) genAI = new GoogleGenerativeAI(GEMINI_KEY);
+if (GEMINI_KEY) {
+  genAI = new GoogleGenerativeAI(GEMINI_KEY);
+  console.log(`🤖 Chatbot inicializado — modelo: ${MODEL_NAME}`);
+} else {
+  console.warn('⚠️  GEMINI_API_KEY no configurada — el chatbot no funcionará');
+}
 
 /* ─── Catalog cache (refresh every 5 min) ─── */
 let catalogCache = { data: null, ts: 0 };
@@ -45,6 +50,103 @@ async function getCatalogContext() {
 exports.invalidateCatalog = () => {
   catalogCache = { data: null, ts: 0 };
 };
+
+/* ─── Catalog filtering — reduce tokens sent to Gemini ─── */
+const MAX_PRODUCTS_IN_CONTEXT = 35;
+
+function normalizeText(s) {
+  return (s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, ''); // strip accents
+}
+
+const CATEGORY_KEYWORDS = {
+  labios:   ['labial', 'labio', 'labios', 'gloss', 'lipstick', 'tinta', 'lip', 'brillo'],
+  ojos:     ['sombra', 'sombras', 'mascara', 'pestana', 'pestanas', 'eyeliner', 'delineador', 'ceja', 'cejas', 'eyeshadow', 'rimmel'],
+  rostro:   ['base', 'rubor', 'iluminador', 'corrector', 'polvo', 'contorno', 'bronzer', 'primer', 'foundation', 'blush', 'highlighter', 'cubre', 'ojeras'],
+  skincare: ['skincare', 'crema', 'serum', 'sérum', 'hidratante', 'limpiador', 'tonico', 'mascarilla', 'protector', 'solar', 'spf', 'retinol', 'niacinamida', 'acne', 'antiage', 'antiarrugas', 'manchas', 'piel'],
+  cabello:  ['shampoo', 'champu', 'acondicionador', 'tinte', 'cabello', 'pelo', 'capilar', 'mascarilla'],
+};
+
+const STOPWORDS = new Set([
+  'que','cual','cuales','me','te','se','lo','la','los','las','el','un','una','unos','unas',
+  'de','del','al','en','con','sin','por','para','es','son','soy','tengo','tenes','hay','busco',
+  'quiero','quieres','queres','recomendas','recomienda','recomiendas','mi','tu','su','y','o',
+  'pero','si','no','mas','menos','algo','todo','todos','todas','mucho','poco','muy','puedo',
+  'puedes','podes','dame','dale','muestra','mostrame','ver','vi','hola','gracias','ayuda',
+  'ayudame','quisiera','necesito','este','esta','esto','ese','esa','eso','aqui','alli','colones',
+]);
+
+/* Extract a price ceiling from natural language: "10 mil", "10000", "menos de 5000" */
+function detectPriceCeiling(text) {
+  const norm = normalizeText(text);
+  const milMatch = norm.match(/(\d+(?:[.,]\d+)?)\s*mil/);
+  if (milMatch) return Math.round(parseFloat(milMatch[1].replace(',', '.')) * 1000);
+  const num = norm.match(/\b(\d{4,7})\b/);
+  if (num) return parseInt(num[1], 10);
+  return null;
+}
+
+function detectCategories(tokens) {
+  const cats = new Set();
+  for (const tok of tokens) {
+    for (const [cat, keys] of Object.entries(CATEGORY_KEYWORDS)) {
+      if (keys.includes(tok)) cats.add(cat);
+    }
+  }
+  return cats;
+}
+
+/* Score & filter the catalog based on the user's recent messages */
+function filterCatalog(allProducts, userText) {
+  const norm = normalizeText(userText);
+  const tokens = norm.split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !STOPWORDS.has(t));
+  const categories = detectCategories(tokens);
+  const priceCap = detectPriceCeiling(userText);
+
+  // Generic / vague query (greeting, no keywords) — return curated top
+  if (tokens.length === 0 && categories.size === 0 && !priceCap) {
+    return [...allProducts]
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+      .slice(0, MAX_PRODUCTS_IN_CONTEXT);
+  }
+
+  const scored = allProducts.map((p) => {
+    const haystack = normalizeText(
+      `${p.nombre} ${p.marca} ${p.categoria} ${p.descripcion} ${(p.caracteristicas || []).join(' ')} ${p.badge || ''}`
+    );
+
+    let score = 0;
+    if (categories.size > 0 && categories.has(p.categoria)) score += 10;
+    for (const tok of tokens) {
+      if (haystack.includes(tok)) score += 2;
+    }
+    if (priceCap) {
+      if (p.precio <= priceCap) score += 3;
+      else score -= 5;
+    }
+    if (p.stock === 'agotado') score -= 2;
+    score += (p.rating || 0) * 0.1;
+
+    return { p, score };
+  });
+
+  let filtered = scored.filter((x) => x.score > 0).sort((a, b) => b.score - a.score);
+
+  // Pad with top-rated if we matched too few
+  if (filtered.length < 10) {
+    const seen = new Set(filtered.map((x) => x.p.slug));
+    const padding = allProducts
+      .filter((p) => !seen.has(p.slug))
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+      .slice(0, MAX_PRODUCTS_IN_CONTEXT - filtered.length)
+      .map((p) => ({ p, score: 0 }));
+    filtered = [...filtered, ...padding];
+  }
+
+  return filtered.slice(0, MAX_PRODUCTS_IN_CONTEXT).map((x) => x.p);
+}
 
 const SYSTEM_PROMPT = `Eres "JD Asistente", la asesora virtual de belleza de **JD Virtual**, una tienda costarricense de maquillaje, skincare, perfumes y cuidado del cabello ubicada en El Roble, Puntarenas.
 
@@ -132,7 +234,18 @@ async function buildChatSession(messages) {
     throw err;
   }
 
-  const catalog = await getCatalogContext();
+  const allCatalog = await getCatalogContext();
+
+  // Filter catalog using last 2 user messages (gives some conversational context)
+  const recentUserText = cleaned
+    .filter((m) => m.role === 'user')
+    .slice(-2)
+    .map((m) => m.parts[0].text)
+    .join(' ');
+
+  const catalog = filterCatalog(allCatalog, recentUserText);
+  console.log(`📊 Catálogo filtrado: ${catalog.length}/${allCatalog.length} productos para "${recentUserText.slice(0, 60)}"`);
+
   const systemInstruction = `${SYSTEM_PROMPT}\n${JSON.stringify(catalog)}`;
 
   const model = genAI.getGenerativeModel({
@@ -187,13 +300,32 @@ function validateRequest(req, res) {
 }
 
 function mapAIError(err) {
-  if (err?.message?.includes('API key') || err?.status === 401 || err?.status === 403) {
+  const msg = err?.message || '';
+  if (msg.includes('API key') || err?.status === 401 || err?.status === 403) {
     return { status: 503, error: 'Error de autenticación con el servicio IA.' };
   }
-  if (err?.status === 429) {
-    return { status: 429, error: 'El servicio IA está saturado. Intentá en un momento.' };
+  if (err?.status === 429 || msg.includes('429') || msg.toLowerCase().includes('quota')) {
+    // Distinguir cuota agotada vs rate limit por minuto
+    const isQuota = msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('exceeded');
+    return {
+      status: 429,
+      error: isQuota
+        ? 'Cuota diaria del asistente IA agotada. Intentá mañana o contactanos por WhatsApp.'
+        : 'Muchas consultas en este momento. Esperá unos segundos e intentá de nuevo.',
+    };
+  }
+  if (err?.status === 404 || msg.includes('not found') || msg.includes('NOT_FOUND')) {
+    return { status: 503, error: 'El modelo IA configurado no está disponible. Avisá al administrador.' };
   }
   return null;
+}
+
+function logAIError(err) {
+  console.error('❌ Chatbot error:');
+  console.error('   message:', err?.message);
+  console.error('   status :', err?.status);
+  if (err?.errorDetails) console.error('   details:', JSON.stringify(err.errorDetails, null, 2));
+  if (err?.cause) console.error('   cause  :', err.cause);
 }
 
 exports.chat = async (req, res, next) => {
@@ -203,6 +335,7 @@ exports.chat = async (req, res, next) => {
     const result = await chat.sendMessage(lastMsg);
     res.json({ reply: result.response.text() });
   } catch (err) {
+    logAIError(err);
     const mapped = mapAIError(err);
     if (mapped) return res.status(mapped.status).json({ error: mapped.error });
     if (err.status === 400) return res.status(400).json({ error: err.message });
@@ -254,7 +387,7 @@ exports.chatStream = async (req, res, next) => {
       } catch {}
       if (!aborted) res.write('data: [DONE]\n\n');
     } catch (err) {
-      console.error('❌ Chatbot stream error:', err?.message || err, err?.status || '');
+      logAIError(err);
       const mapped = mapAIError(err);
       const payload = mapped ? { error: mapped.error } : { error: 'Error generando la respuesta.' };
       res.write(`data: ${JSON.stringify(payload)}\n\n`);
