@@ -2,7 +2,8 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Product = require('../models/Product');
 
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
-const MODEL_NAME = 'gemini-2.5-flash';
+// gemini-2.0-flash: rápido, sin "thinking mode" (que consume tokens del output budget)
+const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
 let genAI = null;
 if (GEMINI_KEY) genAI = new GoogleGenerativeAI(GEMINI_KEY);
@@ -137,7 +138,19 @@ async function buildChatSession(messages) {
   const model = genAI.getGenerativeModel({
     model: MODEL_NAME,
     systemInstruction,
-    generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 1500,        // suficiente para 5-6 productos + sugerencias
+      // thinkingBudget: 0 — si se usa modelo 2.5, evitar que "piense" y se quede sin output
+      thinkingConfig: { thinkingBudget: 0 },
+    },
+    // Relajar safety: la consulta de cosméticos a veces dispara filtros falsos
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+    ],
   });
 
   const history = cleaned.slice(0, -1);
@@ -226,8 +239,22 @@ exports.chatStream = async (req, res, next) => {
         const text = chunk.text();
         if (text) res.write(`data: ${JSON.stringify({ delta: text })}\n\n`);
       }
+      // Inspect why the model stopped — log if not natural STOP
+      try {
+        const finalResp = await result.response;
+        const finishReason = finalResp?.candidates?.[0]?.finishReason;
+        if (finishReason && finishReason !== 'STOP') {
+          console.warn(`⚠️  Chatbot finishReason=${finishReason}`);
+          if (finishReason === 'MAX_TOKENS') {
+            res.write(`data: ${JSON.stringify({ delta: '\n\n_(respuesta truncada)_' })}\n\n`);
+          } else if (finishReason === 'SAFETY') {
+            res.write(`data: ${JSON.stringify({ error: 'La respuesta fue bloqueada por filtros de seguridad. Intentá reformular la pregunta.' })}\n\n`);
+          }
+        }
+      } catch {}
       if (!aborted) res.write('data: [DONE]\n\n');
     } catch (err) {
+      console.error('❌ Chatbot stream error:', err?.message || err, err?.status || '');
       const mapped = mapAIError(err);
       const payload = mapped ? { error: mapped.error } : { error: 'Error generando la respuesta.' };
       res.write(`data: ${JSON.stringify(payload)}\n\n`);

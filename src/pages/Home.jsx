@@ -537,6 +537,56 @@ function HeroGridLayout({ onCatSelect }) {
   );
 }
 
+/* ─── Hero video element — robust autoplay (handles bfcache restore, tab visibility) ─── */
+function HeroVideo({ className }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+
+    const tryPlay = () => {
+      // If the resource was discarded (bfcache / tab suspension), force a reload first
+      if (v.networkState === HTMLMediaElement.NETWORK_NO_SOURCE || v.readyState === 0) {
+        try { v.load(); } catch {}
+      }
+      const p = v.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    };
+
+    tryPlay();
+
+    const onVisibility = () => { if (!document.hidden) tryPlay(); };
+    const onPageShow = () => tryPlay(); // fires on bfcache restore (event.persisted === true)
+    const onCanPlay = () => tryPlay();
+
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pageshow', onPageShow);
+    v.addEventListener('canplay', onCanPlay);
+    v.addEventListener('loadeddata', tryPlay);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pageshow', onPageShow);
+      v.removeEventListener('canplay', onCanPlay);
+      v.removeEventListener('loadeddata', tryPlay);
+    };
+  }, []);
+
+  return (
+    <video
+      ref={ref}
+      src="/videos/hero.mp4"
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      className={className}
+    />
+  );
+}
+
 /* ─── Hero VIDEO layout — improved ─── */
 function HeroVideoLayout({ onCatSelect }) {
   const [current, setCurrent] = useState(0);
@@ -562,8 +612,7 @@ function HeroVideoLayout({ onCatSelect }) {
       {/* MOBILE — video on top, text below */}
       <div className="md:hidden relative flex flex-col bg-white">
         <div className="relative w-full overflow-hidden" style={{ height: 'min(58vw, 340px)', minHeight: 280 }}>
-          <video src="/videos/hero.mp4" autoPlay muted loop playsInline
-            className="absolute inset-0 w-full h-full object-cover scale-[1.02]" />
+          <HeroVideo className="absolute inset-0 w-full h-full object-cover scale-[1.02]" />
           {/* Subtle vignettes */}
           <div className="absolute inset-x-0 bottom-0 h-2/3 pointer-events-none"
             style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.55) 0%, rgba(15,9,11,0.15) 50%, transparent 100%)' }} />
@@ -626,8 +675,7 @@ function HeroVideoLayout({ onCatSelect }) {
         onMouseLeave={() => setPaused(false)}>
 
         {/* Full-bleed video background */}
-        <video src="/videos/hero.mp4" autoPlay muted loop playsInline
-          className="absolute inset-0 w-full h-full object-cover" />
+        <HeroVideo className="absolute inset-0 w-full h-full object-cover" />
 
         {/* Cinematic gradient — dark from left for text contrast */}
         <div className="absolute inset-0 pointer-events-none"

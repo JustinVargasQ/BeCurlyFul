@@ -306,9 +306,15 @@ export default function ChatbotWidget() {
 
       // Stream finished — extract suggestions, finalize message
       const suggestions = extractSuggestions(fullText);
-      const finalContent = streamError
-        ? streamError
-        : (fullText || 'No pude generar una respuesta. Intentá de nuevo.');
+      let finalContent;
+      if (streamError && !fullText) {
+        finalContent = streamError;
+      } else if (streamError) {
+        // Partial text + error — keep the text we got and append a soft note
+        finalContent = `${fullText}\n\n⚠️ ${streamError}`;
+      } else {
+        finalContent = fullText || 'No pude generar una respuesta. Intentá de nuevo.';
+      }
 
       setMessages((prev) => {
         const copy = [...prev];
