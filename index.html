@@ -41,10 +41,35 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
+      // Service worker only in production. In dev (Vite on localhost) the SW
+      // caches JS/CSS cache-first and a normal F5 serves stale modules → blank
+      // page until Ctrl+Shift+R. Detect dev and unregister + clear caches so
+      // future F5s work; auto-reload once after cleanup.
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js');
-        });
+        var isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        if (isDev) {
+          navigator.serviceWorker.getRegistrations().then(function (regs) {
+            var hadSW = regs.length > 0;
+            return Promise.all(regs.map(function (r) { return r.unregister(); }))
+              .then(function () {
+                if (window.caches) {
+                  return caches.keys().then(function (keys) {
+                    return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+                  });
+                }
+              })
+              .then(function () {
+                if (hadSW && !sessionStorage.getItem('jd-sw-cleaned')) {
+                  sessionStorage.setItem('jd-sw-cleaned', '1');
+                  location.reload();
+                }
+              });
+          });
+        } else {
+          window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js');
+          });
+        }
       }
     </script>
   </body>

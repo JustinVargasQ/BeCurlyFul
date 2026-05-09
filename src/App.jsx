@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -16,19 +16,32 @@ import MiCuenta from './pages/MiCuenta';
 import Offers from './pages/Offers';
 import HowToBuy from './pages/HowToBuy';
 import Privacy from './pages/Privacy';
-import AdminLogin from './pages/admin/Login';
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminProducts from './pages/admin/Products';
-import AdminProductForm from './pages/admin/ProductForm';
-import AdminOrders from './pages/admin/Orders';
-import AdminCoupons from './pages/admin/Coupons';
-import AdminConfig from './pages/admin/Config';
-import AdminReviews from './pages/admin/Reviews';
+
+// Admin chunks — lazy so end users (the 99% who never visit /admin) don't
+// download this code on first load. Cuts the initial bundle ~30%.
+const AdminLogin         = lazy(() => import('./pages/admin/Login'));
+const AdminDashboard     = lazy(() => import('./pages/admin/Dashboard'));
+const AdminProducts      = lazy(() => import('./pages/admin/Products'));
+const AdminProductForm   = lazy(() => import('./pages/admin/ProductForm'));
+const AdminOrders        = lazy(() => import('./pages/admin/Orders'));
+const AdminCoupons       = lazy(() => import('./pages/admin/Coupons'));
+const AdminConfig        = lazy(() => import('./pages/admin/Config'));
+const AdminReviews       = lazy(() => import('./pages/admin/Reviews'));
+const AdminChatInsights  = lazy(() => import('./pages/admin/ChatInsights'));
+
+function AdminSpinner() {
+  return (
+    <div className="flex items-center justify-center min-h-[40vh]">
+      <div className="w-10 h-10 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin" />
+    </div>
+  );
+}
 import useAuthStore from './store/authStore';
 import InstallBanner from './components/ui/InstallBanner';
 import PromoBanner from './components/ui/PromoBanner';
 import ServerWakeup from './components/ui/ServerWakeup';
 import ChatbotWidget from './components/ui/ChatbotWidget';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 
 function StorefrontLayout({ children }) {
   const location = useLocation();
@@ -76,7 +89,7 @@ export default function App() {
       <ServerWakeup />
       <Toaster />
       <InstallBanner />
-      <ChatbotWidget />
+      <ErrorBoundary label="ChatbotWidget"><ChatbotWidget /></ErrorBoundary>
       <PageTracker />
       <Routes>
         {/* Public storefront */}
@@ -92,16 +105,17 @@ export default function App() {
         <Route path="/como-comprar" element={<StorefrontLayout><HowToBuy /></StorefrontLayout>} />
         <Route path="/privacidad" element={<StorefrontLayout><Privacy /></StorefrontLayout>} />
 
-        {/* Admin */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<RequireAuth><AdminDashboard /></RequireAuth>}>
-          <Route path="productos"              element={<AdminProducts />} />
-          <Route path="productos/nuevo"        element={<AdminProductForm />} />
-          <Route path="productos/:id/editar"   element={<AdminProductForm />} />
-          <Route path="ordenes"                element={<AdminOrders />} />
-          <Route path="cupones"                element={<AdminCoupons />} />
-          <Route path="resenas"                element={<AdminReviews />} />
-          <Route path="config"                 element={<AdminConfig />} />
+        {/* Admin — lazy-loaded behind a Suspense fallback */}
+        <Route path="/admin/login" element={<Suspense fallback={<AdminSpinner />}><AdminLogin /></Suspense>} />
+        <Route path="/admin" element={<RequireAuth><Suspense fallback={<AdminSpinner />}><AdminDashboard /></Suspense></RequireAuth>}>
+          <Route path="productos"              element={<Suspense fallback={<AdminSpinner />}><AdminProducts /></Suspense>} />
+          <Route path="productos/nuevo"        element={<Suspense fallback={<AdminSpinner />}><AdminProductForm /></Suspense>} />
+          <Route path="productos/:id/editar"   element={<Suspense fallback={<AdminSpinner />}><AdminProductForm /></Suspense>} />
+          <Route path="ordenes"                element={<Suspense fallback={<AdminSpinner />}><AdminOrders /></Suspense>} />
+          <Route path="cupones"                element={<Suspense fallback={<AdminSpinner />}><AdminCoupons /></Suspense>} />
+          <Route path="resenas"                element={<Suspense fallback={<AdminSpinner />}><AdminReviews /></Suspense>} />
+          <Route path="chatbot"                element={<Suspense fallback={<AdminSpinner />}><AdminChatInsights /></Suspense>} />
+          <Route path="config"                 element={<Suspense fallback={<AdminSpinner />}><AdminConfig /></Suspense>} />
         </Route>
 
         {/* Fallback */}

@@ -4,5 +4,7 @@ Allow: /
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /confirmacion
+Disallow: /mi-cuenta
 
 Sitemap: https://jd-virtual.vercel.app/sitemap.xml
+

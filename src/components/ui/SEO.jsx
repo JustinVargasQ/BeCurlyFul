@@ -32,7 +32,10 @@ export default function SEO({ title, description, image, url, type = 'website', 
       <meta name="twitter:description" content={desc} />
       <meta name="twitter:image"       content={img} />
 
-      {/* Product structured data (JSON-LD) */}
+      {/* Product structured data (JSON-LD).
+          Includes AggregateRating when there's a real review base — Google
+          surfaces ★ rating + review count directly in search results.
+          Also includes priceValidUntil + sku/mpn for better matching. */}
       {product && (
         <script type="application/ld+json">
           {JSON.stringify({
@@ -41,16 +44,36 @@ export default function SEO({ title, description, image, url, type = 'website', 
             name: product.name,
             description: product.description || desc,
             image: img,
+            sku: product.slug || product._id,
             brand: { '@type': 'Brand', name: product.brand },
+            ...(product.category ? { category: product.category } : {}),
             offers: {
               '@type': 'Offer',
+              url: canonical,
               priceCurrency: 'CRC',
               price: product.price,
+              ...(product.oldPrice && product.oldPrice > product.price ? {
+                priceSpecification: {
+                  '@type': 'UnitPriceSpecification',
+                  price: product.price,
+                  priceCurrency: 'CRC',
+                  referencePrice: { '@type': 'UnitPriceSpecification', price: product.oldPrice, priceCurrency: 'CRC' },
+                },
+              } : {}),
               availability: product.stock === 0
                 ? 'https://schema.org/OutOfStock'
                 : 'https://schema.org/InStock',
               seller: { '@type': 'Organization', name: SITE_NAME },
             },
+            ...(product.reviewCount > 0 && product.rating > 0 ? {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: Number(product.rating).toFixed(1),
+                reviewCount: product.reviewCount,
+                bestRating: 5,
+                worstRating: 1,
+              },
+            } : {}),
           })}
         </script>
       )}

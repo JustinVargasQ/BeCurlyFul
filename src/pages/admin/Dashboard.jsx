@@ -37,6 +37,7 @@ const NAV = [
   { to: '/admin/ordenes',    label: 'Órdenes',      icon: <OrderIcon />                },
   { to: '/admin/cupones',    label: 'Cupones',      icon: <CouponIcon />               },
   { to: '/admin/resenas',    label: 'Reseñas',      icon: <ReviewIcon />               },
+  { to: '/admin/chatbot',    label: 'Chatbot',      icon: <ChatStatIcon />             },
   { to: '/admin/config',     label: 'Configuración',icon: <ConfigIcon />               },
 ];
 
@@ -47,6 +48,7 @@ const PAGE_TITLES = {
   '/admin/ordenes':            'Órdenes',
   '/admin/cupones':            'Cupones',
   '/admin/resenas':            'Reseñas',
+  '/admin/chatbot':            'Chatbot',
   '/admin/config':             'Configuración',
 };
 
@@ -550,6 +552,16 @@ function showNotification(customer, orderNumber) {
   });
 }
 
+function showStockNotification(title, body, tag) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  new Notification(title, {
+    body,
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    tag,
+  });
+}
+
 let _pendingOrders = 0;
 function updateTabTitle(delta = 0) {
   _pendingOrders = Math.max(0, _pendingOrders + delta);
@@ -579,6 +591,27 @@ function useNewOrderAlert() {
         `Nuevo pedido de ${data.customer || 'cliente'}! #${data.orderNumber}`
       );
       window.dispatchEvent(new CustomEvent('jd:new-order', { detail: data }));
+    });
+
+    // Stock-bajo y agotado: alertas blandas (sin sonido) para que reabastezcas a tiempo.
+    es.addEventListener('low-stock', (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        showStockNotification('⚠️ Stock bajo', `${data.name} — quedan ${data.stock}`, `low-${data.productId}`);
+        useToastStore.getState().info?.(`⚠️ ${data.name} en stock bajo (${data.stock})`)
+          ?? useToastStore.getState().success(`⚠️ ${data.name} en stock bajo (${data.stock})`);
+        window.dispatchEvent(new CustomEvent('jd:low-stock', { detail: data }));
+      } catch {}
+    });
+
+    es.addEventListener('out-of-stock', (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        showStockNotification('🛑 Producto agotado', `${data.name} — sin stock`, `out-${data.productId}`);
+        useToastStore.getState().error?.(`🛑 ${data.name} agotado`)
+          ?? useToastStore.getState().success(`🛑 ${data.name} agotado`);
+        window.dispatchEvent(new CustomEvent('jd:out-of-stock', { detail: data }));
+      } catch {}
     });
 
     // Reset tab title when window gets focus

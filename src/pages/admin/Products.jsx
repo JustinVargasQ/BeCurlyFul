@@ -57,6 +57,313 @@ function useAdminProducts() {
   return { products, loading, load, toggle, remove };
 }
 
+/* ── Auto-tag bulk button ──
+ *   1. Click → llama /admin/auto-tag?dryRun=true → preview de qué se agregaría
+ *   2. Modal con conteo + lista resumida → admin confirma
+ *   3. Llama /admin/auto-tag (apply) → toast + refresh
+ */
+function AutoTagButton({ onDone }) {
+  const [busy, setBusy]     = useState(false);
+  const [preview, setPreview] = useState(null);
+  const toast = useToastStore();
+
+  const runPreview = async () => {
+    if (!USE_API) { toast.error('Backend no conectado'); return; }
+    setBusy(true);
+    try {
+      const { data } = await api.post('/products/admin/auto-tag?dryRun=true');
+      if (!data.preview || data.preview.length === 0) {
+        toast.success('Todos los productos ya están etiquetados ✨');
+        return;
+      }
+      setPreview(data);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'No se pudo previsualizar');
+    } finally { setBusy(false); }
+  };
+
+  const apply = async () => {
+    setBusy(true);
+    try {
+      const { data } = await api.post('/products/admin/auto-tag');
+      toast.success(`${data.updated} producto${data.updated === 1 ? '' : 's'} etiquetado${data.updated === 1 ? '' : 's'}`);
+      setPreview(null);
+      onDone?.();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'No se pudo aplicar');
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={runPreview}
+        disabled={busy}
+        title="Sugiere etiquetas para todos los productos según su nombre. No sobreescribe lo que ya tagueaste."
+        className="flex items-center gap-2 bg-white border border-cream-200 hover:border-rose-300 text-ink-700 hover:text-rose-600 font-bold px-3.5 py-2.5 rounded-xl transition-colors text-sm whitespace-nowrap disabled:opacity-50">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        {busy ? 'Analizando…' : 'Auto-etiquetar'}
+      </button>
+
+      {preview && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => !busy && setPreview(null)}>
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-cream-100">
+              <h3 className="font-display text-lg font-semibold text-ink-900">Sugerencias de etiquetas</h3>
+              <p className="text-sm text-ink-500 mt-0.5">
+                Se van a agregar etiquetas a <strong className="text-rose-600">{preview.preview.length}</strong> producto{preview.preview.length === 1 ? '' : 's'}.
+                Las etiquetas existentes no se tocan.
+              </p>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 py-3">
+              <table className="w-full text-sm">
+                <thead className="text-[10px] uppercase tracking-wider text-ink-400 border-b border-cream-100">
+                  <tr>
+                    <th className="text-left py-2 font-bold">Producto</th>
+                    <th className="text-left py-2 font-bold">Se agregarán</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {preview.preview.map((row) => (
+                    <tr key={row.id} className="border-b border-cream-50">
+                      <td className="py-2 pr-3">
+                        <div className="font-semibold text-ink-800 truncate max-w-[260px]">{row.name}</div>
+                        <div className="text-[10px] text-ink-400 uppercase">{row.category}</div>
+                      </td>
+                      <td className="py-2">
+                        <div className="flex flex-wrap gap-1">
+                          {row.added.map((t) => (
+                            <span key={t} className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 text-[10px] font-semibold border border-rose-100">+ {t}</span>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="px-5 py-3 border-t border-cream-100 flex items-center justify-end gap-2">
+              <button onClick={() => setPreview(null)} disabled={busy}
+                className="px-4 py-2 text-sm font-bold text-ink-500 hover:text-ink-700 disabled:opacity-50">
+                Cancelar
+              </button>
+              <button onClick={apply} disabled={busy}
+                className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50">
+                {busy ? 'Aplicando…' : `Aplicar a ${preview.preview.length}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ── Bulk CSV import ──
+ * Pegás un CSV / TSV o subís un archivo, ves un preview con qué se va a crear
+ * vs actualizar, y aplicás. La merge es no-destructiva en tags. */
+function parseCsvText(text) {
+  if (!text) return [];
+  const lines = text.replace(/\r\n?/g, '\n').split('\n').filter((l) => l.trim().length > 0);
+  if (lines.length < 2) return [];
+  // Detectar delimitador: prioriza coma, después tab, después punto-coma
+  const firstLine = lines[0];
+  let delim = ',';
+  if (!firstLine.includes(',') && firstLine.includes('\t')) delim = '\t';
+  else if (!firstLine.includes(',') && firstLine.includes(';')) delim = ';';
+
+  // Parser tolerante: respeta comillas dobles para campos con delim adentro
+  const parseLine = (line) => {
+    const out = [];
+    let cur = '';
+    let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') {
+        if (inQ && line[i + 1] === '"') { cur += '"'; i += 1; }
+        else inQ = !inQ;
+      } else if (c === delim && !inQ) { out.push(cur); cur = ''; }
+      else cur += c;
+    }
+    out.push(cur);
+    return out.map((s) => s.trim());
+  };
+
+  const headers = parseLine(lines[0]).map((h) => h.toLowerCase().trim());
+  return lines.slice(1).map((line) => {
+    const cols = parseLine(line);
+    const row = {};
+    headers.forEach((h, i) => { row[h] = cols[i] ?? ''; });
+    return row;
+  }).filter((r) => r.name || r.nombre);
+}
+
+function BulkImportButton({ onDone }) {
+  const [open, setOpen]       = useState(false);
+  const [text, setText]       = useState('');
+  const [preview, setPreview] = useState(null);
+  const [busy, setBusy]       = useState(false);
+  const toast = useToastStore();
+
+  const tryPreview = async () => {
+    if (!USE_API) { toast.error('Backend no conectado'); return; }
+    const rows = parseCsvText(text);
+    if (rows.length === 0) {
+      toast.error('No se detectaron filas. Verificá que la primera fila sean los encabezados.');
+      return;
+    }
+    setBusy(true);
+    try {
+      const { data } = await api.post('/products/admin/bulk-import?dryRun=true', { rows });
+      setPreview(data);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'No se pudo previsualizar');
+    } finally { setBusy(false); }
+  };
+
+  const apply = async () => {
+    setBusy(true);
+    try {
+      const rows = parseCsvText(text);
+      const { data } = await api.post('/products/admin/bulk-import', { rows });
+      toast.success(`${data.created} creados · ${data.updated} actualizados${data.skipped ? ` · ${data.skipped} con error` : ''}`);
+      setOpen(false); setText(''); setPreview(null);
+      onDone?.();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'No se pudo importar');
+    } finally { setBusy(false); }
+  };
+
+  const handleFile = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => setText(String(e.target.result || ''));
+    reader.readAsText(file, 'utf-8');
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        title="Importá productos desde un CSV / Excel pegado o como archivo. Crea o actualiza por slug."
+        className="flex items-center gap-2 bg-white border border-cream-200 hover:border-rose-300 text-ink-700 hover:text-rose-600 font-bold px-3.5 py-2.5 rounded-xl transition-colors text-sm whitespace-nowrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Importar CSV
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => !busy && setOpen(false)}>
+          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-cream-100 flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <h3 className="font-display text-lg font-semibold text-ink-900">Importar productos desde CSV</h3>
+                <p className="text-xs text-ink-500 mt-0.5">
+                  Columnas requeridas: <code className="px-1 bg-cream-100 rounded text-ink-700">name</code>,
+                  <code className="px-1 bg-cream-100 rounded text-ink-700 ml-1">brand</code>,
+                  <code className="px-1 bg-cream-100 rounded text-ink-700 ml-1">category</code>,
+                  <code className="px-1 bg-cream-100 rounded text-ink-700 ml-1">price</code>.
+                  Opcionales: <code className="px-1 bg-cream-100 rounded ml-1">slug</code>,
+                  <code className="px-1 bg-cream-100 rounded ml-1">oldPrice</code>,
+                  <code className="px-1 bg-cream-100 rounded ml-1">description</code>,
+                  <code className="px-1 bg-cream-100 rounded ml-1">stock</code>,
+                  <code className="px-1 bg-cream-100 rounded ml-1">tags</code> (separados por coma),
+                  <code className="px-1 bg-cream-100 rounded ml-1">badge</code>.
+                </p>
+                <p className="text-xs text-ink-500 mt-1">
+                  Si el slug ya existe → <strong>actualiza</strong>. Si no → <strong>crea</strong>.
+                  Las etiquetas se suman a las existentes.
+                </p>
+              </div>
+              <button onClick={() => setOpen(false)} className="text-ink-300 hover:text-ink-700 -mt-1">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <input type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values"
+                  onChange={(e) => handleFile(e.target.files?.[0])}
+                  className="text-xs flex-1" />
+                <button
+                  onClick={() => setText('name,brand,category,price,oldPrice,description,stock,tags,badge\nLabial mate rojo,Beauty Creations,labios,3500,4000,Mate de larga duración,12,"labial,mate,rojo",NUEVO\nCrema hidratante,The Ordinary,skincare,8900,,Hidratación 24h,5,"crema,hidratante,natural",')}
+                  className="text-xs px-2.5 py-1 rounded-lg bg-cream-100 hover:bg-cream-200 text-ink-600 font-semibold">
+                  Cargar plantilla
+                </button>
+              </div>
+              <textarea
+                value={text}
+                onChange={(e) => { setText(e.target.value); setPreview(null); }}
+                placeholder="Pegá tu CSV/TSV acá. Primera fila = encabezados."
+                rows={10}
+                className="w-full font-mono text-xs border border-gray-200 rounded-xl p-3 focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100" />
+
+              {preview && (
+                <div className="bg-cream-50 rounded-xl border border-cream-200 overflow-hidden">
+                  <div className="px-4 py-2.5 border-b border-cream-200 flex flex-wrap gap-3 text-xs font-bold">
+                    <span className="text-emerald-700">✓ {preview.created} crear</span>
+                    <span className="text-blue-700">↻ {preview.updated} actualizar</span>
+                    {preview.skipped > 0 && <span className="text-amber-700">⚠ {preview.skipped} omitir</span>}
+                  </div>
+                  <div className="max-h-60 overflow-y-auto">
+                    <table className="w-full text-xs">
+                      <tbody>
+                        {preview.details.slice(0, 50).map((d, i) => (
+                          <tr key={i} className="border-b border-cream-100 last:border-0">
+                            <td className="px-3 py-1.5 w-8 text-ink-400 tabular-nums">{d.row}</td>
+                            <td className="px-3 py-1.5 truncate max-w-[280px] text-ink-800">{d.name}</td>
+                            <td className="px-3 py-1.5 text-right">
+                              {d.action === 'created'  && <span className="text-emerald-600 font-bold">crear</span>}
+                              {d.action === 'updated'  && <span className="text-blue-600 font-bold">actualizar</span>}
+                              {d.action === 'skipped'  && <span className="text-amber-600 font-bold">omitir</span>}
+                              {d.action === 'error'    && <span className="text-red-600 font-bold" title={d.error}>error</span>}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {preview.errors?.length > 0 && (
+                    <div className="px-4 py-2 border-t border-cream-200 text-xs text-amber-700 max-h-24 overflow-y-auto">
+                      {preview.errors.slice(0, 5).map((e, i) => (
+                        <p key={i}>Fila {e.row}: {e.error}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="px-5 py-3 border-t border-cream-100 flex items-center justify-end gap-2">
+              <button onClick={() => setOpen(false)} disabled={busy}
+                className="px-4 py-2 text-sm font-bold text-ink-500 hover:text-ink-700">
+                Cancelar
+              </button>
+              {!preview ? (
+                <button onClick={tryPreview} disabled={busy || !text.trim()}
+                  className="px-4 py-2 bg-ink-900 hover:bg-ink-800 text-white text-sm font-bold rounded-xl disabled:opacity-50">
+                  {busy ? 'Analizando…' : 'Previsualizar'}
+                </button>
+              ) : (
+                <button onClick={apply} disabled={busy || (preview.created === 0 && preview.updated === 0)}
+                  className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-xl disabled:opacity-50">
+                  {busy ? 'Importando…' : `Importar ${preview.created + preview.updated}`}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 /* ── Skeleton row ── */
 function SkeletonRow() {
   return (
@@ -265,7 +572,24 @@ export default function AdminProducts() {
   const [cat, setCat]                 = useState('todos');
   const [stockFilter, setStockFilter] = useState('todos');
   const [sort, setSort]               = useState('');
-  const { products, loading, toggle, remove } = useAdminProducts();
+  const [tagFilter, setTagFilter]     = useState([]);
+  const { products, loading, load, toggle, remove } = useAdminProducts();
+
+  // Universe of tags actually used across the catalog — sorted by frequency
+  const tagCounts = (() => {
+    const counts = new Map();
+    for (const p of products) {
+      for (const t of (p.tags || [])) {
+        if (!t) continue;
+        const k = String(t).toLowerCase().trim();
+        counts.set(k, (counts.get(k) || 0) + 1);
+      }
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  })();
+
+  const toggleTag = (t) =>
+    setTagFilter((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
 
   const activeCount    = products.filter(p => p.isActive !== false).length;
   const outOfStock     = products.filter(p => p.stock === 0).length;
@@ -286,7 +610,10 @@ export default function AdminProducts() {
         : stockFilter === 'stock-bajo'? (typeof p.stock === 'number' && p.stock > 0 && p.stock <= 5)
         : stockFilter === 'agotados'  ? p.stock === 0
         : true;
-      return matchCat && matchQ && matchStock;
+      // Tag filter: AND semantics — el producto debe tener TODOS los tags marcados
+      const productTags = (p.tags || []).map((t) => String(t).toLowerCase());
+      const matchTags = tagFilter.length === 0 || tagFilter.every((t) => productTags.includes(t));
+      return matchCat && matchQ && matchStock && matchTags;
     })
     .sort((a, b) => {
       if (sort === 'nombre-az')  return a.name.localeCompare(b.name, 'es');
@@ -296,7 +623,7 @@ export default function AdminProducts() {
       return 0;
     });
 
-  const hasFilters = search || cat !== 'todos' || stockFilter !== 'todos' || sort;
+  const hasFilters = search || cat !== 'todos' || stockFilter !== 'todos' || sort || tagFilter.length > 0;
 
   return (
     <div className="space-y-5">
@@ -315,6 +642,8 @@ export default function AdminProducts() {
               Catálogo PDF
             </button>
           )}
+          <BulkImportButton onDone={load} />
+          <AutoTagButton onDone={load} />
           <Link to="/admin/productos/nuevo"
             className="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white font-bold px-4 py-2.5 rounded-xl transition-colors text-sm shadow-btn whitespace-nowrap">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -404,13 +733,41 @@ export default function AdminProducts() {
           })}
 
           {hasFilters && (
-            <button onClick={() => { setSearch(''); setCat('todos'); setStockFilter('todos'); setSort(''); }}
+            <button onClick={() => { setSearch(''); setCat('todos'); setStockFilter('todos'); setSort(''); setTagFilter([]); }}
               className="ml-auto text-xs text-ink-400 hover:text-rose-500 font-semibold transition-colors flex items-center gap-1">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
               Limpiar
             </button>
           )}
         </div>
+
+        {/* Row 4: tag filter — solo se muestra si hay tags en el catálogo */}
+        {tagCounts.length > 0 && (
+          <div className="flex gap-1.5 flex-wrap items-center pt-2 border-t border-cream-50">
+            <span className="text-[11px] font-bold text-ink-400 uppercase tracking-wider self-center mr-1">Etiquetas:</span>
+            {tagCounts.slice(0, 20).map(([t, count]) => {
+              const isOn = tagFilter.includes(t);
+              return (
+                <button key={t} onClick={() => toggleTag(t)}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-150 ${
+                    isOn
+                      ? 'bg-rose-500 text-white'
+                      : 'bg-cream-100 text-ink-600 hover:bg-cream-200'
+                  }`}>
+                  {isOn && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                  {t}
+                  <span className={`text-[9px] font-bold ${isOn ? 'text-white/80' : 'text-ink-400'}`}>{count}</span>
+                </button>
+              );
+            })}
+            {tagFilter.length > 0 && (
+              <button onClick={() => setTagFilter([])}
+                className="text-[10px] text-rose-500 hover:text-rose-600 font-semibold ml-1">
+                Quitar todos
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Desktop table */}

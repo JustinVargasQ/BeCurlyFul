@@ -1,5 +1,8 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/sitemap.xml", "destination": "https://jdvirtual.onrender.com/sitemap.xml" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

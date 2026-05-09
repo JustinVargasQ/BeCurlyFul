@@ -4,6 +4,7 @@ import { motion, useMotionValue, useSpring } from 'framer-motion';
 import useCart from '../../hooks/useCart';
 import useWishlist from '../../hooks/useWishlist';
 import { formatCRC } from '../../lib/currency';
+import { optimizedImage } from '../../lib/api';
 
 const StarIcon = ({ filled }) => (
   <svg width="11" height="11" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" className={filled ? 'text-amber-400' : 'text-ink-200'}>
@@ -121,8 +122,10 @@ export default function ProductCard({ product, index = 0 }) {
               <>
                 <motion.img
                   key={imgIdx}
-                  src={currentImg}
+                  src={optimizedImage(currentImg, 600)}
                   alt={product.name}
+                  loading="lazy"
+                  decoding="async"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.25 }}

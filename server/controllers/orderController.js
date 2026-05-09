@@ -130,17 +130,28 @@ exports.create = async (req, res, next) => {
       whatsappSent: true,
     });
 
-    // Decrement stock for each item (only if stock is tracked, never below 0)
-    await Promise.all(
+    // Decrement stock for each item (only if stock is tracked, never below 0).
+    // Also flag any product that crossed into the "low stock" zone (≤3) or hit
+    // 0 so the admin gets pinged in real-time and can restock proactively.
+    const updatedProducts = await Promise.all(
       items.map((item) =>
         item.productId
           ? Product.findOneAndUpdate(
               { _id: item.productId, stock: { $gt: 0 } },
-              { $inc: { stock: -Math.abs(item.qty) } }
+              { $inc: { stock: -Math.abs(item.qty) } },
+              { new: true }
             )
           : null
       )
     );
+    for (const p of updatedProducts) {
+      if (!p || typeof p.stock !== 'number') continue;
+      if (p.stock === 0) {
+        broadcast('out-of-stock', { productId: String(p._id), name: p.name, slug: p.slug });
+      } else if (p.stock <= 3) {
+        broadcast('low-stock', { productId: String(p._id), name: p.name, slug: p.slug, stock: p.stock });
+      }
+    }
 
     broadcast('new-order', { orderNumber: order.orderNumber, customer: customer.name });
 

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import useCart from '../../hooks/useCart';
 import { formatCRC } from '../../lib/currency';
+import { optimizedImage } from '../../lib/api';
 
 /* ── Icons ── */
 const CloseIcon = () => (
@@ -237,7 +238,7 @@ export default function CartDrawer() {
                         {/* Image */}
                         <div className="w-[68px] h-[68px] rounded-xl overflow-hidden bg-white flex-shrink-0 border border-cream-100 shadow-sm">
                           {img
-                            ? <img src={img} alt={item.name} className="w-full h-full object-cover" />
+                            ? <img src={optimizedImage(img, 200)} alt={item.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                             : <div className="w-full h-full bg-cream-200" />
                           }
                         </div>

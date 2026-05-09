@@ -10,6 +10,11 @@ const productSchema = new Schema(
     oldPrice:    { type: Number, default: null },
     description: { type: String, default: '' },
     features:    [{ type: String }],
+    // Tags libres para destrabar miscategorización del chatbot. Ej:
+    //   ['serum','antiage'] en una crema con retinol que se llama distinto;
+    //   ['accesorio'] en algodones/vinchas para que NO aparezcan en browses generales;
+    //   ['kit'] en sets/combos. Lowercase, sin acentos. Recomendado max 6 por producto.
+    tags:        [{ type: String, lowercase: true, trim: true }],
     images:      [{ type: String }],          // URLs (Cloudinary o /uploads/...)
     stock:       { type: Number, default: null, min: 0 },
     isActive:    { type: Boolean, default: true },
@@ -28,5 +33,6 @@ const productSchema = new Schema(
 
 productSchema.index({ name: 'text', brand: 'text', description: 'text' });
 productSchema.index({ category: 1, isActive: 1 });
+productSchema.index({ tags: 1, isActive: 1 });
 
 module.exports = model('Product', productSchema);

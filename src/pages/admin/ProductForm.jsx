@@ -17,9 +17,22 @@ const CATEGORIES = [
 const EMPTY = {
   name: '', slug: '', brand: '', category: 'maquillaje',
   price: '', oldPrice: '', description: '',
-  features: [''], images: [], stock: '',
+  features: [''], tags: [], images: [], stock: '',
   isActive: true, badge: '', badgeType: '', variants: [],
 };
+
+// Suggested tags for quick-add. Clicking adds them to the product. Shown as
+// chip buttons under the tag input. Keep this list aligned with the chatbot's
+// PRODUCT_TYPE_KEYWORDS / ACCESSORY_KEYWORDS / BUNDLE_KEYWORDS.
+const TAG_SUGGESTIONS = {
+  maquillaje: ['base','labial','sombra','rubor','iluminador','corrector','primer','polvo','mascara','delineador'],
+  rostro:     ['base','rubor','iluminador','corrector','primer','polvo','bronzer'],
+  labios:     ['labial','gloss','tinta','balsamo','pintalabios'],
+  ojos:       ['sombra','mascara','delineador','pestañina'],
+  skincare:   ['serum','crema','limpiador','tonico','hidratante','protector','solar','exfoliante','mascarilla','contorno','retinol','niacinamida','vitamina-c'],
+  cabello:    ['shampoo','acondicionador','tratamiento','keratina'],
+};
+const TAG_SPECIAL = ['accesorio','kit','set','combo','oferta','vegano','natural','nuevo'];
 
 function slugify(s = '') {
   return s.toLowerCase().trim()
@@ -110,6 +123,7 @@ export default function ProductForm() {
             ...EMPTY, ...found,
             oldPrice: found.oldPrice ?? '',
             features: found.features?.length ? found.features : [''],
+            tags: Array.isArray(found.tags) ? found.tags : [],
             variants: found.variants?.length ? found.variants : [],
           });
         } else { setError('Producto no encontrado'); }
@@ -128,6 +142,15 @@ export default function ProductForm() {
   const setFeature = (idx, v) => { const arr = [...form.features]; arr[idx] = v; set('features', arr); };
   const addFeature    = () => set('features', [...form.features, '']);
   const removeFeature = (idx) => set('features', form.features.filter((_, i) => i !== idx));
+
+  const normalizeTag = (s) =>
+    String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+  const addTag = (raw) => {
+    const tag = normalizeTag(raw);
+    if (!tag || (form.tags || []).includes(tag)) return;
+    set('tags', [...(form.tags || []), tag]);
+  };
+  const removeTag = (tag) => set('tags', (form.tags || []).filter((t) => t !== tag));
   const removeImage   = (idx) => set('images', form.images.filter((_, i) => i !== idx));
 
   const addVariant      = () => set('variants', [...(form.variants || []), { name: '', options: [''] }]);
@@ -168,6 +191,7 @@ export default function ProductForm() {
       oldPrice:    form.oldPrice === '' ? null : Number(form.oldPrice),
       description: form.description.trim(),
       features:    form.features.map((f) => f.trim()).filter(Boolean),
+      tags:        (form.tags || []).map((t) => normalizeTag(t)).filter(Boolean),
       images:      form.images,
       variants:    (form.variants || []).filter((v) => v.name.trim()).map((v) => ({
         name: v.name.trim(),
@@ -363,6 +387,87 @@ export default function ProductForm() {
                 )}
               </div>
             ))}
+          </SectionCard>
+
+          {/* Tags — alimenta al chatbot. Ej: serum, accesorio, kit, retinol */}
+          <SectionCard
+            icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>}
+            title="Etiquetas para el asistente IA">
+            <p className="text-[11px] text-gray-400 -mt-1">
+              Ayudan al chatbot a recomendar este producto correctamente. Ej:
+              <code className="mx-1 px-1 rounded bg-gray-100 text-gray-600">serum</code>,
+              <code className="mx-1 px-1 rounded bg-gray-100 text-gray-600">accesorio</code>,
+              <code className="mx-1 px-1 rounded bg-gray-100 text-gray-600">kit</code>.
+              Si marcás algo como "accesorio" no aparece en búsquedas generales de su categoría.
+            </p>
+
+            {/* Chips de tags actuales */}
+            {(form.tags || []).length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {form.tags.map((t) => (
+                  <span key={t} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-semibold border border-rose-100">
+                    {t}
+                    <button type="button" onClick={() => removeTag(t)}
+                      className="hover:text-rose-800" aria-label={`Quitar ${t}`}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Input para agregar tag manual */}
+            <input
+              className={inputCls}
+              placeholder="Escribí un tag y dale Enter (ej: serum, retinol, vegano)"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                  e.preventDefault();
+                  if (e.target.value.trim()) {
+                    addTag(e.target.value);
+                    e.target.value = '';
+                  }
+                }
+              }}
+            />
+
+            {/* Tags sugeridos por categoría */}
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Sugeridos para {form.category}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {(TAG_SUGGESTIONS[form.category] || []).map((t) => {
+                  const isOn = (form.tags || []).includes(t);
+                  return (
+                    <button key={t} type="button"
+                      onClick={() => isOn ? removeTag(t) : addTag(t)}
+                      className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                        isOn
+                          ? 'bg-rose-500 text-white border-rose-500'
+                          : 'bg-white text-gray-600 border-gray-200 hover:border-rose-300 hover:text-rose-600'
+                      }`}>
+                      {isOn ? '✓ ' : '+ '}{t}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-3 mb-1.5">Especiales</p>
+              <div className="flex flex-wrap gap-1.5">
+                {TAG_SPECIAL.map((t) => {
+                  const isOn = (form.tags || []).includes(t);
+                  return (
+                    <button key={t} type="button"
+                      onClick={() => isOn ? removeTag(t) : addTag(t)}
+                      className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                        isOn
+                          ? 'bg-amber-500 text-white border-amber-500'
+                          : 'bg-white text-gray-600 border-gray-200 hover:border-amber-300 hover:text-amber-600'
+                      }`}>
+                      {isOn ? '✓ ' : '+ '}{t}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </SectionCard>
 
           {/* Variantes */}

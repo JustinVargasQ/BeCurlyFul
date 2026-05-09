@@ -136,6 +136,25 @@ app.get('/api/health', (req, res) =>
   res.json({ status: 'ok', time: new Date().toISOString() })
 );
 
+/* SEO: sitemap.xml + robots.txt — sirvelos sin /api para que crawlers los encuentren */
+app.get('/sitemap.xml', require('./controllers/productController').sitemap);
+app.get('/robots.txt', (req, res) => {
+  const SITE_URL = process.env.CLIENT_URL || 'https://jd-virtual.vercel.app';
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.send(
+    [
+      'User-agent: *',
+      'Allow: /',
+      'Disallow: /admin',
+      'Disallow: /checkout',
+      'Disallow: /confirmacion',
+      'Disallow: /mi-cuenta',
+      `Sitemap: ${SITE_URL}/sitemap.xml`,
+    ].join('\n') + '\n'
+  );
+});
+
 /* ─── SSE — real-time admin events ─── */
 const jwt = require('jsonwebtoken');
 const { addClient } = require('./lib/sse');

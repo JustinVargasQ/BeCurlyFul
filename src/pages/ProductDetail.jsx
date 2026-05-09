@@ -5,7 +5,7 @@ import { useProduct, useProducts } from '../hooks/useProducts';
 import useCart from '../hooks/useCart';
 import useWishlist from '../hooks/useWishlist';
 import { formatCRC } from '../lib/currency';
-import { assetUrl } from '../lib/api';
+import { assetUrl, optimizedImage } from '../lib/api';
 import ProductCard from '../components/ui/ProductCard';
 import SEO from '../components/ui/SEO';
 import LoginModal from '../components/ui/LoginModal';
@@ -396,7 +396,7 @@ export default function ProductDetail() {
                 {images.map((src, i) => (
                   <button key={i} onClick={() => setActiveImg(i)}
                     className={`w-[70px] h-[70px] rounded-xl overflow-hidden border-2 transition-all duration-200 ${activeImg === i ? 'border-rose-400 shadow-md' : 'border-cream-200 opacity-70 hover:opacity-100'}`}>
-                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    <img src={optimizedImage(src, 200)} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                   </button>
                 ))}
               </div>
@@ -407,8 +407,9 @@ export default function ProductDetail() {
               <div
                 className="aspect-square bg-cream-50 rounded-2xl overflow-hidden cursor-zoom-in shadow-sm"
                 onClick={() => setZoomed(true)}>
-                <img src={mainImg} alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src={optimizedImage(mainImg, 1000)} alt={product.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  decoding="async" />
               </div>
 
               {/* Zoom button */}
@@ -683,8 +684,9 @@ export default function ProductDetail() {
 
             {/* Image */}
             <motion.img
-              src={mainImg}
+              src={optimizedImage(mainImg, 1400)}
               alt={product.name}
+              decoding="async"
               initial={{ scale: 0.88, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.88, opacity: 0 }}
@@ -703,7 +705,7 @@ export default function ProductDetail() {
                     className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${
                       activeImg === i ? 'border-white' : 'border-white/30 opacity-60 hover:opacity-100'
                     }`}>
-                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    <img src={optimizedImage(src, 200)} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                   </button>
                 ))}
               </div>
