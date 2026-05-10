@@ -81,11 +81,13 @@ export default function Navbar() {
   const navigate   = useNavigate();
   const USE_API    = import.meta.env.VITE_API_URL;
 
-  // Announcement ticker
+  // Announcement ticker — pausa al hover para que el usuario alcance a leer
+  const [annPaused, setAnnPaused] = useState(false);
   useEffect(() => {
+    if (annPaused) return undefined;
     const t = setInterval(() => setAnn((a) => (a + 1) % ANNOUNCEMENTS.length), 3500);
     return () => clearInterval(t);
-  }, []);
+  }, [annPaused]);
 
   // Scroll shadow
   useEffect(() => {
@@ -169,8 +171,13 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── Announcement bar ── */}
-      <div className="bg-ink-900 text-white text-xs font-medium h-9 flex items-center justify-center overflow-hidden relative z-50">
+      {/* ── Announcement bar — pausa al hover/touch para que se alcance a leer ── */}
+      <div
+        className="bg-ink-900 text-white text-xs font-medium h-9 flex items-center justify-center overflow-hidden relative z-50 cursor-default"
+        onMouseEnter={() => setAnnPaused(true)}
+        onMouseLeave={() => setAnnPaused(false)}
+        onTouchStart={() => setAnnPaused(true)}
+        onTouchEnd={() => setAnnPaused(false)}>
         <AnimatePresence mode="wait">
           <motion.span key={ann}
             initial={{ y: 12, opacity: 0 }}

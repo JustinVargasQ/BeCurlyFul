@@ -15,6 +15,7 @@ router.get('/:slug',        ctrl.getBySlug);
 router.get('/admin/all',              requireAuth, ctrl.adminGetAll);
 router.post('/admin/auto-tag',        requireAuth, ctrl.autoTagAll);
 router.post('/admin/bulk-import',     requireAuth, ctrl.bulkImport);
+router.post('/admin/fix-stock',       requireAuth, ctrl.fixNegativeStock);
 router.post('/',                      requireAuth, ctrl.create);
 router.put('/:id',                    requireAuth, ctrl.update);
 router.delete('/:id',                 requireAuth, ctrl.remove);

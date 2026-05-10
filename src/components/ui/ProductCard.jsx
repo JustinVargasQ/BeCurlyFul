@@ -28,8 +28,10 @@ const WaIcon = () => (
 );
 
 const BADGE_STYLES = {
-  new:  'bg-sky text-white',
-  sale: 'bg-coral text-white',
+  // NEW: gold del sistema (premium, cálido). SALE: rose-600 (brand).
+  // Default: ink-900 para badges custom que el admin escriba.
+  new:  'bg-gold text-ink-900',
+  sale: 'bg-rose-600 text-white',
   '':   'bg-ink-900 text-white',
 };
 

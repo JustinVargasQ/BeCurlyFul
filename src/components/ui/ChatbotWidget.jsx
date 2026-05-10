@@ -6,6 +6,7 @@ import { optimizedImage } from '../../lib/api';
 import useCartStore from '../../store/cartStore';
 import useToastStore from '../../store/toastStore';
 import useChatStore, { stripSugMarker, WELCOME } from '../../store/chatStore';
+import useWishlistStore from '../../store/wishlistStore';
 
 const QUICK_PROMPTS = [
   '¿Qué base recomendás para piel grasa?',
@@ -404,6 +405,36 @@ export function ChatPanelInner({ onReset, onClose, showHeader = true }) {
   const showResume = useChatStore((s) => s.showResume);
   const dismissResume = useChatStore((s) => s.dismissResume);
   const resumeTopic = lastUserTopic(messages);
+  const wishlistItems = useWishlistStore((s) => s.items);
+  const addItem = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.openCart);
+  const toastSuccess = useToastStore((s) => s.success);
+  const [wishlistDismissed, setWishlistDismissed] = useState(false);
+
+  // Wishlist hint: solo en el welcome (chat sin enviar nada todavía), no resume,
+  // y si hay favoritos. Fire-and-forget — no se persiste, vuelve si la sesión
+  // empieza de nuevo.
+  const showWishlistHint =
+    !wishlistDismissed &&
+    !showResume &&
+    !loading &&
+    wishlistItems.length > 0 &&
+    messages.length === 1;
+
+  const handleAddWishlistToCart = () => {
+    let added = 0;
+    for (const p of wishlistItems) {
+      if (p.stock !== 0) {
+        addItem(p, 1);
+        added += 1;
+      }
+    }
+    if (added > 0) {
+      toastSuccess(`${added} producto${added === 1 ? '' : 's'} de favoritos al carrito`);
+      openCart();
+    }
+    setWishlistDismissed(true);
+  };
 
   const [input, setInput] = useState('');
   const scrollRef = useRef(null);
@@ -566,6 +597,43 @@ export function ChatPanelInner({ onReset, onClose, showHeader = true }) {
               </div>
               <button
                 onClick={dismissResume}
+                aria-label="Cerrar"
+                className="text-ink-300 hover:text-ink-500 -mr-1 -mt-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </motion.div>
+          )}
+
+          {/* Wishlist hint — solo en welcome y con items guardados */}
+          {showWishlistHint && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="mb-3 px-3.5 py-2.5 rounded-2xl border border-rose-200 bg-gradient-to-r from-rose-50 via-cream-50 to-amber-50 text-ink-700 text-sm flex items-start gap-2.5">
+              <span className="text-rose-500 text-base leading-none mt-0.5">💖</span>
+              <div className="flex-1 leading-tight">
+                <p className="font-semibold text-ink-900">
+                  Tenés {wishlistItems.length} producto{wishlistItems.length === 1 ? '' : 's'} en favoritos
+                </p>
+                <p className="text-xs text-ink-600 mt-0.5">
+                  ¿Los sumamos al carrito de una?
+                </p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  <button
+                    onClick={handleAddWishlistToCart}
+                    className="text-xs px-2.5 py-1 rounded-full bg-rose-500 text-white font-semibold hover:bg-rose-600 transition-colors">
+                    Agregar todos al carrito
+                  </button>
+                  <button
+                    onClick={() => setWishlistDismissed(true)}
+                    className="text-xs px-2.5 py-1 rounded-full bg-white text-ink-500 font-semibold border border-cream-200 hover:border-ink-300 transition-colors">
+                    Ahora no
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={() => setWishlistDismissed(true)}
                 aria-label="Cerrar"
                 className="text-ink-300 hover:text-ink-500 -mr-1 -mt-1">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -939,13 +1007,13 @@ export default function ChatbotWidget() {
                 <span className="relative">IA</span>
               </span>
 
-              {/* Unread indicator — coral with pulse */}
+              {/* Unread indicator — rose-500 alineado a la marca */}
               {unread && (
                 <motion.span
                   animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
                   transition={{ duration: 1, repeat: Infinity }}
-                  className="absolute top-1 right-1 w-3.5 h-3.5 bg-coral rounded-full border-2 border-white shadow-lg"
-                  style={{ boxShadow: '0 0 8px rgba(255,127,107,0.8)' }}
+                  className="absolute top-1 right-1 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-white shadow-lg"
+                  style={{ boxShadow: '0 0 8px rgba(184,95,114,0.8)' }}
                 />
               )}
             </motion.button>

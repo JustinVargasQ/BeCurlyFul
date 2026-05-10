@@ -106,7 +106,7 @@ export default function ServerWakeup() {
               <p className="font-display text-4xl sm:text-5xl font-bold text-white mb-1 tracking-tight">
                 JD <span style={{ color: '#B85F72' }}>Virtual</span>
               </p>
-              <p className="font-script text-lg mb-10" style={{ color: 'rgba(201,168,117,0.7)' }}>
+              <p className="font-display italic text-lg mb-10 tracking-wide" style={{ color: 'rgba(201,168,117,0.7)' }}>
                 Beauty Store
               </p>
             </motion.div>

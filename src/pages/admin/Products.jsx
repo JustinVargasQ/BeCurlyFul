@@ -86,7 +86,28 @@ function AutoTagButton({ onDone }) {
     setBusy(true);
     try {
       const { data } = await api.post('/products/admin/auto-tag');
-      toast.success(`${data.updated} producto${data.updated === 1 ? '' : 's'} etiquetado${data.updated === 1 ? '' : 's'}`);
+      const errCount = (data.errors || []).length;
+      if (errCount > 0) {
+        toast.error(`${data.updated} etiquetados, ${errCount} con error. Revisá la consola.`);
+        console.warn('Auto-tag errors:', data.errors);
+        // Offer to fix the most common cause: negative stock from old orders
+        const stockIssue = data.errors.some((e) => /stock.*less than/i.test(e.error || ''));
+        if (stockIssue) {
+          const ok = window.confirm(
+            'Algunos productos tienen stock negativo (resto de órdenes viejas) y eso bloquea el guardado. ¿Querés arreglar el stock a 0 para esos productos y reintentar?'
+          );
+          if (ok) {
+            try {
+              const { data: fix } = await api.post('/products/admin/fix-stock');
+              toast.success(`Stock arreglado en ${fix.fixed} productos. Volvé a aplicar el auto-tag.`);
+            } catch (e) {
+              toast.error('No se pudo arreglar el stock automáticamente.');
+            }
+          }
+        }
+      } else {
+        toast.success(`${data.updated} producto${data.updated === 1 ? '' : 's'} etiquetado${data.updated === 1 ? '' : 's'}`);
+      }
       setPreview(null);
       onDone?.();
     } catch (err) {

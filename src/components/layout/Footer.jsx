@@ -28,6 +28,7 @@ const CAT_LINKS = [
 const PAGE_LINKS = [
   { label: 'Ofertas',         href: '/ofertas'      },
   { label: 'Favoritos',       href: '/favoritos'    },
+  { label: 'Apartados',       href: '/apartados'    },
   { label: 'Rastrear pedido', href: '/pedido'       },
   { label: '¿Cómo comprar?',  href: '/como-comprar' },
   { label: 'Privacidad',      href: '/privacidad'   },
@@ -71,7 +72,7 @@ export default function Footer() {
                 JD <span className="text-rose-400">Virtual</span>
               </span>
             </div>
-            <p className="font-script text-rose-400/70 text-lg mb-4 leading-none">Beauty Store</p>
+            <p className="font-display italic text-rose-400/70 text-lg mb-4 leading-none tracking-wide">Beauty Store</p>
             <p className="text-white/50 text-sm leading-relaxed mb-6 max-w-xs">
               Maquillaje y skincare de marcas auténticas. Envíos a todo Costa Rica desde El Roble, Puntarenas.
             </p>

@@ -1043,13 +1043,13 @@ function BrandMarquee() {
   const doubled  = [...MARQUEE_BRANDS, ...MARQUEE_BRANDS];
   const reversed = [...doubled].reverse();
   return (
-    <div className="relative bg-ink-900 border-t border-white/5 py-4 overflow-hidden space-y-2.5">
+    <div className="group relative bg-ink-900 border-t border-white/5 py-4 overflow-hidden space-y-2.5">
       <div className="pointer-events-none absolute inset-y-0 left-0 w-20 z-10"
         style={{ background: 'linear-gradient(to right, #1A1414, transparent)' }} />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-20 z-10"
         style={{ background: 'linear-gradient(to left, #1A1414, transparent)' }} />
-      {/* Row 1 → left to right */}
-      <div className="flex animate-marquee whitespace-nowrap">
+      {/* Row 1 → left to right. Pausa al hover para que el usuario alcance a leer la marca. */}
+      <div className="flex animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
         {doubled.map((b, i) => (
           <span key={i} className="text-rose-400/70 text-[11px] font-bold uppercase tracking-[0.22em] mx-7 flex-shrink-0">
             {b} <span className="text-rose-600/50 ml-7">✦</span>
@@ -1057,7 +1057,7 @@ function BrandMarquee() {
         ))}
       </div>
       {/* Row 2 → right to left */}
-      <div className="flex animate-marquee-reverse whitespace-nowrap">
+      <div className="flex animate-marquee-reverse whitespace-nowrap group-hover:[animation-play-state:paused]">
         {reversed.map((b, i) => (
           <span key={i} className="text-white/22 text-[10px] font-medium uppercase tracking-[0.18em] mx-6 flex-shrink-0">
             {b} <span className="text-white/12 ml-6">·</span>

@@ -16,16 +16,10 @@ export default {
         },
         cream: { 50: '#FAF6F3', 100: '#F3ECE6', 200: '#E7DDD4' },
         gold: '#C9A875',
-
-        // Anglu-inspired accents
-        navy:  { DEFAULT: '#072835', light: '#516971' },
-        sky:   { DEFAULT: '#69BBDD', light: '#EBF7FC' },
-        coral: '#C4301C',
       },
       fontFamily: {
         display: ['"Playfair Display"', 'Georgia', 'serif'],
         body:    ['"Figtree"', '"DM Sans"', 'system-ui', 'sans-serif'],
-        script:  ['"Dancing Script"', 'cursive'],
       },
       boxShadow: {
         card:    '0 2px 16px 0 rgba(26,20,20,0.07)',

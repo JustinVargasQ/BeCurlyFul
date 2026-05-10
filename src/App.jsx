@@ -6,16 +6,20 @@ import Footer from './components/layout/Footer';
 import { trackPageView } from './lib/analytics';
 import CartDrawer from './components/layout/CartDrawer';
 import Toaster from './components/ui/Toaster';
+// Home se mantiene eager — es la página de entrada, queremos que aparezca
+// instantáneamente sin chunk delay. El resto se lazy-loadea.
 import Home from './pages/Home';
-import ProductDetail from './pages/ProductDetail';
-import Checkout from './pages/Checkout';
-import Confirmation from './pages/Confirmation';
-import OrderTracking from './pages/OrderTracking';
-import Wishlist from './pages/Wishlist';
-import MiCuenta from './pages/MiCuenta';
-import Offers from './pages/Offers';
-import HowToBuy from './pages/HowToBuy';
-import Privacy from './pages/Privacy';
+const ProductDetail = lazy(() => import('./pages/ProductDetail'));
+const Checkout      = lazy(() => import('./pages/Checkout'));
+const Confirmation  = lazy(() => import('./pages/Confirmation'));
+const OrderTracking = lazy(() => import('./pages/OrderTracking'));
+const Wishlist      = lazy(() => import('./pages/Wishlist'));
+const MiCuenta      = lazy(() => import('./pages/MiCuenta'));
+const Offers        = lazy(() => import('./pages/Offers'));
+const HowToBuy      = lazy(() => import('./pages/HowToBuy'));
+const Privacy       = lazy(() => import('./pages/Privacy'));
+const Apartados     = lazy(() => import('./pages/Apartados'));
+const NotFound      = lazy(() => import('./pages/NotFound'));
 
 // Admin chunks — lazy so end users (the 99% who never visit /admin) don't
 // download this code on first load. Cuts the initial bundle ~30%.
@@ -29,10 +33,66 @@ const AdminConfig        = lazy(() => import('./pages/admin/Config'));
 const AdminReviews       = lazy(() => import('./pages/admin/Reviews'));
 const AdminChatInsights  = lazy(() => import('./pages/admin/ChatInsights'));
 
+/* Storefront skeleton — silueta neutral con padding del navbar para que cuando
+ * cargue el chunk, la página real reemplace exactamente la misma silueta. */
+function PageSkeleton() {
+  return (
+    <main className="pt-24 pb-20 max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="animate-pulse space-y-6">
+        {/* Header */}
+        <div className="space-y-3">
+          <div className="h-8 w-2/3 max-w-md bg-cream-100 rounded-lg" />
+          <div className="h-4 w-1/2 max-w-sm bg-cream-100 rounded" />
+        </div>
+        {/* Hero / first content block */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="aspect-square bg-cream-100 rounded-2xl" />
+          <div className="space-y-3 py-4">
+            <div className="h-4 w-1/3 bg-cream-100 rounded" />
+            <div className="h-7 w-full bg-cream-100 rounded" />
+            <div className="h-7 w-5/6 bg-cream-100 rounded" />
+            <div className="h-3 w-2/3 bg-cream-100 rounded mt-4" />
+            <div className="h-3 w-3/4 bg-cream-100 rounded" />
+            <div className="h-3 w-1/2 bg-cream-100 rounded" />
+            <div className="h-12 w-full bg-cream-100 rounded-xl mt-6" />
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+/* Skeleton vs spinner: pinta la silueta de la página para que no se sienta como
+ * "pantalla en blanco". Mide ~40vh. */
 function AdminSpinner() {
   return (
-    <div className="flex items-center justify-center min-h-[40vh]">
-      <div className="w-10 h-10 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin" />
+    <div className="space-y-5 animate-pulse">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="space-y-2">
+          <div className="h-7 w-48 bg-cream-100 rounded-lg" />
+          <div className="h-3 w-32 bg-cream-100 rounded" />
+        </div>
+        <div className="h-10 w-32 bg-cream-100 rounded-xl" />
+      </div>
+      {/* Stats row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-20 bg-cream-100 rounded-xl" />
+        ))}
+      </div>
+      {/* Content */}
+      <div className="bg-cream-50 rounded-2xl border border-cream-100 p-4 space-y-3">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-cream-100 rounded-lg" />
+            <div className="flex-1 space-y-2">
+              <div className="h-3.5 bg-cream-100 rounded w-1/2" />
+              <div className="h-2.5 bg-cream-100 rounded w-1/4" />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -92,18 +152,19 @@ export default function App() {
       <ErrorBoundary label="ChatbotWidget"><ChatbotWidget /></ErrorBoundary>
       <PageTracker />
       <Routes>
-        {/* Public storefront */}
+        {/* Public storefront — Home eager (entry), resto lazy con skeleton */}
         <Route path="/" element={<StorefrontLayout><Home /></StorefrontLayout>} />
-        <Route path="/producto/:slug" element={<StorefrontLayout><ProductDetail /></StorefrontLayout>} />
-        <Route path="/checkout" element={<StorefrontLayout><Checkout /></StorefrontLayout>} />
-        <Route path="/confirmacion" element={<StorefrontLayout><Confirmation /></StorefrontLayout>} />
-        <Route path="/favoritos" element={<StorefrontLayout><Wishlist /></StorefrontLayout>} />
-        <Route path="/mi-cuenta" element={<StorefrontLayout><MiCuenta /></StorefrontLayout>} />
-        <Route path="/ofertas" element={<StorefrontLayout><Offers /></StorefrontLayout>} />
-        <Route path="/pedido" element={<StorefrontLayout><OrderTracking /></StorefrontLayout>} />
-        <Route path="/pedido/:number" element={<StorefrontLayout><OrderTracking /></StorefrontLayout>} />
-        <Route path="/como-comprar" element={<StorefrontLayout><HowToBuy /></StorefrontLayout>} />
-        <Route path="/privacidad" element={<StorefrontLayout><Privacy /></StorefrontLayout>} />
+        <Route path="/producto/:slug" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><ProductDetail /></Suspense></StorefrontLayout>} />
+        <Route path="/checkout" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><Checkout /></Suspense></StorefrontLayout>} />
+        <Route path="/confirmacion" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><Confirmation /></Suspense></StorefrontLayout>} />
+        <Route path="/favoritos" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><Wishlist /></Suspense></StorefrontLayout>} />
+        <Route path="/mi-cuenta" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><MiCuenta /></Suspense></StorefrontLayout>} />
+        <Route path="/ofertas" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><Offers /></Suspense></StorefrontLayout>} />
+        <Route path="/pedido" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><OrderTracking /></Suspense></StorefrontLayout>} />
+        <Route path="/pedido/:number" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><OrderTracking /></Suspense></StorefrontLayout>} />
+        <Route path="/como-comprar" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><HowToBuy /></Suspense></StorefrontLayout>} />
+        <Route path="/privacidad" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><Privacy /></Suspense></StorefrontLayout>} />
+        <Route path="/apartados" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><Apartados /></Suspense></StorefrontLayout>} />
 
         {/* Admin — lazy-loaded behind a Suspense fallback */}
         <Route path="/admin/login" element={<Suspense fallback={<AdminSpinner />}><AdminLogin /></Suspense>} />
@@ -118,8 +179,8 @@ export default function App() {
           <Route path="config"                 element={<Suspense fallback={<AdminSpinner />}><AdminConfig /></Suspense>} />
         </Route>
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* 404 — keep the URL the user landed on so they can fix it themselves */}
+        <Route path="*" element={<StorefrontLayout><Suspense fallback={<PageSkeleton />}><NotFound /></Suspense></StorefrontLayout>} />
       </Routes>
     </BrowserRouter>
   );

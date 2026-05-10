@@ -433,6 +433,25 @@ exports.bulkImport = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+/* Data cleanup: clamp negative stock to 0. Causa común: una orden vieja
+ * descontó stock cuando ya estaba en 0 o por una race condition. El schema
+ * tiene min:0 así que cualquier intento de save() rompe hasta que esto se
+ * arregla. Idempotente — sin productos afectados devuelve 0. */
+exports.fixNegativeStock = async (req, res, next) => {
+  try {
+    const dryRun = String(req.query.dryRun || '').toLowerCase() === 'true';
+    const broken = await Product.find({ stock: { $lt: 0 } }).select('name slug stock').lean();
+    if (broken.length === 0) {
+      return res.json({ dryRun, fixed: 0, products: [] });
+    }
+    if (!dryRun) {
+      await Product.updateMany({ stock: { $lt: 0 } }, { $set: { stock: 0 } });
+      invalidateCatalog();
+    }
+    res.json({ dryRun, fixed: broken.length, products: broken });
+  } catch (err) { next(err); }
+};
+
 exports.toggleActive = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);

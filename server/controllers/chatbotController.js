@@ -780,6 +780,75 @@ function freeTextSearch(userText, allCatalog, excludeSlugs = new Set()) {
   return `Mirá lo que encontré:\n${list}\n\n¿Es lo que buscabas o querés algo distinto?\n\n[[sug: Mostrame más | Otra cosa | Ver ofertas | Tengo ₡10 mil]]`;
 }
 
+/* ─── Fuzzy typo correction ───
+ * Cuando el usuario escribe "labiabes" o "shapoo", intentamos corregir contra
+ * el vocabulario conocido (categorías + tipos de producto + atributos). Solo
+ * aplica a tokens de ≥4 chars y con distancia ≤ 2. Costo bajo y resultado claro:
+ * un typo común no manda al usuario al fallback no_match. */
+function levenshtein(a, b) {
+  if (a === b) return 0;
+  if (!a) return b.length;
+  if (!b) return a.length;
+  // Early-exit: si la diferencia de longitudes ya supera 2, no nos sirve
+  if (Math.abs(a.length - b.length) > 2) return 99;
+  const m = a.length, n = b.length;
+  let prev = new Array(n + 1);
+  let cur  = new Array(n + 1);
+  for (let j = 0; j <= n; j++) prev[j] = j;
+  for (let i = 1; i <= m; i++) {
+    cur[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      cur[j] = Math.min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+    }
+    [prev, cur] = [cur, prev];
+  }
+  return prev[n];
+}
+
+// Vocabulary built once (lazy) — categorías, tipos de producto, atributos.
+let _vocabCache = null;
+function getFuzzyVocab() {
+  if (_vocabCache) return _vocabCache;
+  const set = new Set();
+  for (const arr of Object.values(CATEGORY_KEYWORDS)) for (const k of arr) set.add(normalizeText(k));
+  for (const k of PRODUCT_TYPE_KEYWORDS) set.add(normalizeText(k));
+  for (const k of ATTRIBUTE_KEYWORDS) set.add(normalizeText(k));
+  for (const k of BROWSE_KEYWORDS) set.add(normalizeText(k));
+  // Solo palabras de longitud útil para fuzzy match
+  _vocabCache = [...set].filter((w) => w.length >= 4);
+  return _vocabCache;
+}
+
+/* Devuelve una versión del texto con tokens "raros" reemplazados por su match
+ * más cercano del vocabulario. Si no corrige nada, devuelve el texto original. */
+function correctTypos(text) {
+  if (!text || typeof text !== 'string') return { corrected: text, changed: false };
+  const norm = normalizeText(text);
+  const vocab = getFuzzyVocab();
+  const tokens = norm.split(/[^a-z0-9]+/);
+  let changed = false;
+  const fixed = tokens.map((tok) => {
+    if (tok.length < 4) return tok;
+    if (STOPWORDS.has(tok)) return tok;
+    if (vocab.includes(tok)) return tok; // ya es válido
+    let best = null;
+    let bestDist = 3; // umbral: solo aceptamos distancia ≤ 2
+    for (const v of vocab) {
+      // Skip si la diferencia de longitudes es muy grande
+      if (Math.abs(v.length - tok.length) > 2) continue;
+      const d = levenshtein(tok, v);
+      if (d < bestDist) { bestDist = d; best = v; }
+    }
+    if (best && bestDist <= 2) {
+      changed = true;
+      return best;
+    }
+    return tok;
+  });
+  return { corrected: fixed.join(' '), changed };
+}
+
 /* "Show more" — user wants different products, ideally same category */
 function isMoreRequest(text) {
   const norm = normalizeText(text).trim().replace(/[!.?¿¡,]+/g, '').trim();
@@ -1228,6 +1297,9 @@ function detectIntent(text) {
   // Location / contact
   if (/(donde.{0,10}(estan|ubican|queda|tienda|local)|ubicacion|direccion|telefono|whatsapp|contacto|horario)/i.test(norm)) return 'location';
 
+  // Apartados — sistema de reserva
+  if (/\b(apartar|apartado|apartados|aparto|reservar|reserva|reservas|abonar|abono|partar)\b/i.test(norm)) return 'apartados';
+
   // Off-topic (math, politics, etc.)
   if (/(matematica|politica|hackear|virus|programacion|codigo de|cuentame un chiste|que opinas de la|inteligencia artificial)/i.test(norm)) return 'off_topic';
 
@@ -1267,6 +1339,8 @@ function ruleBasedReply(intent) {
       return 'En **[Cómo comprar](/como-comprar)** encontrás todo: métodos de pago (SINPE Móvil, transferencia bancaria), zonas de envío y tiempos de entrega. Cualquier duda, también podés escribirnos por WhatsApp al **8804-5100**.\n\n[[sug: Quiero ver productos | ¿Hacen envío a mi zona? | Mostrame ofertas]]';
     case 'location':
       return 'Estamos en **El Roble, Puntarenas** 🌴 También podés escribirnos por **WhatsApp al 8804-5100** o ver detalles en **[Cómo comprar](/como-comprar)**.\n\n[[sug: ¿Hacen envíos? | Quiero ver productos | Mostrame ofertas]]';
+    case 'apartados':
+      return 'Sí, tenemos **sistema de apartados** 💕\n\n💰 **50%** del valor para reservar el producto\n🗓️ **Hasta 1 mes** apartado\n🔔 Te avisamos 1-2 días antes de que venza\n💕 Te pedimos respetar el plazo\n\nTe paso a la página con todos los detalles 👇\n\n[[link: Ver sistema de apartados|/apartados]]\n\n[[sug: Quiero apartar algo | Hablar por WhatsApp | Mostrame productos]]';
     case 'off_topic':
       return 'Soy especialista en belleza 💄 ¿Te ayudo a buscar maquillaje, skincare, perfumes o productos para el cabello?\n\n[[sug: Mostrame ofertas | Recomendame algo | Buscame un labial]]';
     default:
@@ -1486,6 +1560,26 @@ function tryRuleBasedReply(messages, allCatalog) {
     //      names (e.g. "prensas", "snoopy", a brand name). Try free-text search.
     const freeText = freeTextSearch(userText, allCatalog, shown);
     if (freeText) return { reply: freeText, kind: 'text_search' };
+
+    // 4.6. Fuzzy typo correction — "labiabes" → "labiales", "shapoo" → "shampoo".
+    //      Only run if no match so far AND the correction actually changes something.
+    const { corrected, changed } = correctTypos(userText);
+    if (changed) {
+      const browseFuzzy = ruleBasedBrowse(corrected, priorText, allCatalog, { excludeSlugs: shown });
+      if (browseFuzzy) {
+        return {
+          reply: `Asumí que querías decir **"${corrected}"** 🙊\n\n${browseFuzzy}`,
+          kind: 'fuzzy_browse',
+        };
+      }
+      const fuzzyFreeText = freeTextSearch(corrected, allCatalog, shown);
+      if (fuzzyFreeText) {
+        return {
+          reply: `Asumí que querías decir **"${corrected}"** 🙊\n\n${fuzzyFreeText}`,
+          kind: 'fuzzy_text_search',
+        };
+      }
+    }
   }
 
   // 5. Low-signal query (typo, slang, unknown word). needsAI was false, so AI

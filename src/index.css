@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Figtree:wght@400;500;600;700&family=Dancing+Script:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Figtree:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,6 +8,33 @@
   html { scroll-behavior: smooth; }
   body { @apply bg-white text-ink-900 font-body antialiased; }
   #root { @apply min-h-screen; }
+
+  /* Custom scrollbar — rose suave, alineado a la marca. Solo en Chromium/Safari. */
+  ::-webkit-scrollbar       { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: #E7DDD4;       /* cream-200 */
+    border: 2px solid #FAF6F3; /* cream-50 — separa del track */
+    border-radius: 999px;
+    transition: background 0.2s;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: #D17D8D; /* rose-400 */ }
+
+  /* Focus visible — anillo rose-300 consistente para accesibilidad de teclado.
+     Solo aparece con :focus-visible (no por click), así que no molesta al mouse. */
+  :focus-visible {
+    outline: 2px solid #E39DAB; /* rose-300 */
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* Botones e inputs ya tienen sus propios focus styles, no los pisamos */
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role="button"]:focus-visible {
+    outline: none;
+  }
 }
 
 @layer components {
@@ -134,4 +161,42 @@
   transform-origin: left;
   animation: section-line 1.2s cubic-bezier(.3,1,.3,1) both;
   animation-delay: 0.3s;
+}
+
+/* ─── Orbs decorativos: aliviar carga en mobile ───
+ * Los blur-3xl + animate-orb-pulse son atmosféricos pero costosos para GPUs
+ * móviles. Bajamos opacidad y desaceleramos la animación en pantallas chicas.
+ */
+@media (max-width: 640px) {
+  .animate-orb-pulse {
+    opacity: 0.35;
+    animation-duration: 8s !important;
+  }
+}
+
+/* ─── Reduced motion support ───
+ * Respeta la preferencia del sistema. Apaga animaciones decorativas (marquee,
+ * orb-pulse, float, breathe, shimmer infinito), pero deja transiciones cortas
+ * para que la UI se siga sintiendo viva al interactuar.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-marquee,
+  .animate-marquee-reverse,
+  .animate-float,
+  .animate-orb-pulse,
+  .animate-breathe,
+  .animate-shimmer,
+  .animate-wa-ring {
+    animation: none !important;
+  }
+  .text-gradient-hero {
+    animation: none !important;
+    background-size: 100% auto;
+  }
 }
