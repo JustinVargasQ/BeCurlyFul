@@ -1385,6 +1385,22 @@ function tryRuleBasedReply(messages, allCatalog) {
     };
   }
 
+  // 2.15. Kit interactivo: bot guía al usuario subtipo por subtipo en lugar
+  //       de armar un combo cerrado. Detecta "armar kit", "elegir productos
+  //       uno por uno", "ir armando", etc + presupuesto en historial.
+  {
+    const norm = normalizeText(userText).trim().replace(/[!.?¿¡,]+/g, '').trim();
+    const wantsInteractive = /\b(armarme un kit|armarme un combo|armar un kit|elegir.{0,15}(uno por uno|de a uno|paso a paso)|ir.{0,8}eligiendo|ir.{0,8}armando|paso a paso|interactivo)\b/.test(norm);
+    const budgetInHist = findBudgetInHistory(messages);
+    if (wantsInteractive && budgetInHist) {
+      // Redirige al usuario al widget de la home — UX más visual
+      return {
+        reply: `¡Genial! Te llevo al armador de kit del home, ahí podés elegir cada producto y ver una barra de cuánto te queda 💕\n\n[[link: Abrir armador de kit|/#tienda]]\n\nTambién podés decirme una categoría (Maquillaje / Skincare / Cabello) y te armo un combo de una.\n\n[[sug: Maquillaje | Skincare | Mix variado]]`,
+        kind: 'kit_redirect',
+      };
+    }
+  }
+
   // 2.2. Category-only follow-up after a budget was mentioned → build a combo
   //      with curated essentials that fit the budget. Excludes products already
   //      shown so repeat asks give variety.

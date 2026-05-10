@@ -32,6 +32,110 @@ exports.getBySlug = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+/* ─── Kit Builder ─── Devuelve los esenciales por categoría con N opciones
+ * cada uno, todos por debajo del presupuesto. Usado por el widget del home y
+ * el flow interactivo del chatbot. */
+const KIT_ESSENTIALS = {
+  maquillaje: [
+    { key: 'base',      label: 'Base',         emoji: '🎨', cats: ['rostro','maquillaje'], synonyms: ['base','foundation','bb cream','cc cream'] },
+    { key: 'labial',    label: 'Labial',       emoji: '💋', cats: ['labios','maquillaje'],  synonyms: ['labial','labio','lip','gloss','tinta','balsamo','rouge'] },
+    { key: 'sombra',    label: 'Sombras',      emoji: '👁️', cats: ['ojos','maquillaje'],    synonyms: ['sombra','eyeshadow','paleta'] },
+    { key: 'rubor',     label: 'Rubor',        emoji: '🌸', cats: ['rostro','maquillaje'], synonyms: ['rubor','blush','colorete'] },
+    { key: 'corrector', label: 'Corrector',    emoji: '✨', cats: ['rostro','maquillaje'], synonyms: ['corrector','concealer','cubre','ojeras'] },
+  ],
+  skincare: [
+    { key: 'limpiador', label: 'Limpiador',    emoji: '🧼', cats: ['skincare'], synonyms: ['limpiador','limpieza','cleanser','jabon','jabón'] },
+    { key: 'tonico',    label: 'Tónico',       emoji: '💧', cats: ['skincare'], synonyms: ['tonico','tónico','toner'] },
+    { key: 'hidratante',label: 'Hidratante',   emoji: '💦', cats: ['skincare'], synonyms: ['hidratante','crema','moisturizer'] },
+    { key: 'serum',     label: 'Serum',        emoji: '🧪', cats: ['skincare'], synonyms: ['serum','sérum','niacinamida','retinol'] },
+    { key: 'protector', label: 'Protector',    emoji: '☀️', cats: ['skincare'], synonyms: ['protector','solar','bloqueador','spf'] },
+  ],
+  cabello: [
+    { key: 'shampoo',         label: 'Shampoo',        emoji: '🧴', cats: ['cabello'], synonyms: ['shampoo','champu','champú'] },
+    { key: 'acondicionador',  label: 'Acondicionador', emoji: '💆', cats: ['cabello'], synonyms: ['acondicionador','conditioner'] },
+    { key: 'tratamiento',     label: 'Tratamiento',    emoji: '✨', cats: ['cabello'], synonyms: ['tratamiento','keratina','queratina','mascarilla'] },
+  ],
+  perfumes: [
+    { key: 'perfume',         label: 'Perfume',        emoji: '🌸', cats: ['perfumes','rostro','maquillaje'], synonyms: ['perfume','colonia','fragancia','eau de'] },
+  ],
+  mix: [
+    { key: 'base',      label: 'Base',         emoji: '🎨', cats: ['rostro','maquillaje'], synonyms: ['base','foundation','bb cream'] },
+    { key: 'labial',    label: 'Labial',       emoji: '💋', cats: ['labios','maquillaje'],  synonyms: ['labial','labio','lip','gloss','tinta','balsamo'] },
+    { key: 'hidratante',label: 'Hidratante',   emoji: '💦', cats: ['skincare'],             synonyms: ['hidratante','crema','moisturizer'] },
+    { key: 'protector', label: 'Protector',    emoji: '☀️', cats: ['skincare'],             synonyms: ['protector','solar','bloqueador','spf'] },
+  ],
+};
+
+const ACCESSORY_NAME_KEYWORDS = ['algodon','vincha','panoleta','pañoleta','cepillo','esponja','brocha','aplicador','sacapuntas'];
+const BUNDLE_NAME_KEYWORDS = ['kit','set','combo','pack','paquete'];
+
+function _normalizeForKit(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+exports.getKitOptions = async (req, res, next) => {
+  try {
+    const cat = String(req.query.cat || 'maquillaje').toLowerCase();
+    const budget = Math.max(0, parseInt(req.query.budget, 10) || 0);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 3, 1), 6);
+
+    const subtypes = KIT_ESSENTIALS[cat] || KIT_ESSENTIALS.maquillaje;
+
+    // Traemos solo los productos relevantes para los subtypes pedidos
+    const allCats = [...new Set(subtypes.flatMap((s) => s.cats))];
+    const filter = { isActive: true, category: { $in: allCats } };
+    if (budget > 0) filter.price = { $lte: budget };
+
+    const products = await Product.find(filter)
+      .select('name slug brand category price oldPrice images stock badge rating reviewCount tags')
+      .lean({ virtuals: true });
+
+    // Para cada subtipo, encontrar candidatos por nombre/desc/tags y elegir top N
+    const result = subtypes.map((sub) => {
+      const candidates = products
+        .filter((p) => sub.cats.includes(p.category))
+        .filter((p) => p.stock !== 0)
+        .filter((p) => {
+          const name = _normalizeForKit(p.name);
+          const tags = (p.tags || []).map(_normalizeForKit);
+          // Match por tag (preferido — owner-curado) o por sinónimo en el nombre
+          if (sub.synonyms.some((s) => tags.includes(_normalizeForKit(s)))) return true;
+          return sub.synonyms.some((s) => name.includes(_normalizeForKit(s)));
+        })
+        .filter((p) => {
+          const name = _normalizeForKit(p.name);
+          const tags = (p.tags || []).map(_normalizeForKit);
+          // Excluir accesorios y kits/sets — el usuario está armando un kit propio
+          if (tags.includes('accesorio')) return false;
+          if (tags.includes('kit') || tags.includes('set') || tags.includes('combo')) return false;
+          if (ACCESSORY_NAME_KEYWORDS.some((k) => name.includes(k))) return false;
+          if (BUNDLE_NAME_KEYWORDS.some((k) => name.split(/\s+/).includes(k))) return false;
+          return true;
+        })
+        .sort((a, b) => {
+          // Priorizar: tiene oferta > rating con reviews > más barato
+          const aDiscount = a.oldPrice && a.oldPrice > a.price ? 1 : 0;
+          const bDiscount = b.oldPrice && b.oldPrice > b.price ? 1 : 0;
+          if (aDiscount !== bDiscount) return bDiscount - aDiscount;
+          const aSocial = (a.reviewCount || 0) > 0 ? (a.rating || 0) : 0;
+          const bSocial = (b.reviewCount || 0) > 0 ? (b.rating || 0) : 0;
+          if (aSocial !== bSocial) return bSocial - aSocial;
+          return a.price - b.price;
+        })
+        .slice(0, limit);
+
+      return {
+        key: sub.key,
+        label: sub.label,
+        emoji: sub.emoji,
+        options: candidates,
+      };
+    });
+
+    res.json({ category: cat, budget, subtypes: result });
+  } catch (err) { next(err); }
+};
+
 /* Batch lookup by slug — used by the chatbot to fetch a whole combo's
  * products in one round-trip instead of N parallel requests. */
 exports.getByBatch = async (req, res, next) => {

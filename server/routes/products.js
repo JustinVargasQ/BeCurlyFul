@@ -6,6 +6,7 @@ const upload      = require('../middleware/upload');
 /* Public */
 router.get('/',             ctrl.getAll);
 router.get('/batch',        ctrl.getByBatch);
+router.get('/kit-options',  ctrl.getKitOptions);
 router.get('/top-sellers',  ctrl.topSellers);
 router.get('/categories',   ctrl.getCategories);
 router.get('/brands',       ctrl.getBrands);

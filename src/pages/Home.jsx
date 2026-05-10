@@ -7,6 +7,7 @@ import { useProducts, useFeatured, useCategoryPreviews } from '../hooks/useProdu
 import useGoogleReviews from '../hooks/useGoogleReviews';
 import SEO from '../components/ui/SEO';
 import api, { assetUrl } from '../lib/api';
+import KitBuilder from '../components/ui/KitBuilder';
 import { formatCRC } from '../lib/currency';
 
 const USE_API = import.meta.env.VITE_API_URL;
@@ -2074,6 +2075,7 @@ export default function Home() {
       <Hero onCatSelect={handleCatSelect} />
       <CategoryRow onCatSelect={handleCatSelect} />
       <FeaturedSection />
+      <KitBuilder />
       <Catalog externalCat={selectedCat} catalogRef={catalogRef} />
       <LocationSocialBar />
       <BrandMarquee />
