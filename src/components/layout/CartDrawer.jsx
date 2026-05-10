@@ -140,14 +140,14 @@ export default function CartDrawer() {
           <motion.div key="bd"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm"
             onClick={closeCart} />
 
           {/* Drawer */}
           <motion.div key="drawer"
             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-            className="fixed right-0 top-0 h-full w-full max-w-[420px] z-50 flex flex-col bg-white shadow-2xl">
+            className="fixed right-0 top-0 h-full w-full max-w-[420px] z-[70] flex flex-col bg-white shadow-2xl">
 
             {/* ── Header ── */}
             <div className="px-6 pt-6 pb-5">

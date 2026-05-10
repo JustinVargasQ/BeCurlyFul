@@ -160,8 +160,7 @@ export function ProductPill({ slug }) {
     if (outOfStock || added) return;
     addItem(product, 1);
     setAdded(true);
-    closePanel();   // cerrar el chat para que el cart drawer sea visible
-    openCart();
+    openCart();   // cart drawer aparece sobre el chat (z-70 > z-60)
     toastSuccess(`${product.name} agregado al carrito`);
     setTimeout(() => setAdded(false), 1800);
   };
@@ -240,7 +239,6 @@ export function ComboAddButton({ slugs }) {
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
   const toastSuccess = useToastStore((s) => s.success);
-  const closePanel = useChatStore((s) => s.closePanel);
 
   // Dedup at the slug level (defensive — backend should already dedup)
   const uniqueSlugs = [...new Set(slugs)];
@@ -275,8 +273,7 @@ export function ComboAddButton({ slugs }) {
     if (added || count === 0) return;
     inStock.forEach((p) => addItem(p, 1));
     setAdded(true);
-    closePanel();   // cerrar el chat para que el cart drawer sea visible
-    openCart();
+    openCart();   // cart drawer aparece sobre el chat (z-70 > z-60)
     toastSuccess(`${count} producto${count === 1 ? '' : 's'} agregado${count === 1 ? '' : 's'} al carrito`);
     setTimeout(() => setAdded(false), 2400);
   };
