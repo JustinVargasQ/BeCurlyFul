@@ -80,7 +80,17 @@ function parseMessage(text) {
   return parts;
 }
 
-/* Render markdown links [text](url) inside a text fragment as clickable React elements. */
+/* Render markdown links [text](url) inside a text fragment as clickable React
+ * elements. Internal links cierran el panel del chatbot al click — sin eso,
+ * el panel sigue cubriendo la pagina y el usuario no ve el cambio de ruta. */
+function MarkdownInternalLink({ to, children }) {
+  const closePanel = useChatStore((s) => s.closePanel);
+  return (
+    <Link to={to} onClick={closePanel} className="text-rose-600 underline underline-offset-2 hover:text-rose-700 font-medium">
+      {children}
+    </Link>
+  );
+}
 function renderTextWithLinks(value, keyPrefix = '') {
   const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
   const out = [];
@@ -94,9 +104,7 @@ function renderTextWithLinks(value, keyPrefix = '') {
     const isInternal = url.startsWith('/');
     if (isInternal) {
       out.push(
-        <Link key={`${keyPrefix}-l-${i}`} to={url} className="text-rose-600 underline underline-offset-2 hover:text-rose-700 font-medium">
-          {label}
-        </Link>
+        <MarkdownInternalLink key={`${keyPrefix}-l-${i}`} to={url}>{label}</MarkdownInternalLink>
       );
     } else {
       out.push(
@@ -119,6 +127,7 @@ export function ProductPill({ slug }) {
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
   const toastSuccess = useToastStore((s) => s.success);
+  const closePanel = useChatStore((s) => s.closePanel);
 
   useEffect(() => {
     let cancelled = false;
@@ -151,6 +160,7 @@ export function ProductPill({ slug }) {
     if (outOfStock || added) return;
     addItem(product, 1);
     setAdded(true);
+    closePanel();   // cerrar el chat para que el cart drawer sea visible
     openCart();
     toastSuccess(`${product.name} agregado al carrito`);
     setTimeout(() => setAdded(false), 1800);
@@ -159,7 +169,7 @@ export function ProductPill({ slug }) {
   return (
     <div className="my-2 flex items-center gap-2 p-2.5 bg-white rounded-2xl border border-rose-100 hover:border-rose-300 hover:shadow-md transition-all group"
          style={{ boxShadow: '0 1px 3px rgba(184,95,114,0.06)' }}>
-      <Link to={`/producto/${product.slug}`} className="flex items-center gap-3 flex-1 min-w-0">
+      <Link to={`/producto/${product.slug}`} onClick={closePanel} className="flex items-center gap-3 flex-1 min-w-0">
         <div className="relative flex-shrink-0">
           <img
             src={optimizedImage(product.images?.[0], 96) || '/placeholder.png'}
@@ -230,6 +240,7 @@ export function ComboAddButton({ slugs }) {
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
   const toastSuccess = useToastStore((s) => s.success);
+  const closePanel = useChatStore((s) => s.closePanel);
 
   // Dedup at the slug level (defensive — backend should already dedup)
   const uniqueSlugs = [...new Set(slugs)];
@@ -264,6 +275,7 @@ export function ComboAddButton({ slugs }) {
     if (added || count === 0) return;
     inStock.forEach((p) => addItem(p, 1));
     setAdded(true);
+    closePanel();   // cerrar el chat para que el cart drawer sea visible
     openCart();
     toastSuccess(`${count} producto${count === 1 ? '' : 's'} agregado${count === 1 ? '' : 's'} al carrito`);
     setTimeout(() => setAdded(false), 2400);
@@ -325,11 +337,14 @@ export function ComboAddButton({ slugs }) {
 /* In-app link button rendered from [[link: Label|/path]] */
 export function LinkButton({ label, href }) {
   const isInternal = href.startsWith('/');
+  const closePanel = useChatStore((s) => s.closePanel);
   const className = 'my-2 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white shadow-md hover:shadow-lg active:scale-[0.98] transition-all';
   const style = { background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' };
   if (isInternal) {
     return (
-      <Link to={href} className={className} style={style}>
+      // closePanel() al click — sin esto, el panel sigue cubriendo la pagina
+      // (especialmente en mobile full-screen) y el usuario no ve el cambio.
+      <Link to={href} onClick={closePanel} className={className} style={style}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
