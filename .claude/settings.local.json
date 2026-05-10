@@ -102,7 +102,10 @@
       "Bash(node --check c:/Users/justi/Desktop/Zayin/JdVirtual/src/store/cartStore.js)",
       "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual add -A)",
       "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual commit -m 'Fix: carrito no podia editar items y combo agregaba 4x mismo producto *)",
-      "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual commit -m 'Cerrar el panel del chatbot al navegar o agregar al carrito *)"
+      "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual commit -m 'Cerrar el panel del chatbot al navegar o agregar al carrito *)",
+      "Bash(node -e \"require\\('@babel/parser'\\).parse\\(require\\('fs'\\).readFileSync\\('c:/Users/justi/Desktop/Zayin/JdVirtual/src/pages/Checkout.jsx','utf8'\\),{sourceType:'module',plugins:['jsx']}\\);console.log\\('co ok'\\)\")",
+      "Bash(node -e \"require\\('@babel/parser'\\).parse\\(require\\('fs'\\).readFileSync\\('c:/Users/justi/Desktop/Zayin/JdVirtual/src/pages/admin/Orders.jsx','utf8'\\),{sourceType:'module',plugins:['jsx']}\\);console.log\\('orders ok'\\)\")",
+      "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual commit -m 'Fix: imagenes faltantes en checkout/order admin + cart no se cerraba al navegar *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\justi\\Desktop\\Zayin\\VOStudio"

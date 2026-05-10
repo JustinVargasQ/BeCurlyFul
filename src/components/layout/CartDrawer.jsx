@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import useCart from '../../hooks/useCart';
 import { formatCRC } from '../../lib/currency';
 import { optimizedImage } from '../../lib/api';
@@ -129,8 +129,16 @@ export default function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQty, total,
           couponCode, couponDiscount, couponDesc, couponType,
           setCoupon, clearCoupon } = useCart();
+  const location = useLocation();
 
   const finalTotal = Math.max(0, total - (couponDiscount || 0));
+
+  // Cerrar el cart drawer automaticamente al cambio de ruta. Sin esto, al
+  // ir a /checkout el overlay (z-70 bg-black/40) queda oscureciendo la pagina.
+  useEffect(() => {
+    if (isOpen) closeCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   return (
     <AnimatePresence>

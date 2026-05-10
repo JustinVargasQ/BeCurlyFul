@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { formatCRC } from '../../lib/currency';
-import api, { assetUrl } from '../../lib/api';
+import api, { assetUrl, optimizedImage } from '../../lib/api';
 import useToastStore from '../../store/toastStore';
 import QRCode from 'qrcode';
 
@@ -389,7 +389,7 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onSearchPh
               {order.items?.map((item, i) => (
                 <div key={i} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                   {item.image
-                    ? <img src={assetUrl(item.image)} alt={item.name} className="w-12 h-12 object-cover rounded-xl border border-cream-200 flex-shrink-0" />
+                    ? <img src={optimizedImage(assetUrl(item.image), 96)} alt={item.name} className="w-12 h-12 object-cover rounded-xl border border-cream-200 flex-shrink-0" loading="lazy" decoding="async" />
                     : <div className="w-12 h-12 rounded-xl bg-cream-100 flex-shrink-0 flex items-center justify-center text-ink-300"><CameraIcon /></div>
                   }
                   <div className="flex-1 min-w-0">

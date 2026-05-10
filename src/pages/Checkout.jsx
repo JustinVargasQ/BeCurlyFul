@@ -5,7 +5,7 @@ import useCart from '../hooks/useCart';
 import { formatCRC } from '../lib/currency';
 import { buildWhatsAppMessage } from '../lib/whatsapp';
 import MapAddressPicker from '../components/ui/MapAddressPicker';
-import api from '../lib/api';
+import api, { optimizedImage } from '../lib/api';
 import { trackBeginCheckout, trackPurchase } from '../lib/analytics';
 import useUserStore from '../store/userStore';
 
@@ -300,7 +300,17 @@ export default function Checkout() {
             notes:    form.notes.trim() || '',
             lat: form.lat || null, lng: form.lng || null,
           },
-          items: items.map((i) => ({ productId: i.id, name: i.name, brand: i.brand || '', price: i.price, qty: i.qty, image: i.img || '' })),
+          items: items.map((i) => ({
+            productId: i.id,
+            name: i.name,
+            brand: i.brand || '',
+            price: i.price,
+            qty: i.qty,
+            // El cart guarda items con `images` (array) cuando vienen de la
+            // API; el legacy `img` solo existe en data hardcoded. Cubrimos
+            // ambos para que la orden quede con la imagen real.
+            image: i.images?.[0] || i.img || '',
+          })),
           subtotal: total, shippingCost, shippingMethod: shipping,
           coupon: coupon ? { code: coupon.code, discount, freeShipping: coupon.freeShipping } : null,
         });
@@ -520,10 +530,14 @@ export default function Checkout() {
               <div className="p-5 border-b border-cream-100">
                 <h2 className="font-display text-base font-bold text-ink-900 mb-4">Resumen del pedido</h2>
                 <div className="space-y-3">
-                  {items.map((i) => (
+                  {items.map((i) => {
+                    const itemImg = i.images?.[0] || i.img || '';
+                    return (
                     <div key={i.id} className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl overflow-hidden bg-cream-100 flex-shrink-0 border border-cream-100">
-                        {i.img ? <img src={i.img} alt={i.name} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-cream-200" />}
+                        {itemImg
+                          ? <img src={optimizedImage(itemImg, 96)} alt={i.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                          : <div className="w-full h-full bg-cream-200" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-ink-900 truncate">{i.name}</p>
@@ -531,7 +545,8 @@ export default function Checkout() {
                       </div>
                       <p className="text-sm font-bold text-ink-900 flex-shrink-0">{formatCRC(i.price * i.qty)}</p>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
