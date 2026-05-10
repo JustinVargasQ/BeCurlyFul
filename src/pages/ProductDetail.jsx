@@ -587,26 +587,29 @@ export default function ProductDetail() {
               </button>
             </div>
 
-            {/* Apartar — abre WhatsApp con mensaje pre-llenado del producto */}
-            <div className="flex items-center gap-2 mb-5">
-              <a
-                href={`https://wa.me/50688045100?text=${encodeURIComponent(`Hola 💕 Quiero apartar este producto: ${product.name} (₡${product.price.toLocaleString('es-CR')}). ¿Cómo procedemos?`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-rose-50 hover:bg-rose-100 border border-rose-200 hover:border-rose-300 text-rose-700 transition-all">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                Apartar este producto
-              </a>
-              <Link to="/apartados"
-                className="text-xs text-rose-500 hover:text-rose-700 underline whitespace-nowrap font-medium px-2">
-                ¿cómo?
+            {/* Apartar — boton full-width con caption descriptiva debajo */}
+            <a
+              href={`https://wa.me/50688045100?text=${encodeURIComponent(`Hola 💕 Quiero apartar este producto: ${product.name} (₡${product.price.toLocaleString('es-CR')}). ¿Cómo procedemos?`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group w-full flex items-center justify-center gap-2 px-4 py-3 mb-1.5 rounded-xl text-sm font-semibold bg-rose-50 hover:bg-rose-100 border border-rose-200 hover:border-rose-300 text-rose-700 hover:text-rose-800 transition-all">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:-rotate-6">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+                <circle cx="8" cy="15" r="1" fill="currentColor"/>
+              </svg>
+              <span>Apartar este producto</span>
+              <span className="hidden sm:inline text-rose-500/70 font-normal">·</span>
+              <span className="hidden sm:inline text-rose-600 font-bold">50% adelantado</span>
+            </a>
+            <p className="text-[11px] text-ink-400 text-center mb-5 leading-relaxed">
+              Te lo reservamos por 1 mes 💕{' '}
+              <Link to="/apartados" className="text-rose-600 hover:text-rose-700 font-semibold underline underline-offset-2 decoration-rose-300 hover:decoration-rose-500">
+                ¿cómo funciona?
               </Link>
-            </div>
+            </p>
 
             {/* Share */}
             <div className="flex items-center gap-2 mb-5">
