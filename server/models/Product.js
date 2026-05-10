@@ -28,7 +28,13 @@ const productSchema = new Schema(
     }],
     restockRequests: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    // Exponer `id` virtual al serializar — el cliente usa ese campo (no `_id`)
+    // para matchear items en el carrito y wishlist.
+    toJSON:   { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
 productSchema.index({ name: 'text', brand: 'text', description: 'text' });
