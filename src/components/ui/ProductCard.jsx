@@ -237,7 +237,7 @@ export default function ProductCard({ product, index = 0 }) {
             {/* Top group: brand + nombre + stars + opcional urgency */}
             <div>
               <p className="text-[11px] text-ink-400 font-semibold uppercase tracking-widest mb-1">{product.brand || 'JD Virtual'}</p>
-              <h3 className="text-sm font-semibold text-ink-900 leading-snug mb-2 line-clamp-2 group-hover:text-rose-500 transition-colors duration-200 min-h-[2.5em]">
+              <h3 className="text-sm font-semibold text-ink-900 leading-snug mb-2 line-clamp-2 group-hover:text-rose-500 transition-colors duration-200">
                 {product.name}
               </h3>
 
