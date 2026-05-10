@@ -102,8 +102,10 @@ export default function ProductCard({ product, index = 0 }) {
   };
 
   return (
-    /* perspective wrapper — needed for 3D tilt to look correct */
-    <div style={{ perspective: '900px' }}>
+    /* perspective wrapper — needed for 3D tilt to look correct.
+     * h-full + flex chain hace que todos los cards de un grid tengan la
+     * misma altura, sin importar si tienen rating, urgency o savings chip. */
+    <div style={{ perspective: '900px' }} className="h-full">
       <motion.div
         ref={cardRef}
         style={{ rotateX: springX, rotateY: springY, transformStyle: 'preserve-3d' }}
@@ -114,9 +116,10 @@ export default function ProductCard({ product, index = 0 }) {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
+        className="h-full"
       >
         <Link to={`/producto/${product.slug}`}
-          className="group block bg-white rounded-2xl overflow-hidden border border-cream-200 hover:border-rose-200 hover:shadow-card-hover transition-all duration-500">
+          className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-cream-200 hover:border-rose-200 hover:shadow-card-hover transition-all duration-500">
 
           {/* ── Image ── */}
           <div className="relative overflow-hidden bg-cream-50" style={{ aspectRatio: '1' }}>
@@ -223,15 +226,16 @@ export default function ProductCard({ product, index = 0 }) {
             </motion.div>
           </div>
 
-          {/* ── Info ── */}
-          <div className="p-4">
+          {/* ── Info: flex-col + flex-1 hace que estire al alto del card más
+              alto del grid; mt-auto en el precio lo ancla al fondo siempre. ── */}
+          <div className="p-4 flex-1 flex flex-col">
             <p className="text-[11px] text-ink-400 font-semibold uppercase tracking-widest mb-1">{product.brand || 'JD Virtual'}</p>
-            <h3 className="text-sm font-semibold text-ink-900 leading-snug mb-2.5 line-clamp-2 group-hover:text-rose-500 transition-colors duration-200">
+            <h3 className="text-sm font-semibold text-ink-900 leading-snug mb-2.5 line-clamp-2 group-hover:text-rose-500 transition-colors duration-200 min-h-[2.6em]">
               {product.name}
             </h3>
 
-            {/* Stars */}
-            <div className="flex items-center gap-1 mb-2">
+            {/* Stars — siempre visible para mantener consistencia vertical */}
+            <div className="flex items-center gap-1 mb-2 min-h-[14px]">
               <div className="flex gap-0.5">
                 {[1,2,3,4,5].map((s) => <StarIcon key={s} filled={s <= Math.round(product.rating || 5)} />)}
               </div>
@@ -240,43 +244,48 @@ export default function ProductCard({ product, index = 0 }) {
               )}
             </div>
 
-            {/* Urgency / social proof */}
-            {product.stock !== undefined && product.stock > 0 && product.stock <= 5 ? (
-              <div className="flex items-center gap-1.5 mb-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-                <span className="text-[11px] font-semibold text-amber-600">¡Solo quedan {product.stock}!</span>
-              </div>
-            ) : product.reviews >= 30 ? (
-              <div className="flex items-center gap-1.5 mb-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse flex-shrink-0" />
-                <span className="text-[11px] font-semibold text-rose-500">Muy buscado</span>
-              </div>
-            ) : null}
-
-            {/* Price */}
-            <div className="flex items-baseline gap-2">
-              <span className="font-bold text-ink-900 text-base">{formatCRC(product.price)}</span>
-              {product.oldPrice && (
-                <span className="text-xs text-ink-300 line-through">{formatCRC(product.oldPrice)}</span>
-              )}
+            {/* Urgency / social proof — siempre reserva el slot vertical para
+                que cards con/sin urgency se alineen igual. */}
+            <div className="min-h-[18px] mb-2">
+              {product.stock !== undefined && product.stock > 0 && product.stock <= 5 ? (
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
+                  <span className="text-[11px] font-semibold text-amber-600">¡Solo quedan {product.stock}!</span>
+                </div>
+              ) : product.reviews >= 30 ? (
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse flex-shrink-0" />
+                  <span className="text-[11px] font-semibold text-rose-500">Muy buscado</span>
+                </div>
+              ) : null}
             </div>
 
-            {/* Savings chip */}
-            {product.oldPrice && discount > 0 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, ease: [0.3, 1, 0.3, 1] }}
-                className="mt-2"
-              >
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100/80 px-2.5 py-0.5 rounded-full">
-                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  Ahorrás {formatCRC(product.oldPrice - product.price)}
-                </span>
-              </motion.div>
-            )}
+            {/* Price — mt-auto lo empuja al fondo del card */}
+            <div className="mt-auto">
+              <div className="flex items-baseline gap-2">
+                <span className="font-bold text-ink-900 text-base">{formatCRC(product.price)}</span>
+                {product.oldPrice && (
+                  <span className="text-xs text-ink-300 line-through">{formatCRC(product.oldPrice)}</span>
+                )}
+              </div>
+
+              {/* Savings chip — slot reservado para que cards con/sin descuento
+                  no salten de altura entre sí. */}
+              <div className="min-h-[24px] mt-2">
+                {product.oldPrice && discount > 0 && (
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, ease: [0.3, 1, 0.3, 1] }}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100/80 px-2.5 py-0.5 rounded-full">
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Ahorrás {formatCRC(product.oldPrice - product.price)}
+                  </motion.span>
+                )}
+              </div>
+            </div>
           </div>
         </Link>
       </motion.div>
