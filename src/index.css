@@ -151,6 +151,13 @@
   animation: text-shimmer 5s linear infinite;
 }
 
+/* ─── Chat panel border gradient — solo en desktop, mobile es full-screen ─── */
+@media (min-width: 640px) {
+  .chat-panel-wrapper {
+    background: linear-gradient(135deg, #B85F72 0%, #D17D8D 30%, #E39DAB 55%, #C9A875 100%);
+  }
+}
+
 /* ─── Animated decorative underline ─── */
 .animated-underline::after {
   content: '';

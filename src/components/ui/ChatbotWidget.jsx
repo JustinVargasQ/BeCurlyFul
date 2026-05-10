@@ -729,7 +729,9 @@ export function ChatPanelInner({ onReset, onClose, showHeader = true }) {
       )}
 
       {/* Input form — elegant rounded with gradient send button */}
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 px-3 py-3 border-t border-rose-100/60 bg-white/90 backdrop-blur-sm">
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center gap-2 px-3 py-3 border-t border-rose-100/60 bg-white/90 backdrop-blur-sm">
         <input
           ref={inputRef}
           type="text"
@@ -760,7 +762,9 @@ export function ChatPanelInner({ onReset, onClose, showHeader = true }) {
         </motion.button>
       </form>
 
-      <p className="text-[10px] text-center text-ink-400 pb-2 px-3 bg-white">
+      <p
+        className="text-[10px] text-center text-ink-400 px-3 bg-white"
+        style={{ paddingTop: '0.25rem', paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
         Powered by Gemini · Las respuestas pueden contener errores
       </p>
     </>
@@ -818,7 +822,7 @@ export default function ChatbotWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5 }}
             transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-            className="fixed bottom-6 right-5 z-40">
+            className="fixed bottom-6 right-5 z-[55]">
 
             {showGreeting && (
               <motion.div
@@ -1029,13 +1033,13 @@ export default function ChatbotWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed bottom-2 left-2 right-2 sm:left-auto sm:bottom-4 sm:right-4 z-50 sm:w-[400px] h-[calc(100dvh-1rem)] sm:h-[600px] sm:max-h-[calc(100dvh-2rem)]">
+            className="fixed inset-0 sm:inset-auto sm:bottom-4 sm:right-4 z-[60] sm:w-[400px] sm:h-[600px] sm:max-h-[calc(100dvh-2rem)]">
 
-            {/* Ambient glow behind */}
+            {/* Ambient glow — solo en desktop, en mobile el panel es full-screen */}
             <motion.div
               animate={{ opacity: [0.5, 0.75, 0.5] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -inset-4 rounded-[2rem] pointer-events-none"
+              className="hidden sm:block absolute -inset-4 rounded-[2rem] pointer-events-none"
               style={{
                 background: 'radial-gradient(ellipse at center, rgba(184,95,114,0.35) 0%, rgba(201,168,117,0.2) 50%, transparent 80%)',
                 filter: 'blur(24px)',
@@ -1043,13 +1047,11 @@ export default function ChatbotWidget() {
               }}
             />
 
-            {/* Gradient border wrapper */}
+            {/* Wrapper: en mobile sin gradient border (panel ocupa toda la pantalla,
+             * el border decorativo no se ve). En desktop conservamos el detalle. */}
             <div
-              className="relative h-full rounded-3xl p-[1.5px] shadow-2xl"
-              style={{
-                background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 30%, #E39DAB 55%, #C9A875 100%)',
-              }}>
-              <div className="flex flex-col h-full bg-white rounded-[calc(1.5rem-1.5px)] overflow-hidden">
+              className="chat-panel-wrapper relative h-full sm:rounded-3xl sm:p-[1.5px] sm:shadow-2xl">
+              <div className="flex flex-col h-full bg-white sm:rounded-[calc(1.5rem-1.5px)] overflow-hidden">
                 <ChatPanelInner onClose={closePanel} />
               </div>
             </div>
