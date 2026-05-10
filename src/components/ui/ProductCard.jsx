@@ -226,63 +226,57 @@ export default function ProductCard({ product, index = 0 }) {
             </motion.div>
           </div>
 
-          {/* ── Info: flex-col + flex-1 hace que estire al alto del card más
-              alto del grid; mt-auto en el precio lo ancla al fondo siempre. ── */}
-          <div className="p-4 flex-1 flex flex-col">
-            <p className="text-[11px] text-ink-400 font-semibold uppercase tracking-widest mb-1">{product.brand || 'JD Virtual'}</p>
-            <h3 className="text-sm font-semibold text-ink-900 leading-snug mb-2.5 line-clamp-2 group-hover:text-rose-500 transition-colors duration-200 min-h-[2.6em]">
-              {product.name}
-            </h3>
+          {/* ── Info ──
+           * Estructura simple: dos grupos visuales (top: brand+nombre+stars,
+           * bottom: precio+savings). El bottom se ancla al fondo del card vía
+           * mt-auto. Los grupos no reservan slots: si un producto no tiene
+           * stock-bajo o descuento, simplemente esa línea no aparece y el
+           * espacio se distribuye naturalmente entre los dos grupos.
+           */}
+          <div className="px-4 pt-4 pb-5 flex-1 flex flex-col">
+            {/* Top group: brand + nombre + stars + opcional urgency */}
+            <div>
+              <p className="text-[11px] text-ink-400 font-semibold uppercase tracking-widest mb-1">{product.brand || 'JD Virtual'}</p>
+              <h3 className="text-sm font-semibold text-ink-900 leading-snug mb-2 line-clamp-2 group-hover:text-rose-500 transition-colors duration-200 min-h-[2.5em]">
+                {product.name}
+              </h3>
 
-            {/* Stars — siempre visible para mantener consistencia vertical */}
-            <div className="flex items-center gap-1 mb-2 min-h-[14px]">
-              <div className="flex gap-0.5">
-                {[1,2,3,4,5].map((s) => <StarIcon key={s} filled={s <= Math.round(product.rating || 5)} />)}
-              </div>
-              {product.reviews > 0 && (
-                <span className="text-[11px] text-ink-400">({product.reviews})</span>
-              )}
-            </div>
-
-            {/* Urgency / social proof — siempre reserva el slot vertical para
-                que cards con/sin urgency se alineen igual. */}
-            <div className="min-h-[18px] mb-2">
-              {product.stock !== undefined && product.stock > 0 && product.stock <= 5 ? (
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-                  <span className="text-[11px] font-semibold text-amber-600">¡Solo quedan {product.stock}!</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <div className="flex gap-0.5 items-center">
+                  {[1,2,3,4,5].map((s) => <StarIcon key={s} filled={s <= Math.round(product.rating || 5)} />)}
                 </div>
-              ) : product.reviews >= 30 ? (
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse flex-shrink-0" />
-                  <span className="text-[11px] font-semibold text-rose-500">Muy buscado</span>
-                </div>
-              ) : null}
-            </div>
-
-            {/* Price — mt-auto lo empuja al fondo del card */}
-            <div className="mt-auto">
-              <div className="flex items-baseline gap-2">
-                <span className="font-bold text-ink-900 text-base">{formatCRC(product.price)}</span>
-                {product.oldPrice && (
-                  <span className="text-xs text-ink-300 line-through">{formatCRC(product.oldPrice)}</span>
+                {product.reviews > 0 && (
+                  <span className="text-[11px] text-ink-400">({product.reviews})</span>
                 )}
+                {/* Urgency en línea con las estrellas — separa con un punto cuando hay reviews */}
+                {product.stock !== undefined && product.stock > 0 && product.stock <= 5 ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600">
+                    <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" />
+                    Solo {product.stock}
+                  </span>
+                ) : product.reviews >= 30 ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-500">
+                    <span className="w-1 h-1 rounded-full bg-rose-500 animate-pulse" />
+                    Popular
+                  </span>
+                ) : null}
               </div>
+            </div>
 
-              {/* Savings chip — slot reservado para que cards con/sin descuento
-                  no salten de altura entre sí. */}
-              <div className="min-h-[24px] mt-2">
-                {product.oldPrice && discount > 0 && (
-                  <motion.span
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, ease: [0.3, 1, 0.3, 1] }}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100/80 px-2.5 py-0.5 rounded-full">
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    Ahorrás {formatCRC(product.oldPrice - product.price)}
-                  </motion.span>
+            {/* Bottom group anclado al fondo: precio + opcional savings */}
+            <div className="mt-auto pt-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-ink-900 text-base">{formatCRC(product.price)}</span>
+                {product.oldPrice && product.oldPrice > product.price && (
+                  <>
+                    <span className="text-xs text-ink-300 line-through">{formatCRC(product.oldPrice)}</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full ml-auto">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      −{formatCRC(product.oldPrice - product.price)}
+                    </span>
+                  </>
                 )}
               </div>
             </div>
