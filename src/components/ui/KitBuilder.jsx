@@ -18,6 +18,10 @@ const idOf = (p) => String(p?.id || p?._id || p?.slug || '');
 const pickKey = (cat, subKey) => `${cat}:${subKey}`;
 
 export default function KitBuilder() {
+  // Cerrado por default — el widget completo es grande, solo se despliega cuando
+  // el usuario lo pide via el CTA. Asi la home no se siente "kilometrica" para
+  // gente que ya sabe lo que quiere.
+  const [isOpen, setIsOpen]       = useState(false);
   const [budget, setBudget]       = useState(15000);
   const [category, setCategory]   = useState('maquillaje');
   const [data, setData]           = useState(null);
@@ -31,8 +35,10 @@ export default function KitBuilder() {
   const { addItem, removeItem, openCart, items: cartItems } = useCart();
   const toastSuccess = useToastStore((s) => s.success);
 
-  // Cargar opciones cuando cambia la categoría o el presupuesto
+  // Cargar opciones cuando cambia la categoría o el presupuesto. Solo cuando
+  // el widget está abierto — no gastar bandwidth si el usuario nunca lo abre.
   useEffect(() => {
+    if (!isOpen) return undefined;
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -41,7 +47,7 @@ export default function KitBuilder() {
       .catch((err) => { if (!cancelled) setError(err.response?.data?.error || 'No se pudieron cargar opciones'); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [category, budget]);
+  }, [category, budget, isOpen]);
 
   /* Click toggle: si el producto ya está pickeado lo saca del carrito y del
    * kit; si no, lo mete (y si había otro pickeado en ese slot, lo reemplaza). */
@@ -100,22 +106,77 @@ export default function KitBuilder() {
       <div aria-hidden className="pointer-events-none absolute bottom-0 -left-20 w-64 h-64 rounded-full bg-gold/15 blur-3xl animate-orb-pulse" style={{ animationDelay: '2s' }} />
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <span className="section-label">🎁 Kit Builder</span>
-          <h2 className="section-title">
-            Armá tu kit{' '}
-            <span className="italic" style={{
-              background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            }}>
-              perfecto
-            </span>
-          </h2>
-          <p className="text-ink-500 mt-3 max-w-xl mx-auto">
-            Tocá un producto y se suma al kit (y al carrito) automáticamente. Cambiá de
-            categoría sin perder lo que ya elegiste 💕
-          </p>
+        {!isOpen ? (
+          // ─── Compact CTA — toma poco espacio, solo se expande al click ───
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+            className="bg-white rounded-3xl border border-cream-200 p-5 sm:p-7 shadow-card flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+            <div className="text-5xl sm:text-6xl flex-shrink-0">🎁</div>
+            <div className="flex-1 text-center sm:text-left min-w-0">
+              <p className="section-label !mb-1">Kit Builder</p>
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink-900 leading-tight">
+                Armá tu kit{' '}
+                <span className="italic" style={{
+                  background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)',
+                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                }}>
+                  perfecto
+                </span>
+              </h2>
+              <p className="text-sm text-ink-500 mt-1 leading-relaxed">
+                Decinos tu presupuesto y armá un set de esenciales con una barra que se llena
+                en tiempo real 💕
+              </p>
+              {Object.keys(picks).length > 0 && (
+                <p className="text-xs font-bold text-rose-600 mt-2">
+                  Ya tenés {Object.keys(picks).length} producto{Object.keys(picks).length === 1 ? '' : 's'} en tu kit · {formatCRC(allPicksTotal(picks))}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-sm font-bold text-white shadow-btn hover:shadow-btn-hover transition-all flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              {Object.keys(picks).length > 0 ? 'Continuar mi kit' : 'Empezar'}
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}>
+        {/* Header con boton cerrar */}
+        <div className="flex items-start justify-between gap-3 mb-6">
+          <div className="flex-1 min-w-0">
+            <span className="section-label">🎁 Kit Builder</span>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-ink-900 leading-tight">
+              Armá tu kit{' '}
+              <span className="italic" style={{
+                background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+              }}>
+                perfecto
+              </span>
+            </h2>
+            <p className="text-ink-500 mt-2 text-sm sm:text-base">
+              Tocá un producto y se suma al kit (y al carrito). Cambiá de categoría sin
+              perder lo que ya elegiste 💕
+            </p>
+          </div>
+          <button
+            onClick={() => setIsOpen(false)}
+            aria-label="Cerrar"
+            className="flex-shrink-0 w-10 h-10 rounded-full bg-white border border-cream-200 hover:border-rose-300 text-ink-500 hover:text-rose-600 flex items-center justify-center transition-colors shadow-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
 
         {/* Layout: subtypes (izquierda) + summary panel sticky (derecha en desktop) */}
@@ -279,9 +340,16 @@ export default function KitBuilder() {
             onOpenCart={openCart}
           />
         </div>
+          </motion.div>
+        )}
       </div>
     </section>
   );
+}
+
+/* Helper: total de los picks (usado por el CTA compacto) */
+function allPicksTotal(picks) {
+  return Object.values(picks).reduce((s, p) => s + (p?.price || 0), 0);
 }
 
 /* Panel resumen — desktop: sticky a la derecha. Mobile: fixed bottom sheet. */
