@@ -239,11 +239,22 @@ exports.smtpDiagnostic = async (req, res, next) => {
     // Verificar credenciales con un ping
     const verify = await verifySmtp();
     if (!verify.ok) {
+      let message, howToFix;
+      if (verify.reason === 'connection_timeout') {
+        message = 'No se puede conectar al servidor SMTP — el puerto esta bloqueado o el host no responde.';
+        howToFix = 'En Render free plan, el puerto 465 a veces esta bloqueado. Probá agregar estas env vars: SMTP_HOST=smtp.gmail.com, SMTP_PORT=587. O usá un servicio HTTP como Resend (https://resend.com) o Brevo (https://brevo.com) que no dependen de SMTP — te doy un commit listo si querés.';
+      } else if (verify.reason === 'auth_failed') {
+        message = 'SMTP responde pero las credenciales no funcionan.';
+        howToFix = 'Generá un App Password en https://myaccount.google.com/apppasswords y poné ese en SMTP_PASS (no tu contraseña normal de Gmail). Necesitás tener verificación en 2 pasos activada en la cuenta.';
+      } else {
+        message = 'SMTP no responde como se espera.';
+        howToFix = 'Revisá los logs de Render para mas detalle.';
+      }
       return res.json({
         ok: false,
         smtp: { configured: true, ...verify },
-        message: 'SMTP esta configurado pero las credenciales no funcionan.',
-        howToFix: 'Genera un App Password en https://myaccount.google.com/apppasswords y poné ese en SMTP_PASS (no tu contraseña normal de Gmail).',
+        message,
+        howToFix,
       });
     }
     // Settings.notificationEmail (donde llega el aviso al admin)

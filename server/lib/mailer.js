@@ -2,12 +2,30 @@ const nodemailer = require('nodemailer');
 
 let _transporter = null;
 
+/* Render free plan a veces bloquea el puerto 465 (SSL directo). Usamos por
+ * default puerto 587 (STARTTLS) que es mas permisivo en hosting compartido.
+ * Permitimos override via SMTP_HOST/SMTP_PORT/SMTP_SECURE para cualquier
+ * proveedor (Brevo, Resend SMTP, SendGrid, Outlook, etc). */
 function getTransporter() {
   if (_transporter) return _transporter;
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return null;
+
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT, 10) || 587;
+  const secure = process.env.SMTP_SECURE === 'true' || port === 465;
+
   _transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host,
+    port,
+    secure,                 // false para 587 (STARTTLS), true para 465 (SSL)
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    // Timeouts cortos para no colgar la response durante 30s+ si el puerto
+    // esta bloqueado por el hosting (sintoma tipico: Connection timeout).
+    connectionTimeout: 10_000,
+    greetingTimeout:   10_000,
+    socketTimeout:     15_000,
+    // Habilita STARTTLS cuando secure=false (estandar para Gmail 587)
+    requireTLS: !secure,
   });
   return _transporter;
 }
@@ -27,16 +45,26 @@ function smtpStatus() {
   return { ok: true, hasUser: true, hasPass: true, user: process.env.SMTP_USER };
 }
 
-/* Verifica que la cuenta SMTP esta lista para enviar (verify ping). */
+/* Verifica que la cuenta SMTP esta lista para enviar (verify ping).
+ * Distingue entre auth fail (credenciales mal) y timeout (puerto bloqueado). */
 async function verifySmtp() {
   const status = smtpStatus();
   if (!status.ok) return status;
   try {
     const t = getTransporter();
     await t.verify();
-    return { ok: true, user: process.env.SMTP_USER };
+    return {
+      ok: true,
+      user: process.env.SMTP_USER,
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT, 10) || 587,
+    };
   } catch (err) {
-    return { ok: false, reason: 'auth_failed', detail: err.message };
+    const msg = String(err.message || err);
+    let reason = 'auth_failed';
+    if (/timeout|ETIMEDOUT|ECONNREFUSED|ENETUNREACH/i.test(msg)) reason = 'connection_timeout';
+    else if (/authentication|invalid login|535/i.test(msg)) reason = 'auth_failed';
+    return { ok: false, reason, detail: msg };
   }
 }
 
