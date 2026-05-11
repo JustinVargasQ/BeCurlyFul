@@ -118,9 +118,18 @@ export default function KitBuilder() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="bg-white rounded-3xl border border-cream-200 p-5 sm:p-7 shadow-card flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <div className="text-5xl sm:text-6xl flex-shrink-0">🎁</div>
-            <div className="flex-1 text-center sm:text-left min-w-0">
+            className="relative bg-white rounded-3xl border border-cream-200 p-5 sm:p-7 shadow-card flex flex-col sm:flex-row items-center gap-4 sm:gap-6 overflow-hidden group hover:shadow-card-hover hover:border-rose-200 transition-all">
+            {/* Orb decorativo detrás del emoji */}
+            <div aria-hidden className="absolute -left-8 -top-8 w-40 h-40 rounded-full bg-rose-200/30 blur-2xl group-hover:bg-rose-300/40 transition-colors" />
+            <div className="relative text-5xl sm:text-6xl flex-shrink-0 select-none">
+              <motion.span
+                animate={{ rotate: [0, -8, 8, -4, 0], scale: [1, 1.05, 1] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
+                className="inline-block">
+                🎁
+              </motion.span>
+            </div>
+            <div className="relative flex-1 text-center sm:text-left min-w-0">
               <p className="section-label !mb-1">Kit Builder</p>
               <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink-900 leading-tight">
                 Armá tu kit{' '}
@@ -136,20 +145,24 @@ export default function KitBuilder() {
                 en tiempo real 💕
               </p>
               {Object.keys(picks).length > 0 && (
-                <p className="text-xs font-bold text-rose-600 mt-2">
-                  Ya tenés {Object.keys(picks).length} producto{Object.keys(picks).length === 1 ? '' : 's'} en tu kit · {formatCRC(allPicksTotal(picks))}
-                </p>
+                <motion.p
+                  initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold mt-2 px-2.5 py-1 rounded-full bg-rose-50 border border-rose-100 text-rose-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                  {Object.keys(picks).length} en tu kit · {formatCRC(allPicksTotal(picks))}
+                </motion.p>
               )}
             </div>
-            <button
+            <motion.button
               onClick={() => setIsOpen(true)}
-              className="flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-sm font-bold text-white shadow-btn hover:shadow-btn-hover transition-all flex-shrink-0"
+              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+              className="relative flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-sm font-bold text-white shadow-btn hover:shadow-btn-hover transition-shadow flex-shrink-0"
               style={{ background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
               {Object.keys(picks).length > 0 ? 'Continuar mi kit' : 'Empezar'}
-            </button>
+            </motion.button>
           </motion.div>
         ) : (
           <motion.div
@@ -266,18 +279,31 @@ export default function KitBuilder() {
                   const hasOptions = sub.options.length > 0;
                   const selectedInThisSlot = picks[pickKey(category, sub.key)];
                   return (
-                    <div key={sub.key} className="bg-white rounded-2xl border border-cream-100 p-4 shadow-sm">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{sub.emoji}</span>
+                    <div key={sub.key} className={`relative bg-white rounded-2xl border p-4 shadow-sm transition-colors ${
+                      selectedInThisSlot ? 'border-rose-200' : 'border-cream-100'
+                    }`}>
+                      {/* Accent lateral — cambia a rose cuando hay pick en este slot */}
+                      <div className={`absolute left-0 top-4 bottom-4 w-1 rounded-r-full transition-colors ${
+                        selectedInThisSlot ? 'bg-rose-500' : 'bg-cream-200'
+                      }`} />
+                      <div className="flex items-center justify-between mb-3 pl-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-full bg-cream-50 border border-cream-200 flex items-center justify-center text-base shadow-sm">
+                            <span>{sub.emoji}</span>
+                          </div>
                           <h3 className="font-display text-base font-bold text-ink-900">{sub.label}</h3>
                           {selectedInThisSlot && (
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
-                              ✓ en tu kit
-                            </span>
+                            <motion.span
+                              initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                              className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+                              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                              </svg>
+                              en tu kit
+                            </motion.span>
                           )}
                         </div>
-                        {!hasOptions && <span className="text-xs text-ink-400">Sin opciones en este rango</span>}
+                        {!hasOptions && <span className="text-xs text-ink-400">Sin opciones</span>}
                       </div>
 
                       {hasOptions && (
@@ -565,28 +591,40 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
       {/* Desktop sticky */}
       <aside className="hidden lg:block lg:sticky lg:top-24">
         <div className="bg-white rounded-3xl border border-cream-200 shadow-card overflow-hidden">
-          <div className="px-5 pt-5 pb-3 border-b border-cream-100">
-            <p className="text-xs font-bold uppercase tracking-widest text-rose-500 mb-1">Tu kit</p>
-            <p className="font-display text-2xl font-bold text-ink-900 leading-tight">
-              {formatCRC(total)}
-              <span className="text-sm text-ink-400 font-normal"> de {formatCRC(budget)}</span>
-            </p>
-            <p className={`text-xs font-bold mt-1 ${overBudget ? 'text-red-600' : 'text-emerald-600'}`}>
-              {overBudget
-                ? `Te pasaste por ${formatCRC(-remaining)}`
-                : remaining > 0
-                  ? `Te quedan ${formatCRC(remaining)}`
-                  : '¡Justo!'}
-            </p>
-            <ProgressBar progress={progress} overBudget={overBudget} />
+          {/* Header con gradiente sutil */}
+          <div className="relative px-5 pt-5 pb-4 border-b border-cream-100 overflow-hidden">
+            <div aria-hidden className="absolute -top-12 -right-8 w-32 h-32 rounded-full bg-rose-100/40 blur-2xl pointer-events-none" />
+            <div aria-hidden className="absolute -bottom-8 -left-4 w-24 h-24 rounded-full bg-gold/20 blur-2xl pointer-events-none" />
+            <div className="relative">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-rose-500 mb-1 flex items-center gap-1.5">
+                <span>🎁</span> Tu kit
+              </p>
+              <p className="font-display text-2xl font-bold text-ink-900 leading-tight">
+                {formatCRC(total)}
+                <span className="text-sm text-ink-400 font-normal"> de {formatCRC(budget)}</span>
+              </p>
+              <p className={`text-xs font-bold mt-1 ${overBudget ? 'text-red-600' : count > 0 ? 'text-emerald-600' : 'text-ink-400'}`}>
+                {overBudget
+                  ? `⚠ Te pasaste por ${formatCRC(-remaining)}`
+                  : count === 0
+                    ? 'Tocá un producto para empezar'
+                    : remaining > 0
+                      ? `Te quedan ${formatCRC(remaining)}`
+                      : '¡Justo!'}
+              </p>
+              <ProgressBar progress={progress} overBudget={overBudget} active={count > 0} />
+            </div>
           </div>
 
           <div className="px-5 py-3 max-h-[40vh] overflow-y-auto">
             {count === 0 ? (
-              <p className="text-sm text-ink-400 text-center py-6">
-                Todavía no elegiste nada.<br/>
-                <span className="text-xs">Tocá un producto para agregarlo 👈</span>
-              </p>
+              <div className="text-center py-7">
+                <div className="text-3xl mb-2 opacity-60">🛍️</div>
+                <p className="text-sm font-semibold text-ink-700 mb-1">Tu kit está vacío</p>
+                <p className="text-xs text-ink-400 leading-relaxed max-w-[200px] mx-auto">
+                  Tocá cualquier producto a la izquierda para verlo en detalle y agregarlo
+                </p>
+              </div>
             ) : (
               <ul className="space-y-2">
                 <AnimatePresence initial={false}>
@@ -671,16 +709,26 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
   );
 }
 
-function ProgressBar({ progress, overBudget, compact }) {
+function ProgressBar({ progress, overBudget, compact, active = true }) {
   return (
-    <div className={`bg-cream-100 rounded-full overflow-hidden mt-2 ${compact ? 'h-1.5' : 'h-2.5'}`}>
+    <div className={`relative bg-cream-100 rounded-full overflow-hidden mt-2 ${compact ? 'h-1.5' : 'h-2.5'}`}>
       <motion.div
         initial={false}
         animate={{ width: `${Math.min(progress, 100)}%` }}
         transition={{ type: 'spring', damping: 30, stiffness: 200 }}
-        className={`h-full rounded-full ${overBudget ? 'bg-red-500' : ''}`}
-        style={overBudget ? undefined : { background: 'linear-gradient(90deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }}
-      />
+        className={`relative h-full rounded-full overflow-hidden ${overBudget ? 'bg-red-500' : ''}`}
+        style={overBudget ? undefined : { background: 'linear-gradient(90deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }}>
+        {/* Shimmer animado mientras la barra esta llena y no sobrepaso el budget */}
+        {active && !overBudget && progress > 0 && (
+          <motion.span
+            aria-hidden
+            animate={{ x: ['-100%', '200%'] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear', repeatDelay: 0.5 }}
+            className="absolute inset-y-0 w-1/3 pointer-events-none"
+            style={{ background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent)' }}
+          />
+        )}
+      </motion.div>
     </div>
   );
 }
