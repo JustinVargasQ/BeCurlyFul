@@ -3,7 +3,7 @@ const Coupon   = require('../models/Coupon');
 const Product  = require('../models/Product');
 const Settings = require('../models/Settings');
 const { broadcast } = require('../lib/sse');
-const { sendOrderNotification, sendCustomerConfirmation, sendCustomerStatusUpdate } = require('../lib/mailer');
+const { sendOrderNotification, sendCustomerConfirmation, sendCustomerStatusUpdate, smtpStatus, verifySmtp } = require('../lib/mailer');
 
 /* ---------- Public ---------- */
 
@@ -223,6 +223,67 @@ exports.adminGetOne = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+/* Diagnostico del SMTP — admin puede ver por que no se envian emails.
+ * GET con ?test=email@ejemplo.com hace un envio de prueba real. */
+exports.smtpDiagnostic = async (req, res, next) => {
+  try {
+    const status = smtpStatus();
+    if (!status.ok) {
+      return res.json({
+        ok: false,
+        smtp: status,
+        message: 'SMTP no esta configurado. Faltan variables de entorno en el servidor.',
+        howToFix: 'En Render -> Environment, agrega SMTP_USER (tu Gmail) y SMTP_PASS (App Password de Google).',
+      });
+    }
+    // Verificar credenciales con un ping
+    const verify = await verifySmtp();
+    if (!verify.ok) {
+      return res.json({
+        ok: false,
+        smtp: { configured: true, ...verify },
+        message: 'SMTP esta configurado pero las credenciales no funcionan.',
+        howToFix: 'Genera un App Password en https://myaccount.google.com/apppasswords y poné ese en SMTP_PASS (no tu contraseña normal de Gmail).',
+      });
+    }
+    // Settings.notificationEmail (donde llega el aviso al admin)
+    const settings = await Settings.findOne({ key: 'main' });
+    const notifTo = settings?.notificationEmail || null;
+
+    // Si pasaron ?test=email@dominio, mandar uno de prueba
+    const testTo = String(req.query.test || '').trim();
+    let testResult = null;
+    if (testTo) {
+      const nodemailer = require('nodemailer');
+      const t = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      });
+      try {
+        await t.sendMail({
+          from: `"JD Virtual" <${process.env.SMTP_USER}>`,
+          to: testTo,
+          subject: '✅ Prueba de SMTP — JD Virtual',
+          text: 'Si recibís este correo, el SMTP está funcionando correctamente 💕',
+        });
+        testResult = { ok: true, to: testTo };
+      } catch (err) {
+        testResult = { ok: false, error: err.message };
+      }
+    }
+
+    res.json({
+      ok: true,
+      smtp: { user: process.env.SMTP_USER, verified: true },
+      notificationEmail: notifTo,
+      message: notifTo
+        ? `SMTP funciona. Las notificaciones de nuevos pedidos llegan a ${notifTo}.`
+        : 'SMTP funciona pero NO hay notificationEmail configurado en Settings → no llegan avisos de nuevos pedidos al admin. Configurálo en /admin/config.',
+      ...(testResult ? { testEmail: testResult } : {}),
+    });
+  } catch (err) { next(err); }
+};
+
 /* Backfill: rellenar items[].image en ordenes viejas usando la imagen actual
  * del producto. One-shot admin tool — idempotente, solo toca items con
  * image vacio y productId valido. */
@@ -269,10 +330,11 @@ exports.updateStatus = async (req, res, next) => {
     const before = await Order.findById(req.params.id);
     if (!before) return res.status(404).json({ error: 'Pedido no encontrado' });
 
+    const statusChanged = before.status !== status;
     const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
 
     // Refund coupon usage if cancelling; re-consume if un-cancelling.
-    if (before.coupon?.code && before.status !== status) {
+    if (before.coupon?.code && statusChanged) {
       if (status === 'cancelado' && before.status !== 'cancelado') {
         await Coupon.updateOne(
           { code: before.coupon.code, usedCount: { $gt: 0 } },
@@ -286,9 +348,19 @@ exports.updateStatus = async (req, res, next) => {
       }
     }
 
-    sendCustomerStatusUpdate(order, status).catch(() => {});
+    // Solo intentar email si el estado realmente cambio (evita duplicados al
+    // hacer click en el mismo estado dos veces). Esperamos el resultado para
+    // devolver al admin si el envio salio OK o por que fallo.
+    let emailResult = null;
+    if (statusChanged) {
+      emailResult = await sendCustomerStatusUpdate(order, status).catch((err) => ({
+        ok: false, reason: 'unhandled', detail: err.message,
+      }));
+    } else {
+      emailResult = { ok: false, reason: 'status_unchanged', detail: 'El estado ya era el mismo, no se reenvio email' };
+    }
 
-    res.json(order);
+    res.json({ ...order.toObject(), _email: emailResult });
   } catch (err) { next(err); }
 };
 

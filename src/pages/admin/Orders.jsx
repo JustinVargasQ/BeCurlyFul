@@ -683,7 +683,27 @@ export default function AdminOrders() {
       const { data } = await api.patch(`/orders/admin/${id}/status`, { status });
       setOrders((prev) => prev.map((o) => (o._id === id ? { ...o, status: data.status } : o)));
       setSelected((s) => (s && s._id === id ? { ...s, status: data.status } : s));
-      useToastStore.getState().success(`Estado cambiado a "${STATUS_CONFIG[status]?.label || status}"`);
+      // Feedback diferenciado segun si el email salio OK o no
+      const em = data._email;
+      const statusLabel = STATUS_CONFIG[status]?.label || status;
+      if (em?.ok) {
+        useToastStore.getState().success(`✓ Estado cambiado a "${statusLabel}". Email enviado a ${em.to}`);
+      } else if (em?.reason === 'status_unchanged') {
+        useToastStore.getState().success(`Estado: "${statusLabel}" (sin cambio, no se reenvió email)`);
+      } else if (em?.reason === 'no_customer_email') {
+        useToastStore.getState().info?.(`Estado cambiado a "${statusLabel}". El cliente no tiene email registrado.`)
+          ?? useToastStore.getState().success(`Estado cambiado a "${statusLabel}" (cliente sin email)`);
+      } else if (em?.reason === 'smtp_not_configured') {
+        useToastStore.getState().error?.(`Estado cambiado pero SMTP no está configurado. Revisá /admin → SMTP.`)
+          ?? useToastStore.getState().success(`Estado cambiado (SMTP no configurado)`);
+      } else if (em?.reason === 'no_template') {
+        useToastStore.getState().success(`Estado cambiado a "${statusLabel}" (sin email para este estado)`);
+      } else if (em && !em.ok) {
+        useToastStore.getState().error?.(`Estado cambiado pero email falló: ${em.detail || em.reason}`)
+          ?? useToastStore.getState().success(`Estado cambiado (email falló)`);
+      } else {
+        useToastStore.getState().success(`Estado cambiado a "${statusLabel}"`);
+      }
 
       if (status === 'confirmado') {
         const order = orders.find((o) => o._id === id) || selected;

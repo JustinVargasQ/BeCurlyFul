@@ -109,7 +109,9 @@
       "Bash(node -e \"require\\('@babel/parser'\\).parse\\(require\\('fs'\\).readFileSync\\('c:/Users/justi/Desktop/Zayin/JdVirtual/src/components/ui/KitBuilder.jsx','utf8'\\),{sourceType:'module',plugins:['jsx']}\\);console.log\\('kitbuilder ok'\\)\")",
       "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual commit -m 'Kit Builder: armador interactivo de kits con presupuesto *)",
       "Bash(node -e \"require\\('@babel/parser'\\).parse\\(require\\('fs'\\).readFileSync\\('c:/Users/justi/Desktop/Zayin/JdVirtual/src/components/ui/KitBuilder.jsx','utf8'\\),{sourceType:'module',plugins:['jsx']}\\);console.log\\('ok'\\)\")",
-      "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual commit -m 'KitBuilder: panel sticky + auto-add al click + persistencia entre categorias *)"
+      "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual commit -m 'KitBuilder: panel sticky + auto-add al click + persistencia entre categorias *)",
+      "Bash(node --check c:/Users/justi/Desktop/Zayin/JdVirtual/server/lib/mailer.js)",
+      "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual commit -m 'Fix: emails silenciosos al cambiar estado + diagnostico SMTP *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\justi\\Desktop\\Zayin\\VOStudio"

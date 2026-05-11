@@ -12,6 +12,34 @@ function getTransporter() {
   return _transporter;
 }
 
+/* Diagnostico SMTP — devuelve por que el mailer no funcionaria. */
+function smtpStatus() {
+  const hasUser = !!process.env.SMTP_USER;
+  const hasPass = !!process.env.SMTP_PASS;
+  if (!hasUser || !hasPass) {
+    return {
+      ok: false,
+      reason: 'env_missing',
+      detail: `Faltan en el servidor: ${[!hasUser && 'SMTP_USER', !hasPass && 'SMTP_PASS'].filter(Boolean).join(', ')}`,
+      hasUser, hasPass,
+    };
+  }
+  return { ok: true, hasUser: true, hasPass: true, user: process.env.SMTP_USER };
+}
+
+/* Verifica que la cuenta SMTP esta lista para enviar (verify ping). */
+async function verifySmtp() {
+  const status = smtpStatus();
+  if (!status.ok) return status;
+  try {
+    const t = getTransporter();
+    await t.verify();
+    return { ok: true, user: process.env.SMTP_USER };
+  } catch (err) {
+    return { ok: false, reason: 'auth_failed', detail: err.message };
+  }
+}
+
 const fmt = (n) => `₡${Number(n || 0).toLocaleString('es-CR')}`;
 
 function buildOrderHtml(order) {
@@ -131,7 +159,14 @@ function buildOrderHtml(order) {
 
 async function sendOrderNotification(order, toEmail) {
   const t = getTransporter();
-  if (!t || !toEmail) return;
+  if (!t) {
+    console.warn(`⚠️  sendOrderNotification: SMTP no configurado (faltan SMTP_USER/SMTP_PASS)`);
+    return { ok: false, reason: 'smtp_not_configured' };
+  }
+  if (!toEmail) {
+    console.warn(`⚠️  sendOrderNotification: no hay email destino (Settings.notificationEmail)`);
+    return { ok: false, reason: 'no_recipient' };
+  }
 
   try {
     await t.sendMail({
@@ -140,9 +175,11 @@ async function sendOrderNotification(order, toEmail) {
       subject: `🛍️ Nuevo pedido ${order.orderNumber} — ${order.customer?.name || ''}`,
       html: buildOrderHtml(order),
     });
-    console.log(`📧 Email enviado a ${toEmail} para pedido ${order.orderNumber}`);
+    console.log(`📧 Email admin enviado a ${toEmail} para pedido ${order.orderNumber}`);
+    return { ok: true, to: toEmail };
   } catch (err) {
-    console.error('❌ Error enviando email:', err.message);
+    console.error('❌ Error enviando email admin:', err.message);
+    return { ok: false, reason: 'send_failed', detail: err.message };
   }
 }
 
@@ -332,7 +369,14 @@ function buildStatusHtml(order, newStatus) {
 async function sendCustomerConfirmation(order) {
   const t     = getTransporter();
   const email = order.customer?.email;
-  if (!t || !email) return;
+  if (!t) {
+    console.warn(`⚠️  sendCustomerConfirmation: SMTP no configurado`);
+    return { ok: false, reason: 'smtp_not_configured' };
+  }
+  if (!email) {
+    console.warn(`⚠️  sendCustomerConfirmation: el pedido ${order.orderNumber} no tiene email del cliente`);
+    return { ok: false, reason: 'no_customer_email' };
+  }
 
   try {
     await t.sendMail({
@@ -342,18 +386,29 @@ async function sendCustomerConfirmation(order) {
       html:    buildConfirmationHtml(order),
     });
     console.log(`📧 Confirmación enviada al cliente ${email}`);
+    return { ok: true, to: email };
   } catch (err) {
     console.error('❌ Error enviando confirmación al cliente:', err.message);
+    return { ok: false, reason: 'send_failed', detail: err.message };
   }
 }
 
 async function sendCustomerStatusUpdate(order, newStatus) {
   const t     = getTransporter();
   const email = order.customer?.email;
-  if (!t || !email) return;
+  if (!t) {
+    console.warn(`⚠️  sendCustomerStatusUpdate: SMTP no configurado`);
+    return { ok: false, reason: 'smtp_not_configured' };
+  }
+  if (!email) {
+    console.warn(`⚠️  sendCustomerStatusUpdate: pedido ${order.orderNumber} sin email`);
+    return { ok: false, reason: 'no_customer_email' };
+  }
 
   const html = buildStatusHtml(order, newStatus);
-  if (!html) return;
+  if (!html) {
+    return { ok: false, reason: 'no_template', detail: `Sin plantilla para "${newStatus}" (probablemente "pendiente")` };
+  }
 
   const SUBJECTS = {
     confirmado: `Tu pedido ${order.orderNumber} fue confirmado`,
@@ -371,9 +426,17 @@ async function sendCustomerStatusUpdate(order, newStatus) {
       html,
     });
     console.log(`📧 Estado "${newStatus}" enviado al cliente ${email}`);
+    return { ok: true, to: email };
   } catch (err) {
     console.error('❌ Error enviando estado al cliente:', err.message);
+    return { ok: false, reason: 'send_failed', detail: err.message };
   }
 }
 
-module.exports = { sendOrderNotification, sendCustomerConfirmation, sendCustomerStatusUpdate };
+module.exports = {
+  sendOrderNotification,
+  sendCustomerConfirmation,
+  sendCustomerStatusUpdate,
+  smtpStatus,
+  verifySmtp,
+};
