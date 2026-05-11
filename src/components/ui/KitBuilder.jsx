@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api, { optimizedImage } from '../../lib/api';
 import { formatCRC } from '../../lib/currency';
@@ -32,6 +33,10 @@ export default function KitBuilder() {
    * Sobrevive el cambio de categoría — el usuario puede armar un kit que mezcla
    * picks de maquillaje + skincare + cabello sin perder nada. */
   const [picks, setPicks] = useState({});
+  /* Preview modal: { product, subKey, subLabel } o null. Al click en un card
+   * NO se auto-agrega — se abre este modal con foto grande + descripcion +
+   * boton para confirmar. */
+  const [preview, setPreview] = useState(null);
   const { addItem, removeItem, openCart, items: cartItems } = useCart();
   const toastSuccess = useToastStore((s) => s.success);
 
@@ -284,7 +289,7 @@ export default function KitBuilder() {
                             return (
                               <motion.button
                                 key={id}
-                                onClick={() => togglePick(category, sub.key, sub.label, p)}
+                                onClick={() => setPreview({ product: p, subKey: sub.key, subLabel: sub.label })}
                                 whileTap={{ scale: 0.96 }}
                                 className={`relative text-left rounded-xl overflow-hidden border-2 transition-all ${
                                   isSelected
@@ -343,6 +348,26 @@ export default function KitBuilder() {
           </motion.div>
         )}
       </div>
+
+      {/* Preview modal — se abre al click en un card del grid */}
+      <AnimatePresence>
+        {preview && (
+          <KitProductModal
+            product={preview.product}
+            subKey={preview.subKey}
+            subLabel={preview.subLabel}
+            isSelected={(() => {
+              const cur = picks[pickKey(category, preview.subKey)];
+              return cur && idOf(cur) === idOf(preview.product);
+            })()}
+            onClose={() => setPreview(null)}
+            onConfirm={() => {
+              togglePick(category, preview.subKey, preview.subLabel, preview.product);
+              setPreview(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
@@ -350,6 +375,185 @@ export default function KitBuilder() {
 /* Helper: total de los picks (usado por el CTA compacto) */
 function allPicksTotal(picks) {
   return Object.values(picks).reduce((s, p) => s + (p?.price || 0), 0);
+}
+
+/* Modal de preview — foto grande + descripcion + features + CTA agregar/quitar */
+function KitProductModal({ product, subKey, subLabel, isSelected, onClose, onConfirm }) {
+  const [imgIdx, setImgIdx] = useState(0);
+  const images = Array.isArray(product.images) ? product.images.filter(Boolean) : [];
+  const currentImg = images[imgIdx] || images[0] || '';
+  const outOfStock = product.stock === 0;
+  const discount = product.oldPrice && product.oldPrice > product.price
+    ? Math.round((1 - product.price / product.oldPrice) * 100)
+    : 0;
+
+  // Cierre con Escape
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    // Lock scroll del body mientras el modal esta abierto
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm"
+      onClick={onClose}>
+      <motion.div
+        initial={{ y: 40, opacity: 0, scale: 0.96 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        exit={{ y: 40, opacity: 0, scale: 0.96 }}
+        transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-3xl max-h-[92dvh] overflow-hidden shadow-modal flex flex-col sm:grid sm:grid-cols-2">
+
+        {/* Imagen — top en mobile, izquierda en desktop */}
+        <div className="relative bg-cream-50 aspect-square sm:aspect-auto sm:h-full">
+          {currentImg ? (
+            <img src={optimizedImage(currentImg, 800)} alt={product.name}
+              className="w-full h-full object-cover" decoding="async" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-ink-200">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+              </svg>
+            </div>
+          )}
+
+          {/* Badges */}
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+            {outOfStock ? (
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-ink-500 text-white">Agotado</span>
+            ) : discount > 0 && (
+              <span className="text-[10px] font-bold text-white px-2.5 py-1 rounded-full shadow-sm"
+                style={{ background: 'linear-gradient(135deg, #ef4444 0%, #f43f5e 100%)' }}>
+                -{discount}%
+              </span>
+            )}
+          </div>
+
+          {/* Cerrar — visible sobre la imagen */}
+          <button
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-ink-700 hover:text-ink-900 flex items-center justify-center shadow-md transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+          </button>
+
+          {/* Thumbnails si hay multiples imagenes */}
+          {images.length > 1 && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {images.slice(0, 6).map((_, i) => (
+                <button key={i} onClick={() => setImgIdx(i)}
+                  aria-label={`Imagen ${i + 1}`}
+                  className={`rounded-full transition-all ${i === imgIdx ? 'w-6 h-2 bg-white' : 'w-2 h-2 bg-white/60'}`} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Contenido */}
+        <div className="flex flex-col overflow-hidden">
+          <div className="px-5 pt-5 pb-2 overflow-y-auto flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-rose-500 mb-1">{subLabel}</p>
+            <p className="text-xs text-ink-400 uppercase tracking-wider">{product.brand}</p>
+            <h3 className="font-display text-xl sm:text-2xl font-bold text-ink-900 leading-tight mt-0.5">
+              {product.name}
+            </h3>
+
+            <div className="flex items-baseline gap-2 mt-3">
+              <span className="font-display text-2xl font-bold text-ink-900">{formatCRC(product.price)}</span>
+              {product.oldPrice && product.oldPrice > product.price && (
+                <span className="text-sm text-ink-300 line-through">{formatCRC(product.oldPrice)}</span>
+              )}
+            </div>
+
+            {product.description && (
+              <div className="mt-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400 mb-1">Descripción</p>
+                <p className="text-sm text-ink-700 leading-relaxed whitespace-pre-wrap">{product.description}</p>
+              </div>
+            )}
+
+            {Array.isArray(product.features) && product.features.length > 0 && (
+              <div className="mt-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400 mb-1.5">Beneficios</p>
+                <ul className="space-y-1.5">
+                  {product.features.slice(0, 6).map((f, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-ink-700">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-rose-500 flex-shrink-0 mt-0.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {product.reviewCount > 0 && product.rating > 0 && (
+              <div className="mt-4 flex items-center gap-1.5 text-sm">
+                <span className="text-amber-500">★</span>
+                <span className="font-semibold text-ink-700">{Number(product.rating).toFixed(1)}</span>
+                <span className="text-ink-400">({product.reviewCount} reseña{product.reviewCount === 1 ? '' : 's'})</span>
+              </div>
+            )}
+
+            <Link
+              to={`/producto/${product.slug}`}
+              className="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-semibold underline underline-offset-2 mt-4">
+              Ver producto completo
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </Link>
+          </div>
+
+          {/* Footer con CTA */}
+          <div className="border-t border-cream-100 p-4 bg-white">
+            <button
+              onClick={onConfirm}
+              disabled={outOfStock}
+              className={`w-full flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold transition-all shadow-btn hover:shadow-btn-hover disabled:opacity-50 disabled:cursor-not-allowed ${
+                isSelected ? 'bg-ink-900 text-white hover:bg-ink-700' : 'text-white'
+              }`}
+              style={!isSelected && !outOfStock
+                ? { background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }
+                : undefined}>
+              {outOfStock ? (
+                'Agotado'
+              ) : isSelected ? (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                  </svg>
+                  Quitar del kit
+                </>
+              ) : (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  Agregar al kit · {formatCRC(product.price)}
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
 }
 
 /* Panel resumen — desktop: sticky a la derecha. Mobile: fixed bottom sheet. */
