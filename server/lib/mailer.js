@@ -2,6 +2,39 @@ const nodemailer = require('nodemailer');
 
 let _transporter = null;
 
+/* ─── Resend (HTTP) ───
+ * Render free plan bloquea todo outbound SMTP (puertos 25/465/587). La unica
+ * forma confiable de enviar mails es por HTTPS. Resend es free hasta 100/dia
+ * + 3000/mes, API muy simple. Si esta configurado, lo usamos primero. */
+async function sendViaResend({ from, to, subject, html, text }) {
+  if (!process.env.RESEND_API_KEY) return null; // no configurado → caer a SMTP
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({ from, to, subject, html, text }),
+    });
+    if (!res.ok) {
+      const err = await res.text().catch(() => '');
+      return { ok: false, reason: 'resend_failed', detail: err.slice(0, 300) };
+    }
+    const data = await res.json().catch(() => ({}));
+    return { ok: true, id: data.id, via: 'resend' };
+  } catch (err) {
+    return { ok: false, reason: 'resend_error', detail: err.message };
+  }
+}
+
+function resendFromAddress() {
+  // Hasta verificar dominio, Resend permite usar onboarding@resend.dev para
+  // pruebas. Override con RESEND_FROM si verificaste un dominio (ej:
+  // 'JD Virtual <pedidos@jd-virtual.com>').
+  return process.env.RESEND_FROM || 'JD Virtual <onboarding@resend.dev>';
+}
+
 /* Render free plan a veces bloquea el puerto 465 (SSL directo). Usamos por
  * default puerto 587 (STARTTLS) que es mas permisivo en hosting compartido.
  * Permitimos override via SMTP_HOST/SMTP_PORT/SMTP_SECURE para cualquier
@@ -186,27 +219,41 @@ function buildOrderHtml(order) {
 }
 
 async function sendOrderNotification(order, toEmail) {
-  const t = getTransporter();
-  if (!t) {
-    console.warn(`⚠️  sendOrderNotification: SMTP no configurado (faltan SMTP_USER/SMTP_PASS)`);
-    return { ok: false, reason: 'smtp_not_configured' };
-  }
   if (!toEmail) {
     console.warn(`⚠️  sendOrderNotification: no hay email destino (Settings.notificationEmail)`);
     return { ok: false, reason: 'no_recipient' };
   }
 
+  const subject = `🛍️ Nuevo pedido ${order.orderNumber} — ${order.customer?.name || ''}`;
+  const html = buildOrderHtml(order);
+
+  // Intento 1: Resend (HTTPS, funciona en Render)
+  const resend = await sendViaResend({ from: resendFromAddress(), to: toEmail, subject, html });
+  if (resend?.ok) {
+    console.log(`📧 [Resend] Admin notificado: ${toEmail} pedido ${order.orderNumber}`);
+    return { ok: true, to: toEmail, via: 'resend' };
+  }
+  if (resend && !resend.ok) {
+    console.warn(`⚠️  Resend fallo (${resend.reason}): ${resend.detail || ''} — intentando SMTP`);
+  }
+
+  // Intento 2: SMTP fallback
+  const t = getTransporter();
+  if (!t) {
+    console.warn(`⚠️  Sin Resend y sin SMTP. Email no enviado.`);
+    return { ok: false, reason: 'no_provider_configured' };
+  }
   try {
     await t.sendMail({
       from: `"JD Virtual" <${process.env.SMTP_USER}>`,
       to:   toEmail,
-      subject: `🛍️ Nuevo pedido ${order.orderNumber} — ${order.customer?.name || ''}`,
-      html: buildOrderHtml(order),
+      subject,
+      html,
     });
-    console.log(`📧 Email admin enviado a ${toEmail} para pedido ${order.orderNumber}`);
-    return { ok: true, to: toEmail };
+    console.log(`📧 [SMTP] Admin notificado: ${toEmail} pedido ${order.orderNumber}`);
+    return { ok: true, to: toEmail, via: 'smtp' };
   } catch (err) {
-    console.error('❌ Error enviando email admin:', err.message);
+    console.error('❌ SMTP fallo también:', err.message);
     return { ok: false, reason: 'send_failed', detail: err.message };
   }
 }
@@ -395,39 +442,43 @@ function buildStatusHtml(order, newStatus) {
 }
 
 async function sendCustomerConfirmation(order) {
-  const t     = getTransporter();
   const email = order.customer?.email;
-  if (!t) {
-    console.warn(`⚠️  sendCustomerConfirmation: SMTP no configurado`);
-    return { ok: false, reason: 'smtp_not_configured' };
-  }
   if (!email) {
     console.warn(`⚠️  sendCustomerConfirmation: el pedido ${order.orderNumber} no tiene email del cliente`);
     return { ok: false, reason: 'no_customer_email' };
   }
 
+  const subject = `Tu pedido ${order.orderNumber} fue recibido — JD Virtual`;
+  const html    = buildConfirmationHtml(order);
+
+  const resend = await sendViaResend({ from: resendFromAddress(), to: email, subject, html });
+  if (resend?.ok) {
+    console.log(`📧 [Resend] Confirmación a cliente: ${email}`);
+    return { ok: true, to: email, via: 'resend' };
+  }
+  if (resend && !resend.ok) {
+    console.warn(`⚠️  Resend fallo: ${resend.detail || resend.reason} — intentando SMTP`);
+  }
+
+  const t = getTransporter();
+  if (!t) return { ok: false, reason: 'no_provider_configured' };
   try {
     await t.sendMail({
       from:    `"JD Virtual" <${process.env.SMTP_USER}>`,
       to:      email,
-      subject: `Tu pedido ${order.orderNumber} fue recibido — JD Virtual`,
-      html:    buildConfirmationHtml(order),
+      subject,
+      html,
     });
-    console.log(`📧 Confirmación enviada al cliente ${email}`);
-    return { ok: true, to: email };
+    console.log(`📧 [SMTP] Confirmación a cliente: ${email}`);
+    return { ok: true, to: email, via: 'smtp' };
   } catch (err) {
-    console.error('❌ Error enviando confirmación al cliente:', err.message);
+    console.error('❌ SMTP fallo:', err.message);
     return { ok: false, reason: 'send_failed', detail: err.message };
   }
 }
 
 async function sendCustomerStatusUpdate(order, newStatus) {
-  const t     = getTransporter();
   const email = order.customer?.email;
-  if (!t) {
-    console.warn(`⚠️  sendCustomerStatusUpdate: SMTP no configurado`);
-    return { ok: false, reason: 'smtp_not_configured' };
-  }
   if (!email) {
     console.warn(`⚠️  sendCustomerStatusUpdate: pedido ${order.orderNumber} sin email`);
     return { ok: false, reason: 'no_customer_email' };
@@ -445,18 +496,30 @@ async function sendCustomerStatusUpdate(order, newStatus) {
     entregado:  `Tu pedido ${order.orderNumber} fue entregado`,
     cancelado:  `Tu pedido ${order.orderNumber} fue cancelado`,
   };
+  const subject = SUBJECTS[newStatus] || `Actualización de tu pedido ${order.orderNumber}`;
 
+  const resend = await sendViaResend({ from: resendFromAddress(), to: email, subject, html });
+  if (resend?.ok) {
+    console.log(`📧 [Resend] Estado "${newStatus}" → ${email}`);
+    return { ok: true, to: email, via: 'resend' };
+  }
+  if (resend && !resend.ok) {
+    console.warn(`⚠️  Resend fallo: ${resend.detail || resend.reason} — intentando SMTP`);
+  }
+
+  const t = getTransporter();
+  if (!t) return { ok: false, reason: 'no_provider_configured' };
   try {
     await t.sendMail({
       from:    `"JD Virtual" <${process.env.SMTP_USER}>`,
       to:      email,
-      subject: SUBJECTS[newStatus] || `Actualización de tu pedido ${order.orderNumber}`,
+      subject,
       html,
     });
-    console.log(`📧 Estado "${newStatus}" enviado al cliente ${email}`);
-    return { ok: true, to: email };
+    console.log(`📧 [SMTP] Estado "${newStatus}" → ${email}`);
+    return { ok: true, to: email, via: 'smtp' };
   } catch (err) {
-    console.error('❌ Error enviando estado al cliente:', err.message);
+    console.error('❌ SMTP fallo:', err.message);
     return { ok: false, reason: 'send_failed', detail: err.message };
   }
 }

@@ -39,6 +39,10 @@ const app  = express();
 const PORT = process.env.PORT || 4000;
 const isProd = process.env.NODE_ENV === 'production';
 
+// Render usa un reverse proxy. Sin esto, express-rate-limit no puede identificar
+// usuarios y rate-limit por IP falla. '1' = confiar en 1 hop (el proxy de Render).
+app.set('trust proxy', 1);
+
 /* ─── CORS ─── */
 // CLIENT_URL  = URL exacta del frontend en producción (sin slash final)
 // CLIENT_URL2 = URL alternativa (preview deploys, dominio custom, etc.)

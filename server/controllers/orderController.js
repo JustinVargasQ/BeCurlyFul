@@ -227,13 +227,34 @@ exports.adminGetOne = async (req, res, next) => {
  * GET con ?test=email@ejemplo.com hace un envio de prueba real. */
 exports.smtpDiagnostic = async (req, res, next) => {
   try {
+    const hasResend = !!process.env.RESEND_API_KEY;
     const status = smtpStatus();
+
+    // Resend ya configurado = no necesitamos SMTP. Reportar directo.
+    if (hasResend) {
+      const settings = await Settings.findOne({ key: 'main' });
+      const notifTo = settings?.notificationEmail || null;
+      return res.json({
+        ok: true,
+        provider: 'resend',
+        from: process.env.RESEND_FROM || 'JD Virtual <onboarding@resend.dev>',
+        notificationEmail: notifTo,
+        message: notifTo
+          ? `Resend configurado. Las notificaciones de pedidos llegan a ${notifTo}.`
+          : 'Resend configurado pero NO hay notificationEmail en /admin/config — los avisos al admin no llegan.',
+        smtp: status.ok ? 'configurado tambien como fallback' : 'no configurado (no hace falta con Resend)',
+      });
+    }
+
     if (!status.ok) {
       return res.json({
         ok: false,
-        smtp: status,
-        message: 'SMTP no esta configurado. Faltan variables de entorno en el servidor.',
-        howToFix: 'En Render -> Environment, agrega SMTP_USER (tu Gmail) y SMTP_PASS (App Password de Google).',
+        provider: 'none',
+        message: 'Ningun proveedor de email esta configurado.',
+        howToFix: [
+          'OPCION RECOMENDADA: Crear cuenta gratis en https://resend.com, generar un API key y agregar RESEND_API_KEY en Render Environment. 100 emails/dia gratis, funciona en Render sin problemas.',
+          'OPCION ALTERNATIVA: SMTP de Gmail — agregar SMTP_USER + SMTP_PASS (App Password) en Render. Render free a veces bloquea puertos SMTP outbound, asi que puede no funcionar.',
+        ],
       });
     }
     // Verificar credenciales con un ping
