@@ -39,7 +39,7 @@ exports.create = async (req, res, next) => {
       .map((i) => i.productId);
 
     const dbProducts = productIds.length
-      ? await Product.find({ _id: { $in: productIds } }).select('_id price stock isActive')
+      ? await Product.find({ _id: { $in: productIds } }).select('_id price stock isActive images')
       : [];
 
     const priceMap = Object.fromEntries(dbProducts.map((p) => [String(p._id), p]));
@@ -54,9 +54,18 @@ exports.create = async (req, res, next) => {
         const dbProd = priceMap[String(item.productId)];
         if (!dbProd) return res.status(400).json({ error: `Producto no encontrado: ${item.productId}` });
         if (dbProd.isActive === false) return res.status(400).json({ error: `Producto no disponible: ${item.name}` });
-        // Always use the real price from the database
+        // Always use the real price from the database. Tambien usar la imagen
+        // del DB como fallback si el cliente mando string vacio o no la mando
+        // — es la unica fuente confiable independiente de como el cliente
+        // serializo el producto en el carrito.
+        const dbImage = Array.isArray(dbProd.images) && dbProd.images[0] ? dbProd.images[0] : '';
         subtotal += dbProd.price * qty;
-        validatedItems.push({ ...item, price: dbProd.price, qty });
+        validatedItems.push({
+          ...item,
+          price: dbProd.price,
+          qty,
+          image: item.image || dbImage,
+        });
       } else {
         // Item without productId (e.g., local data fallback) — use client price only in dev
         const price = Number(item.price) || 0;
@@ -211,6 +220,43 @@ exports.adminGetOne = async (req, res, next) => {
       .populate('userId', 'email name picture createdAt');
     if (!order) return res.status(404).json({ error: 'Pedido no encontrado' });
     res.json(order);
+  } catch (err) { next(err); }
+};
+
+/* Backfill: rellenar items[].image en ordenes viejas usando la imagen actual
+ * del producto. One-shot admin tool — idempotente, solo toca items con
+ * image vacio y productId valido. */
+exports.backfillItemImages = async (req, res, next) => {
+  try {
+    const orders = await Order.find({ 'items.image': { $in: ['', null] } });
+    if (orders.length === 0) return res.json({ updated: 0, message: 'Nada que rellenar' });
+
+    // Coleccionar todos los productIds que necesitamos
+    const idsToFetch = new Set();
+    for (const o of orders) {
+      for (const it of o.items) {
+        if ((!it.image || it.image === '') && it.productId) idsToFetch.add(String(it.productId));
+      }
+    }
+    const products = await Product.find({ _id: { $in: [...idsToFetch] } }).select('_id images');
+    const imageById = new Map();
+    for (const p of products) {
+      if (Array.isArray(p.images) && p.images[0]) imageById.set(String(p._id), p.images[0]);
+    }
+
+    let updated = 0;
+    let itemsFixed = 0;
+    for (const o of orders) {
+      let dirty = false;
+      for (const it of o.items) {
+        if (!it.image && it.productId) {
+          const img = imageById.get(String(it.productId));
+          if (img) { it.image = img; itemsFixed += 1; dirty = true; }
+        }
+      }
+      if (dirty) { await o.save(); updated += 1; }
+    }
+    res.json({ updated, itemsFixed, scanned: orders.length });
   } catch (err) { next(err); }
 };
 

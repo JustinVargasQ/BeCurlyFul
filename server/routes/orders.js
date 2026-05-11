@@ -9,6 +9,7 @@ router.get('/track/:number',        ctrl.getByNumber);
 
 /* Admin */
 router.get('/admin/all',            requireAuth, ctrl.adminGetAll);
+router.post('/admin/backfill-images', requireAuth, ctrl.backfillItemImages);
 router.get('/admin/stats',          requireAuth, ctrl.stats);
 router.get('/admin/chart',          requireAuth, ctrl.chart);
 router.get('/admin/top-products',   requireAuth, ctrl.topProducts);
