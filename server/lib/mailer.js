@@ -218,44 +218,68 @@ function buildOrderHtml(order) {
 </html>`;
 }
 
+/* Orden de proveedores configurable via EMAIL_PROVIDER:
+ *   'smtp'   → SMTP primero, Resend fallback
+ *   'resend' → Resend primero, SMTP fallback
+ *   default  → si hay SMTP configurado lo usa primero, sino Resend.
+ * Asi el admin puede preferir Gmail sin tocar codigo. */
+function providerOrder() {
+  const pref = String(process.env.EMAIL_PROVIDER || '').toLowerCase();
+  if (pref === 'smtp')   return ['smtp', 'resend'];
+  if (pref === 'resend') return ['resend', 'smtp'];
+  // Default: usar SMTP si esta configurado, sino Resend
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) return ['smtp', 'resend'];
+  return ['resend', 'smtp'];
+}
+
+async function trySmtp({ to, subject, html }) {
+  const t = getTransporter();
+  if (!t) return { ok: false, reason: 'smtp_not_configured' };
+  try {
+    await t.sendMail({
+      from: `"JD Virtual" <${process.env.SMTP_USER}>`,
+      to, subject, html,
+    });
+    return { ok: true, via: 'smtp' };
+  } catch (err) {
+    return { ok: false, reason: 'smtp_failed', detail: err.message };
+  }
+}
+
+async function tryResend({ to, subject, html }) {
+  const r = await sendViaResend({ from: resendFromAddress(), to, subject, html });
+  if (r?.ok) return { ok: true, via: 'resend' };
+  return r || { ok: false, reason: 'resend_not_configured' };
+}
+
+async function sendWithProvider({ to, subject, html, label }) {
+  const order = providerOrder();
+  let lastErr = null;
+  for (const provider of order) {
+    const result = provider === 'smtp'
+      ? await trySmtp({ to, subject, html })
+      : await tryResend({ to, subject, html });
+    if (result.ok) {
+      console.log(`📧 [${result.via}] ${label}: ${to}`);
+      return { ok: true, to, via: result.via };
+    }
+    console.warn(`⚠️  [${provider}] ${label} fallo (${result.reason}): ${result.detail || ''}`);
+    lastErr = result;
+  }
+  return lastErr || { ok: false, reason: 'no_provider_configured' };
+}
+
 async function sendOrderNotification(order, toEmail) {
   if (!toEmail) {
     console.warn(`⚠️  sendOrderNotification: no hay email destino (Settings.notificationEmail)`);
     return { ok: false, reason: 'no_recipient' };
   }
-
-  const subject = `🛍️ Nuevo pedido ${order.orderNumber} — ${order.customer?.name || ''}`;
-  const html = buildOrderHtml(order);
-
-  // Intento 1: Resend (HTTPS, funciona en Render)
-  const resend = await sendViaResend({ from: resendFromAddress(), to: toEmail, subject, html });
-  if (resend?.ok) {
-    console.log(`📧 [Resend] Admin notificado: ${toEmail} pedido ${order.orderNumber}`);
-    return { ok: true, to: toEmail, via: 'resend' };
-  }
-  if (resend && !resend.ok) {
-    console.warn(`⚠️  Resend fallo (${resend.reason}): ${resend.detail || ''} — intentando SMTP`);
-  }
-
-  // Intento 2: SMTP fallback
-  const t = getTransporter();
-  if (!t) {
-    console.warn(`⚠️  Sin Resend y sin SMTP. Email no enviado.`);
-    return { ok: false, reason: 'no_provider_configured' };
-  }
-  try {
-    await t.sendMail({
-      from: `"JD Virtual" <${process.env.SMTP_USER}>`,
-      to:   toEmail,
-      subject,
-      html,
-    });
-    console.log(`📧 [SMTP] Admin notificado: ${toEmail} pedido ${order.orderNumber}`);
-    return { ok: true, to: toEmail, via: 'smtp' };
-  } catch (err) {
-    console.error('❌ SMTP fallo también:', err.message);
-    return { ok: false, reason: 'send_failed', detail: err.message };
-  }
+  return sendWithProvider({
+    to: toEmail,
+    subject: `🛍️ Nuevo pedido ${order.orderNumber} — ${order.customer?.name || ''}`,
+    html: buildOrderHtml(order),
+    label: `Admin notif (pedido ${order.orderNumber})`,
+  });
 }
 
 /* ── Email de confirmación al cliente ── */
@@ -447,34 +471,12 @@ async function sendCustomerConfirmation(order) {
     console.warn(`⚠️  sendCustomerConfirmation: el pedido ${order.orderNumber} no tiene email del cliente`);
     return { ok: false, reason: 'no_customer_email' };
   }
-
-  const subject = `Tu pedido ${order.orderNumber} fue recibido — JD Virtual`;
-  const html    = buildConfirmationHtml(order);
-
-  const resend = await sendViaResend({ from: resendFromAddress(), to: email, subject, html });
-  if (resend?.ok) {
-    console.log(`📧 [Resend] Confirmación a cliente: ${email}`);
-    return { ok: true, to: email, via: 'resend' };
-  }
-  if (resend && !resend.ok) {
-    console.warn(`⚠️  Resend fallo: ${resend.detail || resend.reason} — intentando SMTP`);
-  }
-
-  const t = getTransporter();
-  if (!t) return { ok: false, reason: 'no_provider_configured' };
-  try {
-    await t.sendMail({
-      from:    `"JD Virtual" <${process.env.SMTP_USER}>`,
-      to:      email,
-      subject,
-      html,
-    });
-    console.log(`📧 [SMTP] Confirmación a cliente: ${email}`);
-    return { ok: true, to: email, via: 'smtp' };
-  } catch (err) {
-    console.error('❌ SMTP fallo:', err.message);
-    return { ok: false, reason: 'send_failed', detail: err.message };
-  }
+  return sendWithProvider({
+    to: email,
+    subject: `Tu pedido ${order.orderNumber} fue recibido — JD Virtual`,
+    html: buildConfirmationHtml(order),
+    label: `Confirmacion cliente ${email}`,
+  });
 }
 
 async function sendCustomerStatusUpdate(order, newStatus) {
@@ -496,32 +498,12 @@ async function sendCustomerStatusUpdate(order, newStatus) {
     entregado:  `Tu pedido ${order.orderNumber} fue entregado`,
     cancelado:  `Tu pedido ${order.orderNumber} fue cancelado`,
   };
-  const subject = SUBJECTS[newStatus] || `Actualización de tu pedido ${order.orderNumber}`;
-
-  const resend = await sendViaResend({ from: resendFromAddress(), to: email, subject, html });
-  if (resend?.ok) {
-    console.log(`📧 [Resend] Estado "${newStatus}" → ${email}`);
-    return { ok: true, to: email, via: 'resend' };
-  }
-  if (resend && !resend.ok) {
-    console.warn(`⚠️  Resend fallo: ${resend.detail || resend.reason} — intentando SMTP`);
-  }
-
-  const t = getTransporter();
-  if (!t) return { ok: false, reason: 'no_provider_configured' };
-  try {
-    await t.sendMail({
-      from:    `"JD Virtual" <${process.env.SMTP_USER}>`,
-      to:      email,
-      subject,
-      html,
-    });
-    console.log(`📧 [SMTP] Estado "${newStatus}" → ${email}`);
-    return { ok: true, to: email, via: 'smtp' };
-  } catch (err) {
-    console.error('❌ SMTP fallo:', err.message);
-    return { ok: false, reason: 'send_failed', detail: err.message };
-  }
+  return sendWithProvider({
+    to: email,
+    subject: SUBJECTS[newStatus] || `Actualización de tu pedido ${order.orderNumber}`,
+    html,
+    label: `Estado "${newStatus}" pedido ${order.orderNumber}`,
+  });
 }
 
 module.exports = {

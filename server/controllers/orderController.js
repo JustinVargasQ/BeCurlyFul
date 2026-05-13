@@ -236,20 +236,42 @@ exports.smtpDiagnostic = async (req, res, next) => {
   try {
     const hasResend = !!process.env.RESEND_API_KEY;
     const status = smtpStatus();
+    const pref = String(process.env.EMAIL_PROVIDER || '').toLowerCase();
 
-    // Resend ya configurado = no necesitamos SMTP. Reportar directo.
-    if (hasResend) {
+    // Calcular el orden real de intento segun EMAIL_PROVIDER y lo configurado
+    const order = (() => {
+      if (pref === 'smtp')   return ['smtp', 'resend'];
+      if (pref === 'resend') return ['resend', 'smtp'];
+      if (status.ok)         return ['smtp', 'resend'];
+      return ['resend', 'smtp'];
+    })().filter((p) => (p === 'smtp' ? status.ok : hasResend));
+
+    if (order.length === 0) {
+      return res.json({
+        ok: false,
+        provider: 'none',
+        message: 'Ningun proveedor de email esta configurado.',
+        howToFix: [
+          'OPCION A (Gmail SMTP) — en Render: SMTP_USER=tu@gmail.com, SMTP_PASS=App Password de Google (no la pass normal). Atencion: Render free a veces bloquea outbound SMTP. Si da Connection timeout, NO se puede arreglar desde el codigo.',
+          'OPCION B (Resend HTTP) — crear cuenta en resend.com, generar API key, agregar RESEND_API_KEY en Render. No depende de puertos SMTP, funciona siempre.',
+          'Para preferir Gmail sobre Resend si los dos estan configurados: EMAIL_PROVIDER=smtp en Render.',
+        ],
+      });
+    }
+
+    // Resend ya configurado y es el preferido = no necesitamos SMTP. Reportar directo.
+    if (order[0] === 'resend') {
       const settings = await Settings.findOne({ key: 'main' });
       const notifTo = settings?.notificationEmail || null;
       return res.json({
         ok: true,
-        provider: 'resend',
+        providerOrder: order,
+        primary: 'resend',
         from: process.env.RESEND_FROM || 'JD Virtual <onboarding@resend.dev>',
         notificationEmail: notifTo,
         message: notifTo
-          ? `Resend configurado. Las notificaciones de pedidos llegan a ${notifTo}.`
+          ? `Resend configurado. Las notificaciones de pedidos llegan a ${notifTo}.${order.includes('smtp') ? ' SMTP queda como fallback.' : ''}`
           : 'Resend configurado pero NO hay notificationEmail en /admin/config — los avisos al admin no llegan.',
-        smtp: status.ok ? 'configurado tambien como fallback' : 'no configurado (no hace falta con Resend)',
       });
     }
 
