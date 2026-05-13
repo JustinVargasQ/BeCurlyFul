@@ -29,10 +29,41 @@ export default function KitBuilder() {
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState(null);
 
-  /* picks: { 'maquillaje:base': product, 'skincare:hidratante': product, ... }
-   * Sobrevive el cambio de categoría — el usuario puede armar un kit que mezcla
-   * picks de maquillaje + skincare + cabello sin perder nada. */
-  const [picks, setPicks] = useState({});
+  /* picks: { 'maquillaje:base': [product1, product2], 'skincare:hidratante': [product3] }
+   * Cada slot es un ARRAY de productos, asi una clienta puede llevarse 2 bases,
+   * 3 labiales, etc. Persistido en localStorage para sobrevivir navegacion. */
+  const [picks, setPicks] = useState(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const raw = localStorage.getItem('jd-kit-picks');
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      // Validar shape minimo
+      if (!parsed || typeof parsed !== 'object') return {};
+      // Normalizar: si algun valor es objeto (single product) lo envolvemos
+      // en array (formato viejo → nuevo)
+      const out = {};
+      for (const [k, v] of Object.entries(parsed)) {
+        if (Array.isArray(v)) out[k] = v;
+        else if (v && typeof v === 'object') out[k] = [v];
+      }
+      return out;
+    } catch {
+      return {};
+    }
+  });
+
+  // Guardar picks en localStorage cada vez que cambian.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      if (Object.keys(picks).length === 0) {
+        localStorage.removeItem('jd-kit-picks');
+      } else {
+        localStorage.setItem('jd-kit-picks', JSON.stringify(picks));
+      }
+    } catch {}
+  }, [picks]);
   /* Preview modal: { product, subKey, subLabel } o null. Al click en un card
    * NO se auto-agrega — se abre este modal con foto grande + descripcion +
    * boton para confirmar. */
@@ -56,54 +87,64 @@ export default function KitBuilder() {
     return () => { cancelled = true; };
   }, [category, budget, isOpen]);
 
-  /* Click toggle: si el producto ya está pickeado lo saca del carrito y del
-   * kit; si no, lo mete (y si había otro pickeado en ese slot, lo reemplaza). */
+  /* Click toggle: si el producto ya está pickeado lo saca; si no, lo agrega
+   * al array del slot. Permite multiples productos por slot (ej. 2 bases). */
   const togglePick = (cat, subKey, subLabel, product) => {
     const key = pickKey(cat, subKey);
-    const current = picks[key];
     const productId = idOf(product);
+    const current = picks[key] || [];
+    const isAlready = current.some((p) => idOf(p) === productId);
 
     setPicks((prev) => {
       const next = { ...prev };
-      if (current && idOf(current) === productId) {
-        // Mismo producto → deseleccionar
-        delete next[key];
+      const list = next[key] || [];
+      if (isAlready) {
+        const filtered = list.filter((p) => idOf(p) !== productId);
+        if (filtered.length === 0) delete next[key];
+        else next[key] = filtered;
       } else {
-        // Nuevo producto en este slot (puede haber un anterior, lo reemplazamos)
-        next[key] = { ...product, _cat: cat, _subKey: subKey, _subLabel: subLabel };
+        next[key] = [...list, { ...product, _cat: cat, _subKey: subKey, _subLabel: subLabel }];
       }
       return next;
     });
 
-    if (current && idOf(current) === productId) {
+    if (isAlready) {
       removeItem(productId);
       toastSuccess(`Quitado del kit · ${product.name}`);
     } else {
-      // Si había un pick anterior en este slot, lo sacamos del carrito antes
-      if (current) removeItem(idOf(current));
       addItem(product, 1);
       toastSuccess(`Agregado al kit · ${product.name}`);
     }
   };
 
-  // Lista de todos los picks (para el panel resumen)
-  const allPicks = useMemo(() => Object.values(picks), [picks]);
+  // Lista plana de todos los picks (para el panel resumen)
+  const allPicks = useMemo(() => {
+    const out = [];
+    for (const list of Object.values(picks)) {
+      if (Array.isArray(list)) out.push(...list);
+      else if (list) out.push(list); // backward compat con estado viejo (single product)
+    }
+    return out;
+  }, [picks]);
   const total = allPicks.reduce((s, p) => s + p.price, 0);
   const remaining = budget - total;
   const overBudget = remaining < 0;
   const progress = budget > 0 ? Math.min(100, (total / budget) * 100) : 0;
 
-  // Quitar un pick desde el panel (chip ✕)
-  const removePick = (cat, subKey) => {
+  // Quitar un producto especifico desde el panel (chip ✕)
+  const removePick = (cat, subKey, productId) => {
     const key = pickKey(cat, subKey);
-    const product = picks[key];
+    const list = picks[key] || [];
+    const product = list.find((p) => idOf(p) === productId);
     if (!product) return;
     setPicks((prev) => {
       const next = { ...prev };
-      delete next[key];
+      const filtered = (next[key] || []).filter((p) => idOf(p) !== productId);
+      if (filtered.length === 0) delete next[key];
+      else next[key] = filtered;
       return next;
     });
-    removeItem(idOf(product));
+    removeItem(productId);
     toastSuccess(`Quitado del kit · ${product.name}`);
   };
 
@@ -146,12 +187,12 @@ export default function KitBuilder() {
                 Decinos tu presupuesto y armá un set de esenciales con una barra que se llena
                 en tiempo real 💕
               </p>
-              {Object.keys(picks).length > 0 && (
+              {allPicks.length > 0 && (
                 <motion.p
                   initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
                   className="inline-flex items-center gap-1.5 text-xs font-bold mt-2 px-2.5 py-1 rounded-full bg-rose-50 border border-rose-100 text-rose-700">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                  {Object.keys(picks).length} en tu kit · {formatCRC(allPicksTotal(picks))}
+                  {allPicks.length} en tu kit · {formatCRC(total)}
                 </motion.p>
               )}
             </div>
@@ -163,7 +204,7 @@ export default function KitBuilder() {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
-              {Object.keys(picks).length > 0 ? 'Continuar mi kit' : 'Empezar'}
+              {allPicks.length > 0 ? 'Continuar mi kit' : 'Empezar'}
             </motion.button>
           </motion.div>
         ) : (
@@ -279,7 +320,8 @@ export default function KitBuilder() {
               <div className="space-y-3">
                 {data?.subtypes?.map((sub) => {
                   const hasOptions = sub.options.length > 0;
-                  const selectedInThisSlot = picks[pickKey(category, sub.key)];
+                  const slotPicks = picks[pickKey(category, sub.key)] || [];
+                  const selectedInThisSlot = slotPicks.length > 0;
                   return (
                     <div key={sub.key} className={`relative bg-white rounded-2xl border p-4 shadow-sm transition-colors ${
                       selectedInThisSlot ? 'border-rose-200' : 'border-cream-100'
@@ -301,7 +343,7 @@ export default function KitBuilder() {
                               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="20 6 9 17 4 12"/>
                               </svg>
-                              en tu kit
+                              {slotPicks.length > 1 ? `${slotPicks.length} en tu kit` : 'en tu kit'}
                             </motion.span>
                           )}
                         </div>
@@ -318,7 +360,7 @@ export default function KitBuilder() {
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                           {visibleOptions.map((p) => {
                             const id = idOf(p);
-                            const isSelected = selectedInThisSlot && idOf(selectedInThisSlot) === id;
+                            const isSelected = slotPicks.some((x) => idOf(x) === id);
                             const img = p.images?.[0] || '';
                             return (
                               <motion.button
@@ -415,8 +457,8 @@ export default function KitBuilder() {
             subKey={preview.subKey}
             subLabel={preview.subLabel}
             isSelected={(() => {
-              const cur = picks[pickKey(category, preview.subKey)];
-              return cur && idOf(cur) === idOf(preview.product);
+              const list = picks[pickKey(category, preview.subKey)] || [];
+              return list.some((p) => idOf(p) === idOf(preview.product));
             })()}
             onClose={() => setPreview(null)}
             onConfirm={() => {
@@ -662,7 +704,7 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
                 <AnimatePresence initial={false}>
                   {picks.map((p) => (
                     <motion.li
-                      key={`${p._cat}:${p._subKey}`}
+                      key={`${p._cat}:${p._subKey}:${idOf(p)}`}
                       layout
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -679,7 +721,7 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
                         <p className="text-xs font-bold text-rose-600">{formatCRC(p.price)}</p>
                       </div>
                       <button
-                        onClick={() => onRemove(p._cat, p._subKey)}
+                        onClick={() => onRemove(p._cat, p._subKey, idOf(p))}
                         aria-label="Quitar"
                         className="w-7 h-7 rounded-full bg-white hover:bg-rose-500 hover:text-white text-ink-400 flex items-center justify-center transition-colors flex-shrink-0">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
