@@ -28,6 +28,119 @@ const inputCls  = 'w-full border border-cream-200 rounded-xl px-4 py-2.5 text-sm
 const labelCls  = 'block text-[11px] font-bold text-ink-500 uppercase tracking-widest mb-1.5';
 const sectionCls = 'bg-white rounded-2xl border border-cream-100 shadow-card p-5 sm:p-6 space-y-4';
 
+/* SMTP/Resend diagnostic — admin puede verificar si el envio de emails
+ * funciona, sin tocar consola ni env vars. */
+function SmtpTester({ defaultTo }) {
+  const [status, setStatus]     = useState(null);
+  const [loading, setLoading]   = useState(false);
+  const [testTo, setTestTo]     = useState(defaultTo || '');
+  const [testResult, setTestResult] = useState(null);
+
+  useEffect(() => { if (!status && !defaultTo) setTestTo(''); setTestTo(defaultTo || ''); }, [defaultTo]);
+
+  const checkStatus = async () => {
+    setLoading(true);
+    setStatus(null);
+    setTestResult(null);
+    try {
+      const { data } = await api.get('/orders/admin/smtp-status');
+      setStatus(data);
+    } catch (err) {
+      setStatus({ ok: false, error: err.response?.data?.error || err.message });
+    } finally { setLoading(false); }
+  };
+
+  const sendTest = async () => {
+    if (!testTo.trim()) return;
+    setLoading(true);
+    setTestResult(null);
+    try {
+      const { data } = await api.get(`/orders/admin/smtp-status?test=${encodeURIComponent(testTo.trim())}`);
+      setStatus(data);
+      setTestResult(data.testEmail || data);
+    } catch (err) {
+      setTestResult({ ok: false, error: err.response?.data?.error || err.message });
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="border-t border-cream-100 pt-4 mt-4 space-y-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-ink-900">Probar envío de emails</p>
+          <p className="text-[11px] text-ink-400 mt-0.5">Diagnostica si SMTP / Resend está bien configurado.</p>
+        </div>
+        <button
+          type="button"
+          onClick={checkStatus}
+          disabled={loading}
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border border-cream-200 hover:border-rose-300 text-ink-700 hover:text-rose-600 bg-white transition-colors disabled:opacity-50">
+          {loading ? 'Verificando…' : 'Verificar config'}
+        </button>
+      </div>
+
+      {status && (
+        <div className={`rounded-xl border px-4 py-3 text-sm ${
+          status.ok
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+            : 'bg-amber-50 border-amber-200 text-amber-800'
+        }`}>
+          <p className="font-semibold mb-1">
+            {status.ok ? '✓' : '⚠'} {status.message || (status.ok ? 'Email funciona' : 'Email no configurado')}
+          </p>
+          {status.providerOrder && (
+            <p className="text-xs">Orden de intento: <code className="bg-white/60 px-1 rounded">{status.providerOrder.join(' → ')}</code></p>
+          )}
+          {status.primary && (
+            <p className="text-xs">Primario: <strong>{status.primary}</strong>{status.from && <> · From: <code className="bg-white/60 px-1 rounded">{status.from}</code></>}</p>
+          )}
+          {status.smtp?.user && <p className="text-xs">SMTP user: <code className="bg-white/60 px-1 rounded">{status.smtp.user}</code></p>}
+          {status.smtp?.host && <p className="text-xs">Host: <code className="bg-white/60 px-1 rounded">{status.smtp.host}:{status.smtp.port}</code></p>}
+          {status.smtp?.detail && <p className="text-xs mt-1 break-words"><strong>Error:</strong> {status.smtp.detail}</p>}
+          {Array.isArray(status.howToFix) && (
+            <ul className="text-[11px] mt-2 space-y-1 list-disc list-inside">
+              {status.howToFix.map((h, i) => <li key={i}>{h}</li>)}
+            </ul>
+          )}
+          {typeof status.howToFix === 'string' && (
+            <p className="text-[11px] mt-2">{status.howToFix}</p>
+          )}
+        </div>
+      )}
+
+      {status?.ok && (
+        <div className="flex gap-2">
+          <input
+            type="email"
+            value={testTo}
+            onChange={(e) => setTestTo(e.target.value)}
+            placeholder="Email destino de prueba"
+            className={inputCls + ' flex-1'} />
+          <button
+            type="button"
+            onClick={sendTest}
+            disabled={loading || !testTo.trim()}
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-500 hover:bg-rose-600 text-white transition-colors disabled:opacity-50 whitespace-nowrap">
+            {loading ? 'Enviando…' : 'Enviar prueba'}
+          </button>
+        </div>
+      )}
+
+      {testResult && (
+        <div className={`rounded-xl border px-4 py-2.5 text-xs ${
+          testResult.ok
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+            : 'bg-red-50 border-red-200 text-red-800'
+        }`}>
+          {testResult.ok
+            ? <>✓ Email de prueba enviado a <strong>{testResult.to || testTo}</strong>. Revisá tu inbox (y spam por las dudas).</>
+            : <>✗ Falló: {testResult.error || testResult.detail || 'error desconocido'}</>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminConfig() {
   const toast = useToastStore();
   const [form, setForm]       = useState(DEFAULTS);
@@ -293,9 +406,11 @@ export default function AdminConfig() {
             placeholder="tucorreo@gmail.com" />
           <p className="text-[11px] text-ink-400 mt-1.5">
             También necesitás configurar <code className="bg-cream-100 px-1 rounded text-rose-500">SMTP_USER</code> y{' '}
-            <code className="bg-cream-100 px-1 rounded text-rose-500">SMTP_PASS</code> en el archivo <code className="bg-cream-100 px-1 rounded text-rose-500">.env</code> del servidor.
+            <code className="bg-cream-100 px-1 rounded text-rose-500">SMTP_PASS</code> (o <code className="bg-cream-100 px-1 rounded text-rose-500">RESEND_API_KEY</code>) en Environment de Render.
           </p>
         </div>
+
+        <SmtpTester defaultTo={form.notificationEmail} />
       </div>
 
       {/* Banner promocional */}

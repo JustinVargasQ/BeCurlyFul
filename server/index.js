@@ -56,11 +56,9 @@ const ALLOWED_ORIGINS = [
 
 app.use(cors({
   origin: (origin, cb) => {
-    // Sin origin → bloquear en producción (Postman / curl / bots)
-    if (!origin) {
-      if (isProd) return cb(new Error('CORS: origen requerido'));
-      return cb(null, true);   // permitir en desarrollo
-    }
+    // Sin origin (browser top-level nav, curl, mobile apps) → permitir.
+    // La auth middleware en endpoints admin protege lo que importa.
+    if (!origin) return cb(null, true);
     if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
     if (isProd) console.warn(`🚫 CORS bloqueado: ${origin}`);
     cb(new Error(`CORS bloqueado: ${origin}`));
