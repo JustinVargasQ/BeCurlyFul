@@ -3,7 +3,7 @@ const Coupon   = require('../models/Coupon');
 const Product  = require('../models/Product');
 const Settings = require('../models/Settings');
 const { broadcast } = require('../lib/sse');
-const { sendOrderNotification, sendCustomerConfirmation, sendCustomerStatusUpdate, smtpStatus, verifySmtp } = require('../lib/mailer');
+const { sendOrderNotification, sendCustomerConfirmation, sendCustomerStatusUpdate, sendTestEmail, smtpStatus, verifySmtp } = require('../lib/mailer');
 
 /* ---------- Public ---------- */
 
@@ -311,26 +311,16 @@ exports.smtpDiagnostic = async (req, res, next) => {
     const settings = await Settings.findOne({ key: 'main' });
     const notifTo = settings?.notificationEmail || null;
 
-    // Si pasaron ?test=email@dominio, mandar uno de prueba
+    // Si pasaron ?test=email@dominio, mandar uno de prueba REAL usando la
+    // misma cadena de proveedores que los pedidos. Antes esto usaba SMTP
+    // directo y mentia diciendo 'ok' aunque Render bloqueara el envio.
     const testTo = String(req.query.test || '').trim();
     let testResult = null;
     if (testTo) {
-      const nodemailer = require('nodemailer');
-      const t = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-      });
-      try {
-        await t.sendMail({
-          from: `"JD Virtual" <${process.env.SMTP_USER}>`,
-          to: testTo,
-          subject: '✅ Prueba de SMTP — JD Virtual',
-          text: 'Si recibís este correo, el SMTP está funcionando correctamente 💕',
-        });
-        testResult = { ok: true, to: testTo };
-      } catch (err) {
-        testResult = { ok: false, error: err.message };
-      }
+      const r = await sendTestEmail(testTo);
+      testResult = r.ok
+        ? { ok: true, to: testTo, via: r.via }
+        : { ok: false, error: r.detail || r.reason || 'desconocido' };
     }
 
     res.json({

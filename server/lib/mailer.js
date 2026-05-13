@@ -506,10 +506,23 @@ async function sendCustomerStatusUpdate(order, newStatus) {
   });
 }
 
+/* Envio de prueba — usa la misma cadena de proveedores que los reales para
+ * que el diagnostico refleje exactamente lo que pasa con pedidos. */
+async function sendTestEmail(to) {
+  return sendWithProvider({
+    to,
+    subject: '✅ Prueba de email — JD Virtual',
+    html: `<p>Si recibís este correo, el sistema de emails de JD Virtual está funcionando correctamente 💕</p>
+           <p style="color:#888;font-size:12px">Enviado desde el diagnóstico de /admin/config</p>`,
+    label: `Test → ${to}`,
+  });
+}
+
 module.exports = {
   sendOrderNotification,
   sendCustomerConfirmation,
   sendCustomerStatusUpdate,
+  sendTestEmail,
   smtpStatus,
   verifySmtp,
 };
