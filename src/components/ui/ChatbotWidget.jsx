@@ -477,8 +477,12 @@ export function ChatPanelInner({ onReset, onClose, showHeader = true }) {
     <>
       {showHeader && (
         <div
-          className="relative px-5 py-4 text-white overflow-hidden flex-shrink-0"
-          style={{ background: 'linear-gradient(135deg, #1A1414 0%, #2E1A1F 25%, #6B3540 55%, #B85F72 85%, #C9A875 100%)' }}>
+          className="relative px-4 sm:px-5 py-4 text-white overflow-hidden flex-shrink-0"
+          style={{
+            background: 'linear-gradient(135deg, #1A1414 0%, #2E1A1F 25%, #6B3540 55%, #B85F72 85%, #C9A875 100%)',
+            // iOS notch / Android status bar — el header full-screen choca con la barra
+            paddingTop: 'max(1rem, env(safe-area-inset-top))',
+          }}>
 
           {/* Sparkle pattern overlay */}
           <div

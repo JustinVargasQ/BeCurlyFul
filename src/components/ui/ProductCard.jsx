@@ -138,9 +138,9 @@ export default function ProductCard({ product, index = 0 }) {
                   loading="lazy"
                   onError={() => setImgError(true)}
                 />
-                {/* Image index dots when multiple images */}
+                {/* Image index dots — siempre visibles en mobile (no hay hover) */}
                 {allImages.length > 1 && (
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
                     {allImages.map((_, i) => (
                       <span key={i}
                         className={`rounded-full bg-white transition-all duration-300 shadow-sm ${
@@ -200,12 +200,14 @@ export default function ProductCard({ product, index = 0 }) {
               )}
             </div>
 
-            {/* Action buttons — reveal on hover */}
+            {/* Action buttons — desktop: reveal on hover. Mobile: pill compacto
+                siempre visible en la esquina (hover doesn't exist on touch). */}
+            {/* Desktop: full overlay con hover */}
             <motion.div
               initial={false}
               animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 10 }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="absolute bottom-0 inset-x-0 p-3 flex gap-2">
+              className="hidden sm:flex absolute bottom-0 inset-x-0 p-3 gap-2">
               <button onClick={handleAdd} disabled={outOfStock}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-lg ${
                   outOfStock ? 'bg-ink-200 text-ink-400 cursor-not-allowed' :
@@ -224,6 +226,18 @@ export default function ProductCard({ product, index = 0 }) {
                 <WaIcon />
               </button>
             </motion.div>
+
+            {/* Mobile: solo boton circular de cart en esquina inferior derecha, siempre visible */}
+            <button onClick={handleAdd} disabled={outOfStock}
+              aria-label={outOfStock ? 'Agotado' : 'Agregar al carrito'}
+              className={`sm:hidden absolute bottom-2.5 right-2.5 w-10 h-10 flex items-center justify-center rounded-full shadow-md transition-colors z-10 ${
+                outOfStock ? 'bg-ink-200 text-ink-400' :
+                added ? 'bg-green-500 text-white scale-95' : 'bg-white text-rose-500 active:bg-rose-500 active:text-white'
+              }`}>
+              {added
+                ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                : <CartPlusIcon />}
+            </button>
           </div>
 
           {/* ── Info ──
