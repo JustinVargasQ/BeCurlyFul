@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import api, { optimizedImage } from '../../lib/api';
+import api, { optimizedImage, normalizeVariants } from '../../lib/api';
 import { formatCRC } from '../../lib/currency';
 import useCart from '../../hooks/useCart';
 import useToastStore from '../../store/toastStore';
@@ -88,8 +88,9 @@ export default function KitBuilder() {
   }, [category, budget, isOpen]);
 
   /* Click toggle: si el producto ya está pickeado lo saca; si no, lo agrega
-   * al array del slot. Permite multiples productos por slot (ej. 2 bases). */
-  const togglePick = (cat, subKey, subLabel, product) => {
+   * al array del slot. Permite multiples productos por slot (ej. 2 bases).
+   * selectedVariants es opcional: { Tono: 'Rojo', Color: 'Medio' }. */
+  const togglePick = (cat, subKey, subLabel, product, selectedVariants) => {
     const key = pickKey(cat, subKey);
     const productId = idOf(product);
     const current = picks[key] || [];
@@ -103,7 +104,15 @@ export default function KitBuilder() {
         if (filtered.length === 0) delete next[key];
         else next[key] = filtered;
       } else {
-        next[key] = [...list, { ...product, _cat: cat, _subKey: subKey, _subLabel: subLabel }];
+        next[key] = [...list, {
+          ...product,
+          _cat: cat,
+          _subKey: subKey,
+          _subLabel: subLabel,
+          ...(selectedVariants && Object.keys(selectedVariants).length > 0
+            ? { selectedVariants }
+            : {}),
+        }];
       }
       return next;
     });
@@ -112,8 +121,15 @@ export default function KitBuilder() {
       removeItem(productId);
       toastSuccess(`Quitado del kit · ${product.name}`);
     } else {
-      addItem(product, 1);
-      toastSuccess(`Agregado al kit · ${product.name}`);
+      // Pasar las variantes al cart adjuntando al objeto producto
+      const productWithVariants = selectedVariants && Object.keys(selectedVariants).length > 0
+        ? { ...product, selectedVariants }
+        : product;
+      addItem(productWithVariants, 1);
+      const variantSummary = selectedVariants && Object.keys(selectedVariants).length > 0
+        ? ` (${Object.values(selectedVariants).join(', ')})`
+        : '';
+      toastSuccess(`Agregado al kit · ${product.name}${variantSummary}`);
     }
   };
 
@@ -461,8 +477,8 @@ export default function KitBuilder() {
               return list.some((p) => idOf(p) === idOf(preview.product));
             })()}
             onClose={() => setPreview(null)}
-            onConfirm={() => {
-              togglePick(category, preview.subKey, preview.subLabel, preview.product);
+            onConfirm={(selectedVariants) => {
+              togglePick(category, preview.subKey, preview.subLabel, preview.product, selectedVariants);
               setPreview(null);
             }}
           />
@@ -477,15 +493,39 @@ function allPicksTotal(picks) {
   return Object.values(picks).reduce((s, p) => s + (p?.price || 0), 0);
 }
 
-/* Modal de preview — foto grande + descripcion + features + CTA agregar/quitar */
+/* Modal de preview — foto grande + descripcion + features + CTA agregar/quitar.
+ * Si el producto tiene variants (Tono, Color, etc.), pide selegir antes. */
 function KitProductModal({ product, subKey, subLabel, isSelected, onClose, onConfirm }) {
   const [imgIdx, setImgIdx] = useState(0);
+  const [selectedVariants, setSelectedVariants] = useState({});
   const images = Array.isArray(product.images) ? product.images.filter(Boolean) : [];
-  const currentImg = images[imgIdx] || images[0] || '';
   const outOfStock = product.stock === 0;
   const discount = product.oldPrice && product.oldPrice > product.price
     ? Math.round((1 - product.price / product.oldPrice) * 100)
     : 0;
+
+  const variants = normalizeVariants(product.variants);
+
+  // Si alguna opcion de variante elegida tiene imagen propia, esa pisa la
+  // imagen principal. Asi, elegir 'Rosado' muestra la foto rosada.
+  const variantImage = (() => {
+    for (const v of variants) {
+      const chosen = selectedVariants[v.name];
+      if (!chosen) continue;
+      const opt = v.options.find((o) => o.value === chosen);
+      if (opt?.image) return opt.image;
+    }
+    return null;
+  })();
+  const currentImg = variantImage || images[imgIdx] || images[0] || '';
+  // Requerir seleccion para cada variante antes de poder agregar
+  const missingVariant = variants.find((v) => !selectedVariants[v.name]);
+  const canConfirm = !outOfStock && (isSelected || !missingVariant);
+
+  const handleConfirm = () => {
+    if (!canConfirm) return;
+    onConfirm(selectedVariants);
+  };
 
   // Cierre con Escape
   useEffect(() => {
@@ -579,6 +619,44 @@ function KitProductModal({ product, subKey, subLabel, isSelected, onClose, onCon
               )}
             </div>
 
+            {/* Variantes (Tono, Color, etc.) — requeridas antes de agregar.
+             * Si la opcion tiene imagen propia, el chip incluye thumbnail. */}
+            {variants.length > 0 && !isSelected && (
+              <div className="mt-4 space-y-3 border border-rose-100 bg-rose-50/40 rounded-xl p-3">
+                {variants.map((v) => (
+                  <div key={v.name}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-500 mb-1.5">
+                      {v.name}: <span className="text-rose-600 normal-case font-bold">{selectedVariants[v.name] || 'Elegí uno'}</span>
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {v.options.map((opt) => {
+                        const isOn = selectedVariants[v.name] === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            onClick={() => setSelectedVariants((s) => ({ ...s, [v.name]: opt.value }))}
+                            className={`flex items-center gap-1.5 pl-1 pr-3 py-1 rounded-full text-xs font-semibold border transition-all ${
+                              isOn
+                                ? 'border-rose-500 bg-rose-500 text-white'
+                                : 'border-cream-200 bg-white text-ink-700 hover:border-rose-300'
+                            }`}>
+                            {opt.image ? (
+                              <img src={optimizedImage(opt.image, 40)} alt={opt.value}
+                                className={`w-5 h-5 rounded-full object-cover ring-1 ${isOn ? 'ring-white/50' : 'ring-cream-200'}`}
+                                loading="lazy" decoding="async" />
+                            ) : (
+                              <span className="w-5 h-5" />
+                            )}
+                            {opt.value}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {product.description && (
               <div className="mt-4">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400 mb-1">Descripción</p>
@@ -622,13 +700,23 @@ function KitProductModal({ product, subKey, subLabel, isSelected, onClose, onCon
 
           {/* Footer con CTA */}
           <div className="border-t border-cream-100 p-4 bg-white">
+            {missingVariant && !isSelected && (
+              <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 mb-2 flex items-center gap-1.5">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Elegí un {missingVariant.name.toLowerCase()} antes de agregar
+              </p>
+            )}
             <button
-              onClick={onConfirm}
-              disabled={outOfStock}
+              onClick={handleConfirm}
+              disabled={!canConfirm}
               className={`w-full flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold transition-all shadow-btn hover:shadow-btn-hover disabled:opacity-50 disabled:cursor-not-allowed ${
                 isSelected ? 'bg-ink-900 text-white hover:bg-ink-700' : 'text-white'
               }`}
-              style={!isSelected && !outOfStock
+              style={!isSelected && canConfirm
                 ? { background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }
                 : undefined}>
               {outOfStock ? (
@@ -718,6 +806,11 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] text-ink-400 uppercase tracking-wider truncate">{p._subLabel}</p>
                         <p className="text-xs font-semibold text-ink-900 truncate leading-tight">{p.name}</p>
+                        {p.selectedVariants && Object.keys(p.selectedVariants).length > 0 && (
+                          <p className="text-[10px] text-rose-600 font-semibold truncate">
+                            {Object.entries(p.selectedVariants).map(([k, v]) => `${k}: ${v}`).join(' · ')}
+                          </p>
+                        )}
                         <p className="text-xs font-bold text-rose-600">{formatCRC(p.price)}</p>
                       </div>
                       <button

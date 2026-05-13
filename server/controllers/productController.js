@@ -88,7 +88,7 @@ exports.getKitOptions = async (req, res, next) => {
     if (budget > 0) filter.price = { $lte: budget };
 
     const products = await Product.find(filter)
-      .select('name slug brand category price oldPrice description features images stock badge rating reviewCount tags')
+      .select('name slug brand category price oldPrice description features images stock badge rating reviewCount tags variants')
       .lean({ virtuals: true });
 
     // Para cada subtipo, encontrar candidatos por nombre/desc/tags y elegir top N

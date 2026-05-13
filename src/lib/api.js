@@ -36,6 +36,27 @@ export function assetUrl(path) {
   return `${SERVER_ORIGIN}${path.startsWith('/') ? '' : '/'}${path}`;
 }
 
+/* Normaliza las opciones de variantes: pueden venir como strings (formato
+ * legacy) u objetos { value, image }. Devuelve siempre el formato objeto. */
+export function normalizeVariantOption(opt) {
+  if (opt == null) return null;
+  if (typeof opt === 'string') return { value: opt, image: '' };
+  if (typeof opt === 'object') {
+    return { value: opt.value || '', image: opt.image || '' };
+  }
+  return null;
+}
+
+export function normalizeVariants(variants) {
+  if (!Array.isArray(variants)) return [];
+  return variants
+    .filter((v) => v?.name)
+    .map((v) => ({
+      name: v.name,
+      options: (v.options || []).map(normalizeVariantOption).filter((o) => o && o.value),
+    }));
+}
+
 /* Inject Cloudinary transformations for automatic format (WebP/AVIF when
  * supported), automatic quality, and a width cap. Cuts image weight ~70%
  * without visible quality loss.

@@ -153,12 +153,29 @@ export default function ProductForm() {
   const removeTag = (tag) => set('tags', (form.tags || []).filter((t) => t !== tag));
   const removeImage   = (idx) => set('images', form.images.filter((_, i) => i !== idx));
 
-  const addVariant      = () => set('variants', [...(form.variants || []), { name: '', options: [''] }]);
+  // Opciones de variantes ahora son objetos { value, image }. Mantenemos
+  // backward compat con strings via normalize al leer/usar.
+  const normalizeOpt = (o) => (typeof o === 'string' ? { value: o, image: '' } : { value: o?.value || '', image: o?.image || '' });
+  const addVariant      = () => set('variants', [...(form.variants || []), { name: '', options: [{ value: '', image: '' }] }]);
   const removeVariant   = (vi) => set('variants', form.variants.filter((_, i) => i !== vi));
   const setVariantName  = (vi, v) => { const arr = [...form.variants]; arr[vi] = { ...arr[vi], name: v }; set('variants', arr); };
-  const addVariantOption = (vi) => { const arr = [...form.variants]; arr[vi] = { ...arr[vi], options: [...arr[vi].options, ''] }; set('variants', arr); };
-  const setVariantOption = (vi, oi, v) => { const arr = [...form.variants]; arr[vi].options[oi] = v; set('variants', arr); };
-  const removeVariantOption = (vi, oi) => { const arr = [...form.variants]; arr[vi].options = arr[vi].options.filter((_, i) => i !== oi); set('variants', arr); };
+  const addVariantOption = (vi) => {
+    const arr = [...form.variants];
+    arr[vi] = { ...arr[vi], options: [...arr[vi].options.map(normalizeOpt), { value: '', image: '' }] };
+    set('variants', arr);
+  };
+  const setVariantOption = (vi, oi, field, v) => {
+    const arr = [...form.variants];
+    const opts = arr[vi].options.map(normalizeOpt);
+    opts[oi] = { ...opts[oi], [field]: v };
+    arr[vi] = { ...arr[vi], options: opts };
+    set('variants', arr);
+  };
+  const removeVariantOption = (vi, oi) => {
+    const arr = [...form.variants];
+    arr[vi].options = arr[vi].options.filter((_, i) => i !== oi);
+    set('variants', arr);
+  };
 
   const uploadFiles = async (files) => {
     if (!files?.length) return;
@@ -195,7 +212,11 @@ export default function ProductForm() {
       images:      form.images,
       variants:    (form.variants || []).filter((v) => v.name.trim()).map((v) => ({
         name: v.name.trim(),
-        options: v.options.map((o) => o.trim()).filter(Boolean),
+        options: v.options
+          .map((o) => typeof o === 'string'
+            ? { value: o.trim(), image: '' }
+            : { value: String(o?.value || '').trim(), image: String(o?.image || '').trim() })
+          .filter((o) => o.value),
       })),
       stock:       form.stock === '' ? null : Number(form.stock),
       isActive:    form.isActive,
@@ -497,19 +518,40 @@ export default function ProductForm() {
                   </button>
                 </div>
                 <div className="p-3 space-y-2">
-                  {v.options.map((opt, oi) => (
-                    <div key={oi} className="flex gap-2">
-                      <input value={opt} onChange={(e) => setVariantOption(vi, oi, e.target.value)}
-                        placeholder={`Opción ${oi + 1} (ej: Rosa)`}
-                        className={inputCls + ' flex-1 text-sm'} />
+                  {v.options.map((rawOpt, oi) => {
+                    const opt = typeof rawOpt === 'string' ? { value: rawOpt, image: '' } : (rawOpt || { value: '', image: '' });
+                    return (
+                    <div key={oi} className="flex gap-2 items-center">
+                      {/* Preview de la imagen — si no hay, tile vacio */}
+                      <div className="w-10 h-10 rounded-lg bg-cream-100 border border-cream-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {opt.image ? (
+                          <img src={opt.image} alt={opt.value} className="w-full h-full object-cover"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                        ) : (
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-ink-300"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        )}
+                      </div>
+                      {/* Inputs: nombre + URL de imagen */}
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-2">
+                        <input value={opt.value} onChange={(e) => setVariantOption(vi, oi, 'value', e.target.value)}
+                          placeholder={`Opción ${oi + 1} (ej: Rosa)`}
+                          className={inputCls + ' text-sm'} />
+                        <input value={opt.image} onChange={(e) => setVariantOption(vi, oi, 'image', e.target.value)}
+                          placeholder="URL de la foto (opcional)"
+                          className={inputCls + ' text-sm font-mono text-xs'} />
+                      </div>
                       {v.options.length > 1 && (
                         <button type="button" onClick={() => removeVariantOption(vi, oi)}
-                          className="w-9 rounded-xl text-gray-300 hover:text-red-400 transition-colors flex items-center justify-center">
+                          className="w-9 h-9 flex-shrink-0 rounded-xl text-gray-300 hover:text-red-400 transition-colors flex items-center justify-center">
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
                         </button>
                       )}
                     </div>
-                  ))}
+                    );
+                  })}
+                  <p className="text-[10px] text-ink-400 leading-relaxed -mt-1">
+                    💡 Subí la foto en la sección de imágenes del producto, copiá su URL (click derecho → copiar dirección de la imagen) y pegala acá. La foto cambia al elegir esa opción.
+                  </p>
                   <button type="button" onClick={() => addVariantOption(vi)}
                     className="text-xs text-rose-500 hover:text-rose-600 font-semibold flex items-center gap-1 mt-1">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

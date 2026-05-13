@@ -24,7 +24,12 @@ const productSchema = new Schema(
     reviewCount: { type: Number, default: 0 },
     variants: [{
       name:    { type: String, required: true },
-      options: [{ type: String }],
+      // options ahora puede ser:
+      //   - String (formato legacy: 'Rojo'), o
+      //   - Object: { value: 'Rojo', image: 'https://...' }
+      // Soportamos ambos para no romper productos viejos. El controller
+      // normaliza al leer.
+      options: [{ type: Schema.Types.Mixed }],
     }],
     restockRequests: { type: Number, default: 0 },
   },

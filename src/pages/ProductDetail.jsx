@@ -314,7 +314,19 @@ export default function ProductDetail() {
   }
 
   const images   = product.images?.length ? product.images : [product.img].filter(Boolean);
-  const mainImg  = images[activeImg] || images[0] || '';
+  // Si la variante elegida tiene imagen propia, esa pisa la principal.
+  // Asi al cambiar 'Tono' a 'Rosado' la foto cambia a la del rosado.
+  const variantImage = (() => {
+    if (!Array.isArray(product.variants)) return null;
+    for (const v of product.variants) {
+      const chosen = selectedVariants[v.name];
+      if (!chosen) continue;
+      const opt = v.options?.find((o) => (typeof o === 'string' ? o : o.value) === chosen);
+      if (opt && typeof opt === 'object' && opt.image) return opt.image;
+    }
+    return null;
+  })();
+  const mainImg  = variantImage || images[activeImg] || images[0] || '';
   const discount = product.oldPrice ? Math.round((1 - product.price / product.oldPrice) * 100) : 0;
   const relatedProducts = related.filter((p) => p.slug !== slug).slice(0, 6);
   const deliveryRange = getDeliveryRange();
@@ -510,16 +522,26 @@ export default function ProductDetail() {
                       {v.name}: <span className="text-rose-500 normal-case font-semibold">{selectedVariants[v.name] || 'Seleccionar'}</span>
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {v.options.map((opt) => (
-                        <button key={opt} onClick={() => setSelectedVariants((s) => ({ ...s, [v.name]: opt }))}
-                          className={`px-3.5 py-1.5 rounded-full text-sm border-2 font-medium transition-all ${
-                            selectedVariants[v.name] === opt
-                              ? 'border-rose-500 bg-rose-50 text-rose-700'
-                              : 'border-cream-200 text-ink-700 hover:border-rose-300'
-                          }`}>
-                          {opt}
-                        </button>
-                      ))}
+                      {v.options.map((rawOpt) => {
+                        const opt = typeof rawOpt === 'string' ? { value: rawOpt, image: '' } : rawOpt;
+                        const isOn = selectedVariants[v.name] === opt.value;
+                        return (
+                          <button key={opt.value}
+                            onClick={() => setSelectedVariants((s) => ({ ...s, [v.name]: opt.value }))}
+                            className={`flex items-center gap-2 pl-1 pr-3.5 py-1 rounded-full text-sm border-2 font-medium transition-all ${
+                              isOn ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-cream-200 text-ink-700 hover:border-rose-300'
+                            }`}>
+                            {opt.image ? (
+                              <img src={optimizedImage(opt.image, 64)} alt={opt.value}
+                                className={`w-7 h-7 rounded-full object-cover ring-1 ${isOn ? 'ring-rose-300' : 'ring-cream-200'}`}
+                                loading="lazy" decoding="async" />
+                            ) : (
+                              <span className="w-7 h-7" />
+                            )}
+                            {opt.value}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
