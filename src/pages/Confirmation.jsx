@@ -1,14 +1,28 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
-/* ── Canvas confetti ── */
+/* ── Canvas confetti ──
+ * Bug previo en mobile: cuando alive=false, draw() hacia early return sin
+ * clearRect → la ultima frame se quedaba "pegada". Ademas el canvas seguia
+ * en el DOM consumiendo GPU. Fix:
+ *  - clearRect explicito al detener
+ *  - Unmount del componente despues de animar (state)
+ *  - cancelAnimationFrame en unmount
+ *  - Pausar mientras el tab no esta visible (visibilitychange)
+ *  - Respetar prefers-reduced-motion */
 function Confetti() {
   const canvasRef = useRef(null);
+  const [hidden, setHidden] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  });
 
   useEffect(() => {
+    if (hidden) return undefined;
     const canvas = canvasRef.current;
-    const ctx    = canvas.getContext('2d');
+    if (!canvas) return undefined;
+    const ctx = canvas.getContext('2d');
 
     const setSize = () => {
       canvas.width  = window.innerWidth;
@@ -19,7 +33,9 @@ function Confetti() {
 
     const COLORS = ['#B85F72', '#EDB7C1', '#C9A875', '#f43f5e', '#fbbf24', '#a78bfa', '#34d399', '#fff'];
 
-    const particles = Array.from({ length: 110 }, (_, i) => ({
+    // Menos particulas en mobile pequeño para no joder el render
+    const isSmall = window.innerWidth < 640;
+    const particles = Array.from({ length: isSmall ? 60 : 110 }, (_, i) => ({
       x:         Math.random() * canvas.width,
       y:         -20 - Math.random() * 350,
       w:         Math.random() * 9 + 4,
@@ -33,10 +49,15 @@ function Confetti() {
     }));
 
     let alive = true;
+    let rafId = null;
+
+    const clearCanvas = () => {
+      try { ctx.clearRect(0, 0, canvas.width, canvas.height); } catch {}
+    };
 
     const draw = () => {
-      if (!alive) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!alive) { clearCanvas(); return; }
+      clearCanvas();
 
       for (const p of particles) {
         ctx.save();
@@ -54,14 +75,39 @@ function Confetti() {
         if (p.y > canvas.height * 0.65) p.alpha -= 0.011;
         if (p.y > canvas.height + 20)   { p.y = -20; p.x = Math.random() * canvas.width; p.alpha = 0; }
       }
-      requestAnimationFrame(draw);
+      rafId = requestAnimationFrame(draw);
     };
-    draw();
+    rafId = requestAnimationFrame(draw);
 
-    const t = setTimeout(() => { alive = false; }, 4800);
-    return () => { alive = false; clearTimeout(t); window.removeEventListener('resize', setSize); };
-  }, []);
+    // Pausar mientras la pestaña no esta visible (mobile suele suspender RAF)
+    const onVisibility = () => {
+      if (document.hidden) {
+        alive = false;
+        if (rafId) cancelAnimationFrame(rafId);
+        clearCanvas();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
 
+    const stopTimer = setTimeout(() => {
+      alive = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      clearCanvas();
+      // Pequena pausa para que clearRect se vea, luego unmount del canvas
+      setTimeout(() => setHidden(true), 120);
+    }, 4500);
+
+    return () => {
+      alive = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      clearTimeout(stopTimer);
+      clearCanvas();
+      window.removeEventListener('resize', setSize);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [hidden]);
+
+  if (hidden) return null;
   return <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 z-50" style={{ opacity: 0.85 }} />;
 }
 

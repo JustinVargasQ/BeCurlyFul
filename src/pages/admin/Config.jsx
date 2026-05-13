@@ -259,8 +259,8 @@ export default function AdminConfig() {
             <span className="text-xs text-ink-500 font-medium">{form.autoConfirmOrders ? 'Activo' : 'Inactivo'}</span>
             <div className="relative">
               <input type="checkbox" checked={form.autoConfirmOrders} onChange={set('autoConfirmOrders')} className="sr-only" />
-              <div onClick={() => { setForm(f => ({ ...f, autoConfirmOrders: !f.autoConfirmOrders })); setDirty(true); }}
-                className={`w-10 h-6 rounded-full transition-colors cursor-pointer ${form.autoConfirmOrders ? 'bg-rose-500' : 'bg-ink-200'}`}>
+              <div aria-hidden
+                className={`w-10 h-6 rounded-full transition-colors ${form.autoConfirmOrders ? 'bg-rose-500' : 'bg-ink-200'}`}>
                 <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.autoConfirmOrders ? 'translate-x-5' : 'translate-x-1'}`} />
               </div>
             </div>
@@ -306,8 +306,8 @@ export default function AdminConfig() {
             <span className="text-xs text-ink-500 font-medium">{form.promoBannerActive ? 'Activo' : 'Inactivo'}</span>
             <div className="relative">
               <input type="checkbox" checked={form.promoBannerActive} onChange={set('promoBannerActive')} className="sr-only" />
-              <div onClick={() => { setForm(f => ({ ...f, promoBannerActive: !f.promoBannerActive })); setDirty(true); }}
-                className={`w-10 h-6 rounded-full transition-colors cursor-pointer ${form.promoBannerActive ? 'bg-rose-500' : 'bg-ink-200'}`}>
+              <div aria-hidden
+                className={`w-10 h-6 rounded-full transition-colors ${form.promoBannerActive ? 'bg-rose-500' : 'bg-ink-200'}`}>
                 <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.promoBannerActive ? 'translate-x-5' : 'translate-x-1'}`} />
               </div>
             </div>

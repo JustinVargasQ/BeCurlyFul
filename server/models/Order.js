@@ -36,7 +36,9 @@ const orderSchema = new Schema(
     },
     shippingCost:  { type: Number, default: 0 },
     total:         { type: Number, required: true },
-    shippingMethod:{ type: String, enum: ['correos', 'express', 'pickup'], default: 'correos' },
+    // 'retiro' (no 'pickup') porque asi lo usa el frontend y el controller.
+    // Aceptamos 'pickup' como alias historico para no romper ordenes viejas.
+    shippingMethod:{ type: String, enum: ['correos', 'express', 'retiro', 'pickup'], default: 'correos' },
     status: {
       type: String,
       enum: ['pendiente', 'confirmado', 'preparando', 'enviado', 'entregado', 'cancelado'],
