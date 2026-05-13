@@ -37,6 +37,8 @@ export default function KitBuilder() {
    * NO se auto-agrega — se abre este modal con foto grande + descripcion +
    * boton para confirmar. */
   const [preview, setPreview] = useState(null);
+  /* Subtipos que mostraron 'Ver mas' (expandidos a todas las opciones) */
+  const [expanded, setExpanded] = useState({});
   const { addItem, removeItem, openCart, items: cartItems } = useCart();
   const toastSuccess = useToastStore((s) => s.success);
 
@@ -47,7 +49,7 @@ export default function KitBuilder() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    api.get(`/products/kit-options?cat=${category}&budget=${budget}&limit=3`)
+    api.get(`/products/kit-options?cat=${category}&budget=${budget}&limit=10`)
       .then(({ data }) => { if (!cancelled) setData(data); })
       .catch((err) => { if (!cancelled) setError(err.response?.data?.error || 'No se pudieron cargar opciones'); })
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -306,9 +308,15 @@ export default function KitBuilder() {
                         {!hasOptions && <span className="text-xs text-ink-400">Sin opciones</span>}
                       </div>
 
-                      {hasOptions && (
+                      {hasOptions && (() => {
+                        const INITIAL = 6;
+                        const isExpanded = !!expanded[sub.key];
+                        const visibleOptions = isExpanded ? sub.options : sub.options.slice(0, INITIAL);
+                        const moreCount = sub.options.length - INITIAL;
+                        return (
+                        <>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                          {sub.options.map((p) => {
+                          {visibleOptions.map((p) => {
                             const id = idOf(p);
                             const isSelected = selectedInThisSlot && idOf(selectedInThisSlot) === id;
                             const img = p.images?.[0] || '';
@@ -351,7 +359,31 @@ export default function KitBuilder() {
                             );
                           })}
                         </div>
-                      )}
+                        {moreCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setExpanded((prev) => ({ ...prev, [sub.key]: !prev[sub.key] }))}
+                            className="mt-2.5 ml-2 inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors">
+                            {isExpanded ? (
+                              <>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="18 15 12 9 6 15"/>
+                                </svg>
+                                Ver menos
+                              </>
+                            ) : (
+                              <>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                                Ver {moreCount} {moreCount === 1 ? 'opción más' : 'opciones más'}
+                              </>
+                            )}
+                          </button>
+                        )}
+                        </>
+                        );
+                      })()}
                     </div>
                   );
                 })}

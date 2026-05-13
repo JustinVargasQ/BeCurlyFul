@@ -77,7 +77,8 @@ exports.getKitOptions = async (req, res, next) => {
   try {
     const cat = String(req.query.cat || 'maquillaje').toLowerCase();
     const budget = Math.max(0, parseInt(req.query.budget, 10) || 0);
-    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 3, 1), 6);
+    // Subimos el cap a 20 — antes era 6 que se sentia muy chico al usuario
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 20);
 
     const subtypes = KIT_ESSENTIALS[cat] || KIT_ESSENTIALS.maquillaje;
 
