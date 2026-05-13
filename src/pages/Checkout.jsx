@@ -400,8 +400,8 @@ export default function Checkout() {
                 </Field>
 
                 <div className="sm:col-span-2">
-                  <Field label="Correo electrónico" error={errors.email} touched={touched.email} icon={<MailIcon />}
-                    hint="Opcional — para recibir confirmación">
+                  <Field label="Correo electrónico (recomendado)" error={errors.email} touched={touched.email} icon={<MailIcon />}
+                    hint="💌 Te avisamos por mail cuando confirmemos, preparemos y enviemos tu pedido">
                     <input
                       type="email"
                       value={form.email}

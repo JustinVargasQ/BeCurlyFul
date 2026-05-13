@@ -123,6 +123,13 @@ exports.create = async (req, res, next) => {
 
     const initialStatus = autoConfirm ? 'confirmado' : 'pendiente';
 
+    // Fallback: si el cliente no escribio email en el form pero esta logueado,
+    // usar el email de su cuenta. Sin esto, sendCustomerConfirmation no tiene
+    // a quien escribirle y la confirmacion al cliente nunca sale.
+    if (!customer.email && req.user?.email) {
+      customer.email = req.user.email;
+    }
+
     const order = await Order.create({
       customer,
       userId: req.user?.id || null,
@@ -313,6 +320,34 @@ exports.smtpDiagnostic = async (req, res, next) => {
         : 'SMTP funciona pero NO hay notificationEmail configurado en Settings → no llegan avisos de nuevos pedidos al admin. Configurálo en /admin/config.',
       ...(testResult ? { testEmail: testResult } : {}),
     });
+  } catch (err) { next(err); }
+};
+
+/* Backfill: rellenar customer.email en ordenes donde quedo vacio pero el
+ * usuario logueado tiene email registrado. One-shot admin tool. */
+exports.backfillCustomerEmails = async (req, res, next) => {
+  try {
+    const User = require('../models/User');
+    const orders = await Order.find({
+      $or: [{ 'customer.email': '' }, { 'customer.email': { $exists: false } }],
+      userId: { $ne: null },
+    });
+    if (orders.length === 0) return res.json({ updated: 0, message: 'Nada que rellenar' });
+
+    const userIds = [...new Set(orders.map((o) => String(o.userId)))];
+    const users = await User.find({ _id: { $in: userIds } }).select('_id email');
+    const emailById = new Map(users.map((u) => [String(u._id), u.email]));
+
+    let updated = 0;
+    for (const o of orders) {
+      const email = emailById.get(String(o.userId));
+      if (email) {
+        o.customer.email = email;
+        await o.save();
+        updated += 1;
+      }
+    }
+    res.json({ updated, scanned: orders.length });
   } catch (err) { next(err); }
 };
 
