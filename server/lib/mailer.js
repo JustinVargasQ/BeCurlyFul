@@ -35,6 +35,43 @@ function resendFromAddress() {
   return process.env.RESEND_FROM || 'JD Virtual <onboarding@resend.dev>';
 }
 
+/* ─── Brevo (HTTP) ───
+ * Alternativa a Resend para casos sin dominio propio: Brevo deja enviar a
+ * cualquier destinatario verificando solo el sender (un Gmail propio), no el
+ * dominio. Plan free: 300 emails/dia. Tambien HTTPS, asi que no depende
+ * del puerto SMTP (funciona en Render free). */
+async function sendViaBrevo({ to, subject, html }) {
+  if (!process.env.BREVO_API_KEY) return null;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL;
+  if (!senderEmail) {
+    return { ok: false, reason: 'brevo_no_sender', detail: 'Falta BREVO_SENDER_EMAIL en el server' };
+  }
+  try {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+      },
+      body: JSON.stringify({
+        sender: { name: process.env.BREVO_SENDER_NAME || 'JD Virtual', email: senderEmail },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.text().catch(() => '');
+      return { ok: false, reason: 'brevo_failed', detail: err.slice(0, 300) };
+    }
+    const data = await res.json().catch(() => ({}));
+    return { ok: true, id: data.messageId, via: 'brevo' };
+  } catch (err) {
+    return { ok: false, reason: 'brevo_error', detail: err.message };
+  }
+}
+
 /* Render free plan a veces bloquea el puerto 465 (SSL directo). Usamos por
  * default puerto 587 (STARTTLS) que es mas permisivo en hosting compartido.
  * Permitimos override via SMTP_HOST/SMTP_PORT/SMTP_SECURE para cualquier
@@ -219,17 +256,20 @@ function buildOrderHtml(order) {
 }
 
 /* Orden de proveedores configurable via EMAIL_PROVIDER:
- *   'smtp'   → SMTP primero, Resend fallback
- *   'resend' → Resend primero, SMTP fallback
- *   default  → si hay SMTP configurado lo usa primero, sino Resend.
- * Asi el admin puede preferir Gmail sin tocar codigo. */
+ *   'smtp'   → SMTP primero, luego Resend, luego Brevo
+ *   'resend' → Resend primero, luego SMTP, luego Brevo
+ *   'brevo'  → Brevo primero, luego Resend, luego SMTP
+ *   default  → si hay SMTP configurado lo usa primero, sino Brevo (si esta),
+ *              sino Resend. Asi el admin puede preferir un proveedor sin
+ *              tocar codigo. */
 function providerOrder() {
   const pref = String(process.env.EMAIL_PROVIDER || '').toLowerCase();
-  if (pref === 'smtp')   return ['smtp', 'resend'];
-  if (pref === 'resend') return ['resend', 'smtp'];
-  // Default: usar SMTP si esta configurado, sino Resend
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) return ['smtp', 'resend'];
-  return ['resend', 'smtp'];
+  if (pref === 'smtp')   return ['smtp', 'resend', 'brevo'];
+  if (pref === 'resend') return ['resend', 'smtp', 'brevo'];
+  if (pref === 'brevo')  return ['brevo', 'resend', 'smtp'];
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) return ['smtp', 'resend', 'brevo'];
+  if (process.env.BREVO_API_KEY) return ['brevo', 'resend', 'smtp'];
+  return ['resend', 'brevo', 'smtp'];
 }
 
 async function trySmtp({ to, subject, html }) {
@@ -252,13 +292,21 @@ async function tryResend({ to, subject, html }) {
   return r || { ok: false, reason: 'resend_not_configured' };
 }
 
+async function tryBrevo({ to, subject, html }) {
+  const r = await sendViaBrevo({ to, subject, html });
+  if (r?.ok) return { ok: true, via: 'brevo' };
+  return r || { ok: false, reason: 'brevo_not_configured' };
+}
+
 async function sendWithProvider({ to, subject, html, label }) {
   const order = providerOrder();
   let lastErr = null;
   for (const provider of order) {
-    const result = provider === 'smtp'
-      ? await trySmtp({ to, subject, html })
-      : await tryResend({ to, subject, html });
+    let result;
+    if (provider === 'smtp')        result = await trySmtp({ to, subject, html });
+    else if (provider === 'resend') result = await tryResend({ to, subject, html });
+    else if (provider === 'brevo')  result = await tryBrevo({ to, subject, html });
+    else continue;
     if (result.ok) {
       console.log(`📧 [${result.via}] ${label}: ${to}`);
       return { ok: true, to, via: result.via };

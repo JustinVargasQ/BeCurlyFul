@@ -235,16 +235,24 @@ exports.adminGetOne = async (req, res, next) => {
 exports.smtpDiagnostic = async (req, res, next) => {
   try {
     const hasResend = !!process.env.RESEND_API_KEY;
+    const hasBrevo  = !!process.env.BREVO_API_KEY;
     const status = smtpStatus();
     const pref = String(process.env.EMAIL_PROVIDER || '').toLowerCase();
 
     // Calcular el orden real de intento segun EMAIL_PROVIDER y lo configurado
     const order = (() => {
-      if (pref === 'smtp')   return ['smtp', 'resend'];
-      if (pref === 'resend') return ['resend', 'smtp'];
-      if (status.ok)         return ['smtp', 'resend'];
-      return ['resend', 'smtp'];
-    })().filter((p) => (p === 'smtp' ? status.ok : hasResend));
+      if (pref === 'smtp')   return ['smtp', 'resend', 'brevo'];
+      if (pref === 'resend') return ['resend', 'smtp', 'brevo'];
+      if (pref === 'brevo')  return ['brevo', 'resend', 'smtp'];
+      if (status.ok)         return ['smtp', 'resend', 'brevo'];
+      if (hasBrevo)          return ['brevo', 'resend', 'smtp'];
+      return ['resend', 'brevo', 'smtp'];
+    })().filter((p) => {
+      if (p === 'smtp')   return status.ok;
+      if (p === 'resend') return hasResend;
+      if (p === 'brevo')  return hasBrevo;
+      return false;
+    });
 
     if (order.length === 0) {
       return res.json({
@@ -252,10 +260,30 @@ exports.smtpDiagnostic = async (req, res, next) => {
         provider: 'none',
         message: 'Ningun proveedor de email esta configurado.',
         howToFix: [
-          'OPCION A (Gmail SMTP) — en Render: SMTP_USER=tu@gmail.com, SMTP_PASS=App Password de Google (no la pass normal). Atencion: Render free a veces bloquea outbound SMTP. Si da Connection timeout, NO se puede arreglar desde el codigo.',
-          'OPCION B (Resend HTTP) — crear cuenta en resend.com, generar API key, agregar RESEND_API_KEY en Render. No depende de puertos SMTP, funciona siempre.',
-          'Para preferir Gmail sobre Resend si los dos estan configurados: EMAIL_PROVIDER=smtp en Render.',
+          'OPCION A (Brevo HTTP, sin dominio) — crear cuenta en brevo.com, verificar tu Gmail como sender, generar API key. Agregar BREVO_API_KEY + BREVO_SENDER_EMAIL en Render. 300/dia gratis y deja enviar a cualquier cliente.',
+          'OPCION B (Resend HTTP) — solo funciona enviando a tu propio email salvo que verifiques un dominio. Agregar RESEND_API_KEY en Render.',
+          'OPCION C (Gmail SMTP) — SMTP_USER + SMTP_PASS (App Password) en Render. Atencion: Render free bloquea outbound SMTP, da Connection timeout.',
+          'Para preferir un proveedor: EMAIL_PROVIDER=brevo|resend|smtp en Render.',
         ],
+      });
+    }
+
+    // Brevo configurado y preferido = no necesitamos SMTP. Reportar directo.
+    if (order[0] === 'brevo') {
+      const settings = await Settings.findOne({ key: 'main' });
+      const notifTo = settings?.notificationEmail || null;
+      const senderEmail = process.env.BREVO_SENDER_EMAIL;
+      return res.json({
+        ok: !!senderEmail,
+        providerOrder: order,
+        primary: 'brevo',
+        from: senderEmail ? `${process.env.BREVO_SENDER_NAME || 'JD Virtual'} <${senderEmail}>` : '(falta BREVO_SENDER_EMAIL)',
+        notificationEmail: notifTo,
+        message: !senderEmail
+          ? 'Brevo tiene API key pero falta BREVO_SENDER_EMAIL en Render — los emails no van a salir. Agregá la var con el Gmail que verificaste en Brevo.'
+          : notifTo
+            ? `Brevo configurado. Las notificaciones de pedidos llegan a ${notifTo}. Los clientes reciben sus confirmaciones sin problemas.`
+            : 'Brevo configurado pero NO hay notificationEmail en /admin/config — los avisos al admin no llegan.',
       });
     }
 
