@@ -170,7 +170,7 @@ function buildOrderHtml(order) {
         <!-- Header -->
         <tr>
           <td style="background:#B85F72;padding:28px 32px;text-align:center">
-            <img src="${LOGO_URL}" alt="JD Virtual" width="72" height="72" style="display:inline-block;border-radius:50%;border:3px solid rgba(255,255,255,.4);background:#fff">
+            <img src="${LOGO_URL}" alt="JD Virtual" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
             <h1 style="margin:8px 0 0;color:#fff;font-size:26px;font-weight:bold;letter-spacing:1px">
               Nuevo pedido
             </h1>
@@ -359,7 +359,7 @@ function buildConfirmationHtml(order) {
         <!-- Header -->
         <tr>
           <td style="background:#B85F72;padding:32px;text-align:center">
-            <img src="${LOGO_URL}" alt="JD Virtual" width="72" height="72" style="display:inline-block;border-radius:50%;border:3px solid rgba(255,255,255,.4);background:#fff">
+            <img src="${LOGO_URL}" alt="JD Virtual" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
             <h1 style="margin:10px 0 0;color:#fff;font-size:26px;font-weight:bold">¡Tu pedido fue recibido!</h1>
             <p style="margin:10px 0 0;color:#f5d0d8;font-size:20px;font-weight:bold;font-family:monospace">${order.orderNumber}</p>
           </td>
@@ -482,7 +482,7 @@ function buildStatusHtml(order, newStatus) {
 
         <tr>
           <td style="background:#B85F72;padding:32px;text-align:center">
-            <img src="${LOGO_URL}" alt="JD Virtual" width="72" height="72" style="display:inline-block;border-radius:50%;border:3px solid rgba(255,255,255,.4);background:#fff">
+            <img src="${LOGO_URL}" alt="JD Virtual" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
             <p style="margin:12px 0 0;font-size:40px">${msg.emoji}</p>
             <h1 style="margin:8px 0 0;color:#fff;font-size:22px;font-weight:bold">${msg.titulo}</h1>
             <p style="margin:8px 0 0;color:#f5d0d8;font-size:16px;font-family:monospace">${order.orderNumber}</p>
