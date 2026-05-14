@@ -33,11 +33,11 @@ const ShipHomeIcon = () => (
 const SHIPPING  = {
   correos: { label: 'Correos de CR',         sub: '3-5 días hábiles',             price: 2500, Icon: ShipBoxIcon  },
   express: { label: 'Express Puntarenas',    sub: 'Mismo día / día siguiente',    price: 1500, Icon: ShipBoltIcon },
-  pickup:  { label: 'Retiro en El Roble',    sub: 'Gratis · Lun–Sáb 9am–7pm',    price: 0,    Icon: ShipHomeIcon },
+  retiro:  { label: 'Retiro en El Roble',    sub: 'Gratis · Lun–Sáb 9am–7pm',    price: 0,    Icon: ShipHomeIcon },
 };
 const SINPE_NUMBER = '8673-7114';
 const SINPE_NAME   = 'Justin Vargas Quiros';
-const isPickup = (s) => s === 'pickup';
+const isPickup = (s) => s === 'retiro';
 
 /* ── Field icons ── */
 const UserIcon  = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
@@ -511,7 +511,7 @@ export default function Checkout() {
                       <p className="text-xs text-ink-400 mt-0.5">{val.sub}</p>
                     </div>
                     <span className="font-bold text-ink-900 flex-shrink-0 text-sm">
-                      {coupon?.freeShipping && key !== 'pickup'
+                      {coupon?.freeShipping && key !== 'retiro'
                         ? <><span className="text-ink-300 line-through mr-1 font-normal text-xs">{formatCRC(val.price)}</span><span className="text-green-600">Gratis</span></>
                         : val.price === 0 ? <span className="text-green-600">Gratis</span> : formatCRC(val.price)}
                     </span>
