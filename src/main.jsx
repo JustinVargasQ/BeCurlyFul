@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import './index.css'
 import App from './App.jsx'
 
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')).render(
       <HelmetProvider>
         <App />
         <Analytics />
+        <SpeedInsights />
       </HelmetProvider>
     </GoogleOAuthProvider>
   </StrictMode>,
