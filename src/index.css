@@ -79,6 +79,14 @@
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+  /* Barrita fina rose para chips horizontales — visible para que el usuario
+     sepa que la fila scrollea, sin invadir el layout. */
+  .chips-scroll { scrollbar-width: thin; scrollbar-color: #E6BFC8 transparent; }
+  .chips-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
+  .chips-scroll::-webkit-scrollbar-track { background: transparent; }
+  .chips-scroll::-webkit-scrollbar-thumb { background: #E6BFC8; border-radius: 999px; }
+  .chips-scroll::-webkit-scrollbar-thumb:hover { background: #D17D8D; }
+
   .skeleton {
     background: linear-gradient(90deg, #f0ebe8 25%, #faf6f3 50%, #f0ebe8 75%);
     background-size: 200% 100%;

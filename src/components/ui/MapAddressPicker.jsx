@@ -167,76 +167,104 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
     };
   }, [onClose]);
 
+  const charCount = text.trim().length;
+  const isValid = charCount >= 8;
+
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
+      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-ink-900/60 backdrop-blur-md p-0 sm:p-4"
       onClick={onClose}>
       <div
-        className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-md overflow-hidden"
+        className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full sm:max-w-md overflow-hidden"
         onClick={(e) => e.stopPropagation()}>
 
-        {/* Compact header with close button */}
-        <div className="relative px-5 pt-5 pb-3">
+        {/* Header con gradiente sutil rose-gold */}
+        <div
+          className="relative px-6 pt-6 pb-5 border-b border-cream-100"
+          style={{ background: 'linear-gradient(180deg, #FDF7F4 0%, #FFFFFF 100%)' }}>
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-3 right-3 p-1.5 hover:bg-cream-50 rounded-lg transition-colors text-ink-400 hover:text-ink-700">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            aria-label="Cerrar"
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-white border border-cream-200 hover:border-rose-200 transition-colors text-ink-500 hover:text-rose-500">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
 
-          {/* Step indicator */}
-          <div className="flex items-center gap-1.5 mb-3">
-            <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold tracking-wide">PASO 1 DE 2</span>
-            <span className="text-[10px] text-ink-400 font-medium">Dirección + mapa</span>
-          </div>
+          {/* Step pill con gradiente */}
+          <span
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest text-white shadow-sm"
+            style={{ background: 'linear-gradient(135deg,#B85F72,#93485A)' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
+            PASO 1 DE 2
+          </span>
 
-          <h3 className="font-display text-lg font-bold text-ink-900 leading-tight">
-            ¿Dónde te entregamos?
+          <h3 className="font-display text-2xl font-bold text-ink-900 leading-tight mt-3">
+            ¿A dónde lo mandamos?
           </h3>
-          <p className="text-xs text-ink-500 mt-1 leading-relaxed">
-            Escribí tu dirección con señas. En el siguiente paso marcás el punto exacto en el mapa —
-            <strong className="text-ink-700"> guardamos las dos</strong> para que el repartidor te encuentre fácil.
+          <p className="text-[13px] text-ink-500 mt-1.5 leading-relaxed">
+            Contanos cómo llegar con señas claras. En el próximo paso marcás el punto exacto en el mapa.
           </p>
         </div>
 
-        <div className="px-5 pb-5 space-y-4">
-          {/* Address input — clean, single-line that grows */}
+        <div className="px-6 pt-5 pb-6 space-y-5">
+          {/* Textarea con label flotante e icono de ubicacion */}
           <div>
-            <textarea
-              ref={inputRef}
-              value={text}
-              onChange={(e) => { setText(e.target.value); autoSize(e.target); }}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && text.trim()) { e.preventDefault(); onContinue(text); } }}
-              placeholder="Ej: Barrio Los Ángeles, 200m norte del parque, casa verde con portón negro"
-              rows={1}
-              className="w-full border-2 border-cream-200 rounded-xl px-4 py-3 text-sm text-ink-900 placeholder-ink-300 focus:outline-none focus:border-rose-400 transition-all resize-none overflow-hidden leading-relaxed"
-              style={{ height: '44px' }}
-            />
-            <p className="text-[10px] text-ink-400 mt-1.5 flex items-center gap-1">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              Incluí barrio, calle, número de casa, color y señas
-            </p>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-ink-500 mb-2 flex items-center gap-1.5">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="text-rose-500">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              Dirección con señas
+            </label>
+            <div className="relative">
+              <textarea
+                ref={inputRef}
+                value={text}
+                onChange={(e) => { setText(e.target.value); autoSize(e.target); }}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && isValid) { e.preventDefault(); onContinue(text); } }}
+                placeholder="Ej: Barrio Los Ángeles, 200m norte del parque, casa verde con portón negro"
+                rows={3}
+                maxLength={400}
+                className="w-full border-2 border-cream-200 rounded-2xl px-4 py-3 text-sm text-ink-900 placeholder-ink-300 focus:outline-none focus:border-rose-400 focus:ring-4 focus:ring-rose-100 transition-all resize-none overflow-hidden leading-relaxed bg-white"
+                style={{ minHeight: '88px' }}
+              />
+              <span className="absolute bottom-2 right-3 text-[10px] font-medium text-ink-300 select-none">
+                {charCount}/400
+              </span>
+            </div>
+
+            {/* Tips inline */}
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              {['Barrio', 'Calle / Avenida', 'Nº de casa', 'Color', 'Señas cercanas'].map((tip) => (
+                <span key={tip} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 text-[10px] font-semibold border border-rose-100">
+                  {tip}
+                </span>
+              ))}
+            </div>
           </div>
 
-          {/* Two-step flow visual indicator */}
-          <div className="flex items-stretch gap-2 bg-cream-50 rounded-xl p-2.5 border border-cream-200">
-            <div className="flex-1 flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-rose-500 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
+          {/* Two-step flow visual indicator — mas elegante */}
+          <div className="flex items-stretch gap-1 bg-cream-50 rounded-2xl p-2 border border-cream-100">
+            <div className="flex-1 flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-white shadow-sm border border-rose-100">
+              <div
+                className="w-8 h-8 rounded-xl text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm"
+                style={{ background: 'linear-gradient(135deg,#B85F72,#93485A)' }}>
+                1
+              </div>
               <div className="min-w-0">
                 <p className="text-[11px] font-bold text-ink-900 leading-tight">Texto con señas</p>
-                <p className="text-[10px] text-ink-400">Lo que escribís acá</p>
+                <p className="text-[10px] text-ink-400 leading-tight mt-0.5">Lo de aquí arriba</p>
               </div>
             </div>
-            <div className="flex items-center text-ink-300">
+            <div className="flex items-center text-ink-300 px-1">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
-            <div className="flex-1 flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-cream-200 text-ink-500 flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
+            <div className="flex-1 flex items-center gap-2.5 px-2.5 py-2 rounded-xl">
+              <div className="w-8 h-8 rounded-xl bg-cream-200 text-ink-500 flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
               <div className="min-w-0">
-                <p className="text-[11px] font-bold text-ink-700 leading-tight">Mapa exacto</p>
-                <p className="text-[10px] text-ink-400">Punto GPS</p>
+                <p className="text-[11px] font-bold text-ink-700 leading-tight">Punto en el mapa</p>
+                <p className="text-[10px] text-ink-400 leading-tight mt-0.5">GPS exacto</p>
               </div>
             </div>
           </div>
@@ -246,14 +274,17 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl text-ink-500 hover:bg-cream-50 text-sm font-semibold transition-colors">
+              className="px-5 py-3 rounded-2xl text-ink-600 hover:bg-cream-50 text-sm font-semibold transition-colors">
               Cancelar
             </button>
             <button
               type="button"
               onClick={() => onContinue(text)}
-              disabled={!text.trim()}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors shadow-btn">
+              disabled={!isValid}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-white text-sm font-bold transition-all shadow-btn hover:shadow-btn-hover disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              style={isValid
+                ? { background: 'linear-gradient(135deg,#B85F72,#93485A)' }
+                : { background: '#E5C8CF' }}>
               Continuar al mapa
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
@@ -399,138 +430,178 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
+      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-ink-900/60 backdrop-blur-md p-0 sm:p-4"
       onClick={onClose}>
       <div
-        className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl max-h-[95vh] flex flex-col overflow-hidden"
+        className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full sm:max-w-2xl max-h-[95vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}>
 
-        {/* Header */}
-        <div className="flex items-start justify-between px-4 sm:px-5 py-3.5 border-b border-cream-100 gap-3">
-          <div className="min-w-0 flex-1">
-            <h3 className="font-display text-lg font-semibold text-ink-900">Marcá tu ubicación exacta</h3>
-            <p className="text-[11px] text-ink-400">Paso 2 de 2 — tocá el mapa o usá tu GPS</p>
-          </div>
-          <button type="button" onClick={onClose} className="p-2 hover:bg-cream-50 rounded-lg transition-colors flex-shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        {/* Header con paso + titulo */}
+        <div
+          className="relative px-5 sm:px-6 pt-5 pb-4 border-b border-cream-100"
+          style={{ background: 'linear-gradient(180deg, #FDF7F4 0%, #FFFFFF 100%)' }}>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-white border border-cream-200 hover:border-rose-200 transition-colors text-ink-500 hover:text-rose-500">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
+
+          <span
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest text-white shadow-sm"
+            style={{ background: 'linear-gradient(135deg,#B85F72,#93485A)' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
+            PASO 2 DE 2
+          </span>
+          <h3 className="font-display text-xl sm:text-2xl font-bold text-ink-900 leading-tight mt-2.5">
+            Marcá el punto exacto
+          </h3>
+          <p className="text-[13px] text-ink-500 mt-1 leading-relaxed pr-10">
+            Tocá tu casa en el mapa o pediles a tu GPS que te ubique en segundos.
+          </p>
         </div>
 
-        {/* User's typed description — recordatorio */}
-        {userDescription && (
-          <div className="px-4 sm:px-5 pt-3 pb-1">
-            <div className="bg-cream-50 border border-cream-200 rounded-xl px-3 py-2 flex items-start gap-2">
-              <span className="text-ink-400 flex-shrink-0 mt-0.5">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-                </svg>
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-bold text-ink-500 uppercase tracking-widest">Tu descripción</p>
-                <p className="text-xs text-ink-700 leading-snug mt-0.5 break-words">{userDescription}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* GPS button */}
-        <div className="px-4 sm:px-5 pt-3 pb-2">
-          <button
-            type="button"
-            onClick={useMyLocation}
-            disabled={locating || mapLoading}
-            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 disabled:opacity-60"
-            style={{
-              background: locating
-                ? 'linear-gradient(135deg,#6366f1,#4f46e5)'
-                : 'linear-gradient(135deg,#B85F72,#93485A)',
-              color: '#fff',
-              boxShadow: '0 4px 18px rgba(184,95,114,0.35)',
-            }}>
-            {locating ? (
-              <>
-                <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                </svg>
-                Obteniendo tu ubicación...
-              </>
-            ) : (
-              <>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="3"/>
-                  <line x1="12" y1="2" x2="12" y2="5"/>
-                  <line x1="12" y1="19" x2="12" y2="22"/>
-                  <line x1="2" y1="12" x2="5" y2="12"/>
-                  <line x1="19" y1="12" x2="22" y2="12"/>
-                </svg>
-                Localizarme automáticamente
-              </>
-            )}
-          </button>
-
-          {locError && (
-            <div className="mt-2 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
-              <span className="text-amber-500 flex-shrink-0 mt-0.5">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-              </span>
-              <p className="text-xs text-amber-700 leading-relaxed">{locError}</p>
-            </div>
-          )}
-
-          <p className="text-center text-[11px] text-ink-400 mt-2">— o tocá el mapa para marcar tu punto exacto —</p>
-        </div>
-
-        {/* Map */}
-        <div className="relative bg-cream-50" style={{ height: '45vh', minHeight: 320 }}>
-          {mapLoading && (
-            <div className="absolute inset-0 flex items-center justify-center z-10 bg-cream-50">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-7 h-7 border-2 border-rose-300 border-t-rose-500 rounded-full animate-spin" />
-                <p className="text-ink-400 text-sm">Cargando mapa...</p>
-              </div>
-            </div>
-          )}
-          {mapError && (
-            <div className="absolute inset-0 flex items-center justify-center z-10 bg-cream-50 p-6 text-center">
-              <div>
-                <span className="inline-flex w-10 h-10 rounded-full bg-red-50 items-center justify-center text-red-500 mb-2">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+        {/* Scrollable inner content */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Recordatorio de la descripcion */}
+          {userDescription && (
+            <div className="px-5 sm:px-6 pt-4">
+              <div className="rounded-2xl border border-rose-100 bg-rose-50/40 px-3.5 py-2.5 flex items-start gap-2.5">
+                <span className="w-7 h-7 rounded-full bg-white border border-rose-100 flex items-center justify-center text-rose-500 flex-shrink-0">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
                   </svg>
                 </span>
-                <p className="text-red-500 text-sm">{mapError}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Tus señas</p>
+                  <p className="text-xs text-ink-700 leading-snug mt-0.5 break-words">{userDescription}</p>
+                </div>
               </div>
             </div>
           )}
-          <div ref={mapRef} className="w-full h-full" />
-        </div>
 
-        {/* Address preview + actions */}
-        <div className="px-4 sm:px-5 py-3.5 space-y-3 bg-cream-50 border-t border-cream-100">
-          <div>
-            <p className="text-[10px] font-bold text-ink-400 uppercase tracking-widest mb-1">Ubicación marcada en el mapa</p>
-            <p className="text-sm text-ink-800 leading-snug min-h-[2.5em]">
-              {geocoding
-                ? <span className="text-ink-300 italic">Obteniendo dirección...</span>
-                : hasMarked && address
-                  ? <span className="inline-flex items-start gap-1.5">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-rose-500 mt-0.5 flex-shrink-0">
+          {/* GPS hero button */}
+          <div className="px-5 sm:px-6 pt-4">
+            <button
+              type="button"
+              onClick={useMyLocation}
+              disabled={locating || mapLoading}
+              className="relative w-full overflow-hidden flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-sm transition-all duration-300 disabled:opacity-60 group"
+              style={{
+                background: locating
+                  ? 'linear-gradient(135deg,#6366f1,#4f46e5)'
+                  : 'linear-gradient(135deg,#B85F72,#D17D8D 60%,#C9A875)',
+                color: '#fff',
+                boxShadow: '0 6px 22px rgba(184,95,114,0.32)',
+              }}>
+              {/* Shimmer al hover */}
+              {!locating && (
+                <span aria-hidden className="absolute inset-y-0 -left-1/2 w-1/2 bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-[300%]" />
+              )}
+              {locating ? (
+                <>
+                  <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                  </svg>
+                  Buscando tu ubicación…
+                </>
+              ) : (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <line x1="12" y1="2" x2="12" y2="5"/>
+                    <line x1="12" y1="19" x2="12" y2="22"/>
+                    <line x1="2" y1="12" x2="5" y2="12"/>
+                    <line x1="19" y1="12" x2="22" y2="12"/>
+                  </svg>
+                  Usar mi ubicación actual
+                </>
+              )}
+            </button>
+
+            {locError && (
+              <div className="mt-2 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+                <span className="text-amber-500 flex-shrink-0 mt-0.5">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                </span>
+                <p className="text-xs text-amber-700 leading-relaxed">{locError}</p>
+              </div>
+            )}
+
+            {/* Divisor "o" */}
+            <div className="flex items-center gap-3 mt-3 mb-3">
+              <span className="flex-1 h-px bg-cream-200" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-ink-400">o tocá el mapa</span>
+              <span className="flex-1 h-px bg-cream-200" />
+            </div>
+          </div>
+
+          {/* Map */}
+          <div className="px-5 sm:px-6 pb-4">
+            <div className="relative rounded-2xl overflow-hidden border border-cream-200 shadow-sm bg-cream-50" style={{ height: '42vh', minHeight: 280 }}>
+              {mapLoading && (
+                <div className="absolute inset-0 flex items-center justify-center z-10 bg-cream-50">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-7 h-7 border-2 border-rose-300 border-t-rose-500 rounded-full animate-spin" />
+                    <p className="text-ink-400 text-sm">Cargando mapa…</p>
+                  </div>
+                </div>
+              )}
+              {mapError && (
+                <div className="absolute inset-0 flex items-center justify-center z-10 bg-cream-50 p-6 text-center">
+                  <div>
+                    <span className="inline-flex w-10 h-10 rounded-full bg-red-50 items-center justify-center text-red-500 mb-2">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                       </svg>
-                      <span>{address}</span>
                     </span>
-                  : <span className="text-ink-300 italic">Usá el GPS o tocá el mapa para marcar tu ubicación exacta</span>
-              }
-            </p>
+                    <p className="text-red-500 text-sm">{mapError}</p>
+                  </div>
+                </div>
+              )}
+              <div ref={mapRef} className="w-full h-full" />
+
+              {/* Hint flotante cuando aun no se marca nada */}
+              {!hasMarked && !mapLoading && !mapError && (
+                <div className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-sm border border-cream-200 shadow-md text-[11px] font-semibold text-ink-700 flex items-center gap-1.5 animate-pulse">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="text-rose-500">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  Tocá donde quedás
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer fijo: preview + actions */}
+        <div className="px-5 sm:px-6 py-4 bg-white border-t border-cream-100 space-y-3">
+          <div className="rounded-2xl bg-cream-50 border border-cream-100 px-3.5 py-2.5">
+            <p className="text-[10px] font-bold text-ink-500 uppercase tracking-widest mb-0.5">Punto marcado</p>
+            <div className="text-sm text-ink-800 leading-snug min-h-[2.2em]">
+              {geocoding ? (
+                <span className="text-ink-400 italic">Buscando dirección…</span>
+              ) : hasMarked && address ? (
+                <span className="inline-flex items-start gap-1.5">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-rose-500 mt-0.5 flex-shrink-0">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <span>{address}</span>
+                </span>
+              ) : (
+                <span className="text-ink-400 italic">Sin marcar todavía — usá el GPS o tocá el mapa</span>
+              )}
+            </div>
             {hasMarked && userDescription && (
-              <p className="text-[10px] text-green-700 mt-1.5 font-medium">
-                ✓ Se guardarán las dos: tu descripción + esta ubicación del mapa
+              <p className="text-[10px] text-emerald-700 mt-1.5 font-semibold flex items-center gap-1">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Guardamos las dos: tus señas + el punto GPS
               </p>
             )}
           </div>
@@ -539,14 +610,17 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-xl border border-cream-200 text-ink-700 hover:bg-white text-sm font-semibold transition-colors">
+              className="px-5 py-3 rounded-2xl border border-cream-200 text-ink-700 hover:bg-cream-50 text-sm font-semibold transition-colors">
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleConfirm}
               disabled={mapLoading || !!mapError || !hasMarked || geocoding}
-              className="flex-[2] px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors shadow-btn">
+              className="flex-1 px-4 py-3 rounded-2xl text-white text-sm font-bold transition-all shadow-btn hover:shadow-btn-hover disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              style={{ background: (mapLoading || !!mapError || !hasMarked || geocoding)
+                ? '#E5C8CF'
+                : 'linear-gradient(135deg,#B85F72,#93485A)' }}>
               Confirmar ubicación
             </button>
           </div>

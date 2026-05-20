@@ -1316,7 +1316,13 @@ const CATEGORY_CHIPS = [
 
 function CategoryChips({ cat, onCat }) {
   return (
-    <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
+    // overflow-x-auto + touch-pan-x para asegurar el swipe horizontal en mobile
+    // (sin touch-pan-x, algunos browsers atrapan el gesto como scroll vertical).
+    // snap-x da feedback de "pegado" al deslizar y scrollbar-thin lo hace
+    // visible en desktop sin invadir mobile.
+    <div
+      className="flex gap-2.5 overflow-x-auto overflow-y-hidden pb-2 -mx-4 sm:-mx-1 px-4 sm:px-1 snap-x snap-mandatory chips-scroll"
+      style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', scrollbarGutter: 'stable' }}>
       {CATEGORY_CHIPS.map((s, i) => {
         const isActive = cat === s.cat;
         return (
@@ -1331,7 +1337,7 @@ function CategoryChips({ cat, onCat }) {
               ease: [0.16, 1, 0.3, 1],
             }}
             whileTap={{ scale: 0.96 }}
-            className={`group relative overflow-hidden h-9 sm:h-12 flex items-center gap-2 sm:gap-2.5 pr-3 sm:pr-5 rounded-xl sm:rounded-2xl border whitespace-nowrap flex-shrink-0 text-[11px] sm:text-sm font-semibold transition-[background,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 ${
+            className={`group relative overflow-hidden h-9 sm:h-12 flex items-center gap-2 sm:gap-2.5 pr-3 sm:pr-5 rounded-xl sm:rounded-2xl border whitespace-nowrap flex-shrink-0 snap-start text-[11px] sm:text-sm font-semibold transition-[background,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 ${
               isActive
                 ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-300/40'
                 : 'bg-white text-ink-700 border-cream-200 hover:border-rose-300 hover:text-rose-500 shadow-sm hover:shadow-md'
