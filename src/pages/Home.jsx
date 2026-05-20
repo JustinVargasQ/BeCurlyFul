@@ -1331,7 +1331,7 @@ function CategoryChips({ cat, onCat }) {
               ease: [0.16, 1, 0.3, 1],
             }}
             whileTap={{ scale: 0.96 }}
-            className={`group relative overflow-hidden h-11 sm:h-12 flex items-center gap-2.5 pr-4 sm:pr-5 rounded-2xl border whitespace-nowrap flex-shrink-0 text-xs sm:text-sm font-semibold transition-[background,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 ${
+            className={`group relative overflow-hidden h-9 sm:h-12 flex items-center gap-2 sm:gap-2.5 pr-3 sm:pr-5 rounded-xl sm:rounded-2xl border whitespace-nowrap flex-shrink-0 text-[11px] sm:text-sm font-semibold transition-[background,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 ${
               isActive
                 ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-300/40'
                 : 'bg-white text-ink-700 border-cream-200 hover:border-rose-300 hover:text-rose-500 shadow-sm hover:shadow-md'
