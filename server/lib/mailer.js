@@ -140,6 +140,23 @@ async function verifySmtp() {
 
 const fmt = (n) => `₡${Number(n || 0).toLocaleString('es-CR')}`;
 
+/* Render del bloque de variantes (Tono: Rosado · Color: Medio) bajo el nombre
+ * del producto en el email. Acepta objeto plano, Map de Mongoose, o nada. */
+function variantsText(v) {
+  if (!v) return '';
+  let entries = [];
+  if (typeof v?.entries === 'function') entries = Array.from(v.entries());
+  else if (typeof v === 'object') entries = Object.entries(v);
+  entries = entries.filter(([k, val]) => k && val);
+  if (!entries.length) return '';
+  return entries.map(([k, val]) => `${k}: ${val}`).join(' · ');
+}
+function variantsHtml(v) {
+  const text = variantsText(v);
+  if (!text) return '';
+  return `<div style="margin-top:2px;font-size:12px;color:#B85F72;font-weight:600">${text}</div>`;
+}
+
 /* Logo que aparece en el header de los emails. Override con EMAIL_LOGO_URL
  * en env si querés cambiarlo sin redeploy. Idealmente JPG/PNG cuadrado,
  * URL publica (Cloudinary, S3, etc). */
@@ -148,7 +165,7 @@ const LOGO_URL = process.env.EMAIL_LOGO_URL || 'https://res.cloudinary.com/dp82r
 function buildOrderHtml(order) {
   const rows = (order.items || []).map((i) => `
     <tr>
-      <td style="padding:10px 14px;border-bottom:1px solid #f5eded;font-size:14px;color:#333">${i.name}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f5eded;font-size:14px;color:#333">${i.name}${variantsHtml(i.selectedVariants)}</td>
       <td style="padding:10px 14px;border-bottom:1px solid #f5eded;text-align:center;font-size:14px;color:#555">${i.qty}</td>
       <td style="padding:10px 14px;border-bottom:1px solid #f5eded;text-align:right;font-size:14px;font-weight:600;color:#333">${fmt(i.price * i.qty)}</td>
     </tr>
@@ -339,7 +356,7 @@ async function sendOrderNotification(order, toEmail) {
 function buildConfirmationHtml(order) {
   const rows = (order.items || []).map((i) => `
     <tr>
-      <td style="padding:10px 14px;border-bottom:1px solid #f5eded;font-size:14px;color:#333">${i.name}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f5eded;font-size:14px;color:#333">${i.name}${variantsHtml(i.selectedVariants)}</td>
       <td style="padding:10px 14px;border-bottom:1px solid #f5eded;text-align:center;font-size:14px;color:#555">${i.qty}</td>
       <td style="padding:10px 14px;border-bottom:1px solid #f5eded;text-align:right;font-size:14px;font-weight:600;color:#333">${fmt(i.price * i.qty)}</td>
     </tr>

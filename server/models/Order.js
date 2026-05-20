@@ -8,6 +8,11 @@ const orderItemSchema = new Schema(
     price:     Number,
     qty:       Number,
     image:     String,
+    // Variantes elegidas por el cliente (Tono, Color, Tamano, etc.). Se guarda
+    // como mapa { Tono: 'Rosado' } para que admin/emails/Mis pedidos puedan
+    // mostrar la opcion exacta pedida. Mongoose strip-ea fields desconocidos
+    // por default, asi que tiene que estar declarado explicitamente.
+    selectedVariants: { type: Map, of: String, default: undefined },
   },
   { _id: false }
 );

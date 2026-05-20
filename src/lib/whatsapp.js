@@ -1,9 +1,17 @@
 import { formatCRC } from './currency';
 import { WHATSAPP_NUMBER } from '../data/products';
 
+function variantSummary(v) {
+  if (!v || typeof v !== 'object') return '';
+  const parts = Object.entries(v)
+    .filter(([k, val]) => k && val)
+    .map(([k, val]) => `${k}: ${val}`);
+  return parts.length ? ` (${parts.join(' · ')})` : '';
+}
+
 export function buildWhatsAppMessage(items, customer = null, orderNumber = null) {
   const lines = items.map(
-    (i) => `  • ${i.name} × ${i.qty}  —  ${formatCRC(i.price * i.qty)}`
+    (i) => `  • ${i.name}${variantSummary(i.selectedVariants)} × ${i.qty}  —  ${formatCRC(i.price * i.qty)}`
   );
   const subtotal     = items.reduce((s, i) => s + i.price * i.qty, 0);
   const shippingCost = Number(customer?.shippingCost) || 0;

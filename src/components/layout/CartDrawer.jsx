@@ -256,6 +256,11 @@ export default function CartDrawer() {
                           <div>
                             <p className="text-sm font-semibold text-ink-900 leading-snug line-clamp-2 mb-0.5">{item.name}</p>
                             <p className="text-[11px] text-ink-400">{item.brand || 'JD Virtual'}</p>
+                            {item.selectedVariants && Object.keys(item.selectedVariants).length > 0 && (
+                              <p className="text-[11px] text-rose-600 font-semibold mt-0.5 truncate">
+                                {Object.entries(item.selectedVariants).map(([k, v]) => `${k}: ${v}`).join(' · ')}
+                              </p>
+                            )}
                           </div>
                           <div className="flex items-center justify-between mt-2">
                             {/* Qty */}

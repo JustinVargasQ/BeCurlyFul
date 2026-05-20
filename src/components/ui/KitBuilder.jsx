@@ -556,11 +556,14 @@ function KitProductModal({ product, subKey, subLabel, isSelected, onClose, onCon
         onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-3xl max-h-[92dvh] overflow-hidden shadow-modal flex flex-col sm:grid sm:grid-cols-2">
 
-        {/* Imagen — top en mobile, izquierda en desktop */}
-        <div className="relative bg-cream-50 aspect-square sm:aspect-auto sm:h-full">
+        {/* Imagen — top en mobile, izquierda en desktop.
+            Mobile: altura limitada (38dvh) para que el contenido y el CTA
+            queden visibles sin scroll forzado, y object-contain para que las
+            fotos verticales (botellas, perfumes) no queden cortadas. */}
+        <div className="relative bg-cream-50 h-[38dvh] sm:h-full sm:aspect-auto flex-shrink-0">
           {currentImg ? (
             <img src={optimizedImage(currentImg, 800)} alt={product.name}
-              className="w-full h-full object-cover" decoding="async" />
+              className="w-full h-full object-contain sm:object-cover" decoding="async" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-ink-200">
               <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
@@ -840,12 +843,15 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
         </div>
       </aside>
 
-      {/* Mobile bottom sheet — siempre visible cuando hay picks */}
+      {/* Mobile bottom sheet — siempre visible cuando hay picks.
+          right-20 (en vez de right-3) deja un hueco a la derecha para que el
+          boton flotante de la asesora IA (fixed right-5, bottom-6, ~56px de
+          ancho) no quede encima del CTA "Ver". */}
       <motion.div
         initial={false}
         animate={count > 0 ? { y: 0, opacity: 1 } : { y: 20, opacity: 0, pointerEvents: 'none' }}
         transition={{ type: 'spring', damping: 22, stiffness: 240 }}
-        className="lg:hidden fixed bottom-3 left-3 right-3 z-40">
+        className="lg:hidden fixed bottom-3 left-3 right-20 z-40">
         <div className="bg-white rounded-2xl border border-cream-200 shadow-modal p-3.5">
           <div className="flex items-center justify-between mb-2">
             <div>

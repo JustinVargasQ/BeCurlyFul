@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useCart from '../../hooks/useCart';
 import useWishlist from '../../hooks/useWishlist';
@@ -32,20 +32,39 @@ const MenuIcon    = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="
 const CloseIcon   = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>;
 const WaIcon      = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>;
 
-/* ── Category link — scrolls + fires event when already on Home ── */
+/* ── Category link — navigates + scrolls to catalog ── */
 function NavCatLink({ cat, onNavigate, mobile }) {
   const navigate  = useNavigate();
-  const location  = useLocation();
-  const isHome    = location.pathname === '/';
-  const catKey    = cat.path.includes('cat=') ? cat.path.split('cat=')[1] : 'todos';
 
   const handleClick = (e) => {
     e.preventDefault();
     onNavigate?.();
-    if (isHome) {
-      window.dispatchEvent(new CustomEvent('jd:selectcat', { detail: catKey }));
-    } else {
-      navigate(cat.path);
+    navigate(cat.path);
+    // Si el destino es la home (con o sin filtro), scrollear al catalogo
+    // despues del navigate. Antes verificabamos isHome ANTES de navegar, lo
+    // cual fallaba al venir de otra ruta (/producto/X): isHome era false y
+    // el scroll nunca corria, dejando al usuario arriba en el hero sin ver
+    // los productos filtrados.
+    const goesToHome = cat.path === '/' || cat.path.startsWith('/?');
+    if (goesToHome) {
+      // Scroll robusto al catalogo. Problema sutil: el navbar es sticky y se
+      // contrae al hacer scroll (Dynamic Island), lo cual cambia la altura
+      // del documento durante el scroll smooth y deja el destino mal alineado.
+      // Solucion: usar rAF anidados para esperar al render post-navigate, y
+      // calcular la posicion final manualmente con la altura del navbar
+      // contraido (74px isla + ~22px margen) ya considerada.
+      const scrollToCatalog = () => {
+        const el = document.getElementById('tienda');
+        if (!el) return;
+        // Si estamos arriba (<60px), el navbar va a contraerse ~50px durante
+        // el scroll y la pagina "sube" esos 50px. Compensamos sumando ese
+        // delta al offset para que el destino termine en el lugar correcto.
+        const isNavExpanded = window.scrollY < 60;
+        const offset = isNavExpanded ? 146 : 96;
+        const targetY = el.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+      };
+      setTimeout(() => requestAnimationFrame(scrollToCatalog), 220);
     }
   };
 
@@ -54,6 +73,15 @@ function NavCatLink({ cat, onNavigate, mobile }) {
       <button onClick={handleClick}
         className="w-full flex items-center px-4 py-3 rounded-xl text-ink-800 font-medium hover:bg-rose-50 hover:text-rose-500 transition-colors">
         {cat.label}
+      </button>
+    );
+  }
+
+  if (cat.highlight) {
+    return (
+      <button onClick={handleClick}
+        className="px-4 py-1.5 text-sm font-bold text-white bg-rose-500 hover:bg-rose-600 rounded-full transition-all duration-200 whitespace-nowrap shadow-sm">
+        🔥 {cat.label}
       </button>
     );
   }
@@ -73,6 +101,10 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  // Dynamic Island: expandida por default (categorias visibles para que el
+  // usuario las descubra al entrar) y se contrae al scrollear hacia abajo.
+  // Al volver arriba se re-expande sola. En mobile no aplica (sigue el drawer).
+  const [expanded, setExpanded] = useState(true);
   const [query, setQuery]       = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSugg, setShowSugg] = useState(false);
@@ -89,9 +121,15 @@ export default function Navbar() {
     return () => clearInterval(t);
   }, [annPaused]);
 
-  // Scroll shadow
+  // Scroll: maneja la sombra y la expansion de la Dynamic Island.
+  // Threshold de 60px para colapsar (suficiente para no contraer por scroll
+  // mínimo del touchpad). Se re-expande automáticamente al volver arriba.
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 10);
+    const fn = () => {
+      const y = window.scrollY;
+      setScrolled(y > 10);
+      setExpanded(y < 60);
+    };
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
   }, []);
@@ -190,17 +228,19 @@ export default function Navbar() {
         </AnimatePresence>
       </div>
 
-      {/* ── Main nav — floating island ── */}
+      {/* ── Main nav — Dynamic Island floating ── */}
       <div className="sticky top-3 z-50 px-4 sm:px-6">
         <header
-          className={`max-w-7xl mx-auto rounded-full transition-all duration-300 ${
+          className={`max-w-7xl mx-auto transition-all duration-300 ease-out ${
+            expanded ? 'rounded-[28px]' : 'rounded-full'
+          } ${
             scrolled
               ? 'bg-white/80 backdrop-blur-xl shadow-modal border border-white/60'
               : 'bg-white/55 backdrop-blur-lg border border-white/60 shadow-card'
           }`}
           style={{ WebkitBackdropFilter: 'blur(18px) saturate(180%)' }}>
 
-          {/* Top row — logo + search + icons */}
+          {/* Top row — logo + search (prominente) + icons */}
           <div className="px-5 sm:px-7 h-[62px] flex items-center gap-4">
 
             {/* Mobile menu btn */}
@@ -210,27 +250,20 @@ export default function Navbar() {
             </button>
 
             {/* Logo */}
-            <Link to="/" className="flex-shrink-0 font-display text-xl font-bold text-ink-900 tracking-tight mr-4">
+            <Link to="/" className="flex-shrink-0 font-display text-xl font-bold text-ink-900 tracking-tight">
               JD <span className="text-rose-500">Virtual</span>
             </Link>
 
-            {/* Category links — desktop (centered) */}
-            <nav className="hidden lg:flex items-center gap-1 flex-1">
-              {CATEGORIES.map((c) => (
-                <NavCatLink key={c.label} cat={c} />
-              ))}
-            </nav>
-
-            {/* Search bar — desktop */}
-            <div ref={desktopRef} className="hidden md:block relative w-52 lg:w-60">
-              <form onSubmit={handleSearch} className="flex items-center bg-white/70 border border-cream-200 rounded-full px-3 py-1.5 gap-2 hover:border-rose-300 focus-within:border-rose-400 transition-colors">
+            {/* Search bar — desktop (ocupa el centro) */}
+            <div ref={desktopRef} className="hidden md:block relative flex-1 max-w-xl mx-auto">
+              <form onSubmit={handleSearch} className="flex items-center bg-white/70 border border-cream-200 rounded-full px-4 py-2 gap-2.5 hover:border-rose-300 focus-within:border-rose-400 focus-within:bg-white transition-colors">
                 <SearchIcon />
                 <input
                   ref={searchRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onFocus={() => suggestions.length > 0 && setShowSugg(true)}
-                  placeholder="Buscar..."
+                  placeholder="Buscar productos, marcas..."
                   className="flex-1 bg-transparent text-sm text-ink-900 placeholder-ink-400 outline-none w-0"
                 />
                 {query && (
@@ -323,6 +356,25 @@ export default function Navbar() {
               </button>
             </div>
           </div>
+
+          {/* Expandable category panel — Dynamic Island effect, solo desktop */}
+          <AnimatePresence initial={false}>
+            {expanded && (
+              <motion.div
+                key="categories"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                className="hidden lg:block overflow-hidden">
+                <nav className="px-5 sm:px-7 pb-3 pt-1 flex items-center justify-center gap-1 flex-wrap">
+                  {CATEGORIES.map((c) => (
+                    <NavCatLink key={c.label} cat={c} />
+                  ))}
+                </nav>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </header>
       </div>
 

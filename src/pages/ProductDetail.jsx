@@ -331,8 +331,19 @@ export default function ProductDetail() {
   const relatedProducts = related.filter((p) => p.slug !== slug).slice(0, 6);
   const deliveryRange = getDeliveryRange();
 
+  // Si el producto tiene variantes (Tono/Color/etc.), exigir que esten
+  // todas elegidas antes de agregar al carrito — si no, la orden se manda
+  // sin la opcion y queda como 'producto normal' en admin/emails.
+  const requiredVariants = Array.isArray(product.variants) ? product.variants : [];
+  const missingVariant = requiredVariants.find((v) => !selectedVariants[v.name]);
+
+  const productWithVariants = requiredVariants.length > 0 && Object.keys(selectedVariants).length > 0
+    ? { ...product, selectedVariants }
+    : product;
+
   const handleAdd = () => {
-    addItem(product, qty);
+    if (missingVariant) return;
+    addItem(productWithVariants, qty);
     setAdded(true);
     openCart();
     setTimeout(() => setAdded(false), 2000);
@@ -340,7 +351,8 @@ export default function ProductDetail() {
 
   /* Pedir ahora: agrega al carrito y va al formulario (registra el pedido) */
   const handleBuyNow = () => {
-    addItem(product, qty);
+    if (missingVariant) return;
+    addItem(productWithVariants, qty);
     navigate('/checkout');
   };
 
@@ -579,9 +591,20 @@ export default function ProductDetail() {
               </div>
             </div>
 
+            {missingVariant && (
+              <p className="text-[12px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3 flex items-center gap-1.5">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Elegí un {missingVariant.name.toLowerCase()} antes de agregar al carrito
+              </p>
+            )}
             <div className="flex gap-3 mb-6">
               <button onClick={handleAdd}
-                className={`flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ${added ? 'bg-emerald-500 text-white scale-[0.98]' : 'bg-rose-500 hover:bg-rose-600 active:scale-[0.98] text-white shadow-btn'}`}>
+                disabled={!!missingVariant}
+                className={`flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${added ? 'bg-emerald-500 text-white scale-[0.98]' : 'bg-rose-500 hover:bg-rose-600 active:scale-[0.98] text-white shadow-btn'}`}>
                 {added ? '✓ Agregado al carrito' : 'Añadir a la cesta'}
               </button>
               <motion.button
@@ -604,7 +627,8 @@ export default function ProductDetail() {
             </div>
             <div className="flex gap-3 mb-3">
               <button onClick={handleBuyNow}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1db954] active:scale-[0.98] text-white font-semibold text-sm py-3.5 rounded-xl transition-all duration-200">
+                disabled={!!missingVariant}
+                className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1db954] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm py-3.5 rounded-xl transition-all duration-200">
                 <WaIcon /> Pedir por WhatsApp
               </button>
             </div>
@@ -701,12 +725,12 @@ export default function ProductDetail() {
             <div className="flex gap-2.5 max-w-md mx-auto">
               <button
                 onClick={handleAdd}
-                disabled={product.stock === 0}
-                className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${
+                disabled={product.stock === 0 || !!missingVariant}
+                className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
                   product.stock === 0 ? 'bg-cream-200 text-ink-400' :
                   added ? 'bg-green-500 text-white' : 'bg-rose-500 hover:bg-rose-600 text-white shadow-btn'
                 }`}>
-                {added ? '✓ Agregado' : product.stock === 0 ? 'Agotado' : 'Añadir al carrito'}
+                {added ? '✓ Agregado' : product.stock === 0 ? 'Agotado' : missingVariant ? `Elegí ${missingVariant.name.toLowerCase()}` : 'Añadir al carrito'}
               </button>
               <button onClick={handleBuyNow}
                 className="flex-1 flex items-center justify-center gap-1.5 bg-[#25D366] hover:bg-[#1db954] text-white font-bold py-3.5 rounded-xl text-sm transition-colors shadow-lg">

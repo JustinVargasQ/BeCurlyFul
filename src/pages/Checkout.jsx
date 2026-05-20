@@ -301,7 +301,11 @@ export default function Checkout() {
             lat: form.lat || null, lng: form.lng || null,
           },
           items: items.map((i) => ({
-            productId: i.id,
+            // productId = id REAL del producto. `i.id` ahora incluye el sufijo
+            // de variante (Tono=Rosado), asi que ya no sirve como productId
+            // para el backend. Usar i.productId si esta (cartStore lo guarda
+            // a partir de v2); fallback a otros campos para items legacy.
+            productId: i.productId || i._id || (typeof i.id === 'string' && i.id.includes('::') ? i.id.split('::')[0] : i.id),
             name: i.name,
             brand: i.brand || '',
             price: i.price,
@@ -310,6 +314,9 @@ export default function Checkout() {
             // API; el legacy `img` solo existe en data hardcoded. Cubrimos
             // ambos para que la orden quede con la imagen real.
             image: i.images?.[0] || i.img || '',
+            // Variantes elegidas (Tono, Color, etc.) — el backend las guarda
+            // en orderItem.selectedVariants y se renderizan en admin/email.
+            selectedVariants: i.selectedVariants || undefined,
           })),
           subtotal: total, shippingCost, shippingMethod: shipping,
           coupon: coupon ? { code: coupon.code, discount, freeShipping: coupon.freeShipping } : null,
@@ -541,6 +548,11 @@ export default function Checkout() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-ink-900 truncate">{i.name}</p>
+                        {i.selectedVariants && Object.keys(i.selectedVariants).length > 0 && (
+                          <p className="text-[10px] text-rose-600 font-semibold truncate">
+                            {Object.entries(i.selectedVariants).map(([k, v]) => `${k}: ${v}`).join(' · ')}
+                          </p>
+                        )}
                         <p className="text-[11px] text-ink-400">× {i.qty}</p>
                       </div>
                       <p className="text-sm font-bold text-ink-900 flex-shrink-0">{formatCRC(i.price * i.qty)}</p>

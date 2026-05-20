@@ -395,6 +395,11 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onSearchPh
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-ink-900 text-sm truncate">{item.name}</p>
                     <p className="text-xs text-ink-400">{item.brand} · {formatCRC(item.price)} c/u</p>
+                    {item.selectedVariants && Object.keys(item.selectedVariants).length > 0 && (
+                      <p className="text-[11px] text-rose-600 font-semibold mt-0.5 truncate">
+                        {Object.entries(item.selectedVariants).map(([k, v]) => `${k}: ${v}`).join(' · ')}
+                      </p>
+                    )}
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="font-bold text-ink-900 text-sm whitespace-nowrap">{formatCRC(item.price * item.qty)}</p>

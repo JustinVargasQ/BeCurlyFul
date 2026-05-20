@@ -3,7 +3,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate, useInView } from 'framer-motion';
 import ProductCard from '../components/ui/ProductCard';
 import FilterBar from '../components/ui/FilterBar';
-import { useProducts, useFeatured, useCategoryPreviews } from '../hooks/useProducts';
+import { useProducts, useFeatured } from '../hooks/useProducts';
 import useGoogleReviews from '../hooks/useGoogleReviews';
 import SEO from '../components/ui/SEO';
 import api, { assetUrl } from '../lib/api';
@@ -47,43 +47,11 @@ const SLIDE_CONFIG = [
   },
 ];
 
-/* ─── Quick categories for hero grid (different photos than CategoryRow) ─── */
-const HERO_CATEGORIES = [
-  {
-    label: 'Maquillaje', cat: 'maquillaje',
-    img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=85&auto=format&fit=crop',
-    fallback: '/imgs/makeup.jpg', objectPosition: 'center 40%',
-  },
-  {
-    label: 'Skincare', cat: 'skincare',
-    img: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&q=85&auto=format&fit=crop',
-    fallback: '/imgs/Skincare.jpeg', objectPosition: 'center 50%',
-  },
-  {
-    label: 'Cabello', cat: 'cabello',
-    img: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800&q=85&auto=format&fit=crop',
-    fallback: '/imgs/Cabello.jpeg', objectPosition: 'center 40%',
-  },
-  {
-    label: 'Perfumes', cat: 'perfumes',
-    img: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=85&auto=format&fit=crop',
-    fallback: '/imgs/Perfume.jpeg', objectPosition: 'center 50%',
-  },
-];
-
 const ChevronIcon = ({ dir }) => (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     {dir === 'left' ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
   </svg>
 );
-
-const CATEGORIES = [
-  { label: 'Skin care',  cat: 'skincare',   img: '/imgs/Skincare.jpeg'   },
-  { label: 'Maquillaje', cat: 'maquillaje', img: '/imgs/Maquillaje.jpeg' },
-  { label: 'Accesorios', cat: 'accesorios', img: '/imgs/Accesorios.jpeg' },
-  { label: 'Perfumes',   cat: 'perfumes',   img: '/imgs/Perfume.jpeg'    },
-  { label: 'Cabello',    cat: 'cabello',    img: '/imgs/Cabello.jpeg'    },
-];
 
 const TrustTruckIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -394,11 +362,11 @@ function HeroGridLayout({ onCatSelect }) {
   return (
     <section className="relative bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-2">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+        <div>
 
-          {/* ─── BIG FEATURED CARD (left) — slide carousel ─── */}
+          {/* ─── BIG FEATURED CARD — slide carousel (full width, sin las 4 cards de categorias que duplicaban el navbar) ─── */}
           <div className="relative rounded-3xl overflow-hidden bg-cream-100 group"
-            style={{ minHeight: '440px', aspectRatio: '1/1.05' }}
+            style={{ minHeight: '440px', aspectRatio: '21/9' }}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}>
 
@@ -471,43 +439,6 @@ function HeroGridLayout({ onCatSelect }) {
             </div>
           </div>
 
-          {/* ─── 4 CATEGORY CARDS (right) — 2x2 grid ─── */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            {HERO_CATEGORIES.map((c, i) => (
-              <motion.button
-                key={c.cat}
-                onClick={() => onCatSelect(c.cat)}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.06, duration: 0.5, ease: [0.3, 1, 0.3, 1] }}
-                whileHover={{ y: -4 }}
-                whileTap={{ scale: 0.98 }}
-                className="relative rounded-3xl overflow-hidden bg-cream-100 group text-left"
-                style={{ aspectRatio: '1/1', minHeight: '180px' }}>
-
-                {/* Image — protagonist */}
-                <img
-                  src={c.img}
-                  onError={(e) => { if (c.fallback && e.target.src !== window.location.origin + c.fallback) e.target.src = c.fallback; }}
-                  alt={c.label}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  style={{ objectPosition: c.objectPosition || 'center', filter: 'saturate(1.08) contrast(1.04)' }}
-                />
-
-                {/* Subtle bottom gradient ONLY for text legibility */}
-                <div className="absolute inset-x-0 bottom-0 h-3/5 pointer-events-none"
-                  style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.7) 0%, rgba(15,9,11,0.2) 50%, transparent 100%)' }} />
-
-                {/* Label only — clean white text with strong shadow */}
-                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 lg:p-6 text-white">
-                  <p className="font-display font-bold text-xl sm:text-2xl lg:text-3xl leading-tight"
-                    style={{ textShadow: '0 2px 16px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.4)' }}>
-                    {c.label}
-                  </p>
-                </div>
-              </motion.button>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -1152,82 +1083,6 @@ function StatsStrip() {
   );
 }
 
-/* ─── Category cards — premium grid ─── */
-function CategoryRow({ onCatSelect }) {
-  return (
-    <section className="py-16 sm:py-24 bg-cream-50 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-          className="text-center mb-10 sm:mb-14"
-        >
-          <span className="section-label">Categorías</span>
-          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-ink-900 leading-tight">
-            ¿Qué buscás hoy?
-          </h2>
-          <div className="h-px w-10 mx-auto mt-3 rounded-full"
-            style={{ background: 'linear-gradient(90deg, #C9A875, #B85F72)' }} />
-        </motion.div>
-
-        {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-          {CATEGORIES.map((c, i) => (
-            <motion.button
-              key={c.cat}
-              onClick={() => onCatSelect(c.cat)}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ delay: i * 0.07, duration: 0.55, ease: [0.25, 1, 0.25, 1] }}
-              className="group relative overflow-hidden rounded-2xl cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2 text-left"
-              style={{ aspectRatio: '3/4' }}
-            >
-              {/* Image */}
-              <img
-                src={c.img}
-                alt={c.label}
-                className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
-                loading="lazy"
-              />
-
-              {/* Base dark gradient */}
-              <div className="absolute inset-0 transition-opacity duration-500"
-                style={{ background: 'linear-gradient(to top, rgba(12,8,10,0.9) 0%, rgba(12,8,10,0.18) 55%, rgba(12,8,10,0.04) 100%)' }}
-              />
-
-              {/* Hover rose overlay */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400"
-                style={{ background: 'linear-gradient(to top, rgba(184,95,114,0.58) 0%, rgba(12,8,10,0.28) 65%, transparent 100%)' }}
-              />
-
-              {/* Top accent line — slides in on hover */}
-              <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"
-                style={{ background: 'linear-gradient(90deg, #C9A875, #B85F72)' }}
-              />
-
-              {/* Label panel */}
-              <div className="absolute inset-x-0 bottom-0 p-4 translate-y-1 group-hover:translate-y-0 transition-transform duration-400 ease-out">
-                <p className="font-display text-white font-semibold text-sm sm:text-base leading-tight mb-1.5"
-                  style={{ textShadow: '0 1px 10px rgba(0,0,0,0.6)' }}>
-                  {c.label}
-                </p>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75">
-                  <span className="text-[10px] text-white/75 font-medium tracking-widest uppercase">Explorar</span>
-                  <span className="text-white/75 text-xs group-hover:translate-x-0.5 transition-transform duration-300">→</span>
-                </div>
-              </div>
-            </motion.button>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /* ─── Featured section ─── */
 function FeaturedSection() {
   const products = useFeatured(4);
@@ -1447,55 +1302,57 @@ function SkeletonCard() {
   );
 }
 
-/* ─── Stories row — horizontal scrollable category bubbles ─── */
-const STORIES = [
-  { label: 'Todos',      cat: 'todos',     bg: 'linear-gradient(135deg,#B85F72,#93485A)' },
-  { label: 'Skin care',  cat: 'skincare',  img: '/imgs/Skincare.jpeg'   },
-  { label: 'Maquillaje', cat: 'maquillaje',img: '/imgs/Maquillaje.jpeg' },
-  { label: 'Accesorios', cat: 'accesorios',img: '/imgs/Accesorios.jpeg' },
-  { label: 'Perfumes',   cat: 'perfumes',  img: '/imgs/Perfume.jpeg'    },
-  { label: 'Cabello',    cat: 'cabello',   img: '/imgs/Cabello.jpeg'    },
+/* ─── Category chips — pill row, lighter than the old StoriesRow (imagenes
+ * grandes redundantes con el navbar). Sigue siendo el switch rapido de
+ * categoria dentro del catalogo. ─── */
+const CATEGORY_CHIPS = [
+  { label: 'Todos',      cat: 'todos',      img: 'https://res.cloudinary.com/dp82rk4ou/image/upload/v1778759671/jdicono_scsfo2.jpg', bg: 'linear-gradient(135deg,#B85F72,#93485A)' },
+  { label: 'Skin care',  cat: 'skincare',   img: '/imgs/Skincare.jpeg'   },
+  { label: 'Maquillaje', cat: 'maquillaje', img: '/imgs/Maquillaje.jpeg' },
+  { label: 'Accesorios', cat: 'accesorios', img: '/imgs/Accesorios.jpeg' },
+  { label: 'Perfumes',   cat: 'perfumes',   img: '/imgs/Perfume.jpeg'    },
+  { label: 'Cabello',    cat: 'cabello',    img: '/imgs/Cabello.jpeg'    },
 ];
 
-function StoriesRow({ cat, onCat }) {
+function CategoryChips({ cat, onCat }) {
   return (
-    <div className="flex gap-5 overflow-x-auto scrollbar-hide pb-2 mb-8 -mx-1 px-1">
-      {STORIES.map((s, i) => {
+    <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
+      {CATEGORY_CHIPS.map((s, i) => {
         const isActive = cat === s.cat;
         return (
           <motion.button
             key={s.cat}
             onClick={() => onCat(s.cat)}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06, duration: 0.4, ease: [0.3, 1, 0.3, 1] }}
-            className="flex flex-col items-center gap-2 flex-shrink-0 group focus:outline-none">
-
-            {/* Circle */}
-            <div className={`relative w-[62px] h-[62px] rounded-full p-[2.5px] transition-all duration-300 ${
+            transition={{
+              delay: i * 0.05,
+              duration: 0.35,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            whileTap={{ scale: 0.96 }}
+            className={`group relative overflow-hidden h-11 sm:h-12 flex items-center gap-2.5 pr-4 sm:pr-5 rounded-2xl border whitespace-nowrap flex-shrink-0 text-xs sm:text-sm font-semibold transition-[background,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 ${
               isActive
-                ? 'ring-2 ring-rose-500 ring-offset-2 ring-offset-white shadow-md'
-                : 'ring-1 ring-cream-200 hover:ring-rose-300 hover:ring-offset-1 hover:ring-offset-white'
+                ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-300/40'
+                : 'bg-white text-ink-700 border-cream-200 hover:border-rose-300 hover:text-rose-500 shadow-sm hover:shadow-md'
             }`}>
-              <div className="w-full h-full rounded-full overflow-hidden">
-                {s.img ? (
-                  <img src={s.img} alt={s.label}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center font-display font-bold text-white text-base"
-                    style={{ background: s.bg }}>
-                    {s.label.charAt(0)}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Label */}
-            <span className={`text-[11px] font-semibold leading-tight transition-colors whitespace-nowrap ${
-              isActive ? 'text-rose-500' : 'text-ink-500 group-hover:text-ink-800'
-            }`}>
-              {s.label}
+            {/* Foto a la izquierda, toma toda la altura del chip (estilo card) */}
+            <span className="relative h-full aspect-square overflow-hidden flex-shrink-0">
+              {s.img ? (
+                <img
+                  src={s.img}
+                  alt=""
+                  className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+                />
+              ) : (
+                <span className="w-full h-full block" style={{ background: s.bg }} />
+              )}
+              {/* Velo blanco sutil cuando esta activo, marca seleccion sin tapar la foto */}
+              {isActive && (
+                <span className="absolute inset-0 bg-white/15 ring-2 ring-inset ring-white/60" />
+              )}
             </span>
+            <span className="pr-0.5">{s.label}</span>
           </motion.button>
         );
       })}
@@ -1566,7 +1423,7 @@ function Catalog({ externalCat, catalogRef }) {
   const hasMore = visibleCount < products.length;
 
   return (
-    <section ref={catalogRef} id="tienda" className="bg-white py-20">
+    <section ref={catalogRef} id="tienda" className="bg-white py-20 scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
@@ -1604,9 +1461,14 @@ function Catalog({ externalCat, catalogRef }) {
           )}
         </div>
 
-        <StoriesRow cat={cat} onCat={handleCat} />
-
-        <FilterBar brand={brand} minPrice={minPrice} maxPrice={maxPrice} sort={sort} onBrand={handleBrand} onPrice={handlePrice} onSort={handleSort} />
+        {/* Panel de controles del catalogo — chips + filtros agrupados en un
+            container sutil con backdrop blur que los integra visualmente */}
+        <div className="mt-5 mb-6 bg-gradient-to-br from-white/80 to-cream-50/60 backdrop-blur-sm border border-cream-100 rounded-2xl p-3 sm:p-4 shadow-sm">
+          <CategoryChips cat={cat} onCat={handleCat} />
+          <div className="mt-3 pt-3 border-t border-cream-100/80">
+            <FilterBar brand={brand} minPrice={minPrice} maxPrice={maxPrice} sort={sort} onBrand={handleBrand} onPrice={handlePrice} onSort={handleSort} />
+          </div>
+        </div>
 
         <AnimatePresence mode="wait">
           {loading ? (
@@ -2073,7 +1935,6 @@ export default function Home() {
     <main>
       <SEO />
       <Hero onCatSelect={handleCatSelect} />
-      <CategoryRow onCatSelect={handleCatSelect} />
       <FeaturedSection />
       <KitBuilder />
       <Catalog externalCat={selectedCat} catalogRef={catalogRef} />

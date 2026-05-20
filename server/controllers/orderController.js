@@ -47,8 +47,22 @@ exports.create = async (req, res, next) => {
     let subtotal = 0;
     const validatedItems = [];
 
+    // Sanea selectedVariants: solo aceptar objeto plano { string: string },
+    // recortando claves/valores a 60 chars y maximo 6 entradas. Evita que el
+    // cliente meta payloads grandes o tipos inesperados en Mongo.
+    const sanitizeVariants = (v) => {
+      if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined;
+      const entries = Object.entries(v)
+        .filter(([k, val]) => typeof k === 'string' && typeof val === 'string' && k && val)
+        .slice(0, 6)
+        .map(([k, val]) => [String(k).slice(0, 60), String(val).slice(0, 60)]);
+      if (!entries.length) return undefined;
+      return Object.fromEntries(entries);
+    };
+
     for (const item of items) {
       const qty = Math.max(1, Math.round(Number(item.qty) || 1));
+      const selectedVariants = sanitizeVariants(item.selectedVariants);
 
       if (item.productId) {
         const dbProd = priceMap[String(item.productId)];
@@ -65,12 +79,13 @@ exports.create = async (req, res, next) => {
           price: dbProd.price,
           qty,
           image: item.image || dbImage,
+          selectedVariants,
         });
       } else {
         // Item without productId (e.g., local data fallback) — use client price only in dev
         const price = Number(item.price) || 0;
         subtotal += price * qty;
-        validatedItems.push({ ...item, price, qty });
+        validatedItems.push({ ...item, price, qty, selectedVariants });
       }
     }
 
