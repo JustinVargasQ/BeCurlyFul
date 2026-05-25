@@ -245,6 +245,7 @@ export default function Navbar() {
 
             {/* Mobile menu btn */}
             <button onClick={() => setMenuOpen(true)}
+              aria-label="Abrir menú"
               className="lg:hidden p-2 -ml-2 text-ink-700 hover:text-rose-500 transition-colors">
               <MenuIcon />
             </button>
@@ -311,6 +312,7 @@ export default function Navbar() {
             <div className="flex items-center gap-1 ml-auto lg:ml-0">
               {/* Search mobile */}
               <button onClick={() => setSearchOpen(true)}
+                aria-label="Buscar productos"
                 className="md:hidden p-2 text-ink-700 hover:text-rose-500 transition-colors">
                 <SearchIcon />
               </button>
@@ -342,6 +344,7 @@ export default function Navbar() {
 
               {/* Cart */}
               <button onClick={openCart}
+                aria-label={count > 0 ? `Abrir carrito (${count} productos)` : 'Abrir carrito'}
                 className="relative p-2 text-ink-700 hover:text-rose-500 transition-colors">
                 <CartIcon />
                 <AnimatePresence>
@@ -394,7 +397,7 @@ export default function Navbar() {
                 <span className="font-display text-xl font-bold text-ink-900">
                   JD <span className="text-rose-500">Virtual</span>
                 </span>
-                <button onClick={() => setMenuOpen(false)} className="p-2 text-ink-400 hover:text-ink-900 transition-colors">
+                <button onClick={() => setMenuOpen(false)} aria-label="Cerrar menú" className="p-2 text-ink-400 hover:text-ink-900 transition-colors">
                   <CloseIcon />
                 </button>
               </div>

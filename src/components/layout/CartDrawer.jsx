@@ -266,9 +266,11 @@ export default function CartDrawer() {
                             {/* Qty */}
                             <div className="flex items-center bg-white border border-cream-200 rounded-xl overflow-hidden shadow-sm">
                               <button onClick={() => updateQty(item.id || item._id, item.qty - 1)}
+                                aria-label={`Quitar una unidad de ${item.name}`}
                                 className="w-8 h-8 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 text-ink-600 transition-colors text-lg font-light leading-none">−</button>
-                              <span className="w-7 text-center text-sm font-bold text-ink-900">{item.qty}</span>
+                              <span aria-live="polite" className="w-7 text-center text-sm font-bold text-ink-900">{item.qty}</span>
                               <button onClick={() => updateQty(item.id || item._id, item.qty + 1)}
+                                aria-label={`Agregar una unidad de ${item.name}`}
                                 className="w-8 h-8 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 text-ink-600 transition-colors text-lg font-light leading-none">+</button>
                             </div>
                             <p className="font-bold text-ink-900 text-sm">{formatCRC(item.price * item.qty)}</p>
@@ -277,6 +279,7 @@ export default function CartDrawer() {
 
                         {/* Delete */}
                         <button onClick={() => removeItem(item.id || item._id)}
+                          aria-label={`Eliminar ${item.name} del carrito`}
                           className="text-ink-200 hover:text-rose-400 transition-colors self-start mt-0.5 p-1 flex-shrink-0 rounded-lg hover:bg-rose-50">
                           <TrashIcon />
                         </button>

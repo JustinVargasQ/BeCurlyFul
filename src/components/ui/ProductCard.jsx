@@ -214,6 +214,7 @@ export default function ProductCard({ product, index = 0 }) {
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="hidden sm:flex absolute bottom-0 inset-x-0 p-3 gap-2">
               <button onClick={handleAdd} disabled={outOfStock}
+                aria-label={outOfStock ? 'Agotado' : 'Agregar al carrito'}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-lg ${
                   outOfStock ? 'bg-ink-200 text-ink-400 cursor-not-allowed' :
                   added ? 'bg-green-500 text-white scale-95' : 'bg-white text-ink-900 hover:bg-ink-900 hover:text-white'
@@ -227,6 +228,7 @@ export default function ProductCard({ product, index = 0 }) {
                   e.stopPropagation();
                   window.open(`https://wa.me/50688045100?text=${encodeURIComponent(`Hola! Me interesa: ${product.name} a ${formatCRC(product.price)}`)}`, '_blank', 'noopener');
                 }}
+                aria-label={`Consultar ${product.name} por WhatsApp`}
                 className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white rounded-xl shadow-lg transition-colors">
                 <WaIcon />
               </button>

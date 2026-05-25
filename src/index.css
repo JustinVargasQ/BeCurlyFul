@@ -20,20 +20,27 @@
   }
   ::-webkit-scrollbar-thumb:hover { background: #D17D8D; /* rose-400 */ }
 
-  /* Focus visible — anillo rose-300 consistente para accesibilidad de teclado.
-     Solo aparece con :focus-visible (no por click), así que no molesta al mouse. */
+  /* Focus visible — anillo rose-300 consistente para navegacion con teclado.
+     Box-shadow (en vez de outline) sigue el border-radius del elemento y no
+     mueve el layout. Solo se activa con :focus-visible (tab), no con click,
+     asi que el mouse no lo dispara. Si un componente quiere desactivarlo,
+     puede usar la utility `focus:shadow-none focus-visible:shadow-none`. */
   :focus-visible {
-    outline: 2px solid #E39DAB; /* rose-300 */
+    outline: 2px solid transparent;
     outline-offset: 2px;
-    border-radius: 4px;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px #E39DAB; /* halo blanco + rose-300 */
   }
-  /* Botones e inputs ya tienen sus propios focus styles, no los pisamos */
+  a:focus-visible,
   button:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex]:focus-visible {
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px #E39DAB;
+  }
+  /* En inputs el halo se ve mejor sin offset blanco (rompe con bordes) */
   input:focus-visible,
   textarea:focus-visible,
-  select:focus-visible,
-  [role="button"]:focus-visible {
-    outline: none;
+  select:focus-visible {
+    box-shadow: 0 0 0 3px #FCE7EC; /* rose-100 — halo suave */
   }
 }
 
