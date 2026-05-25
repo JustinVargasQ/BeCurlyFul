@@ -12,6 +12,7 @@
   "dependencies": {
     "@fontsource/figtree": "^5.2.10",
     "@react-oauth/google": "^0.13.5",
+    "@sentry/react": "^10.53.1",
     "@tanstack/react-query": "^5.99.1",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",

@@ -1,5 +1,18 @@
 require('dotenv').config();
 
+/* Sentry — debe inicializarse ANTES de require de express. Si no hay
+ * SENTRY_DSN setearlo es no-op (la SDK ignora el init). En prod (Render)
+ * basta con setear SENTRY_DSN en las env vars y la captura empieza sola. */
+const Sentry = require('@sentry/node');
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: 0,
+    sendDefaultPii: false,
+  });
+}
+
 /* ─── Validate required env vars before anything else ─── */
 const REQUIRED_ENV = ['MONGO_URI', 'JWT_SECRET'];
 const OPTIONAL_ENV = ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'];
@@ -186,6 +199,12 @@ app.use((req, res) =>
   res.status(404).json({ error: 'Ruta no encontrada' })
   // Never expose req.path in production to avoid path disclosure
 );
+
+/* Sentry: hook al stream de errores de Express ANTES del errorHandler propio.
+ * No-op si no se llamo a Sentry.init() (sin SENTRY_DSN). */
+if (process.env.SENTRY_DSN) {
+  Sentry.setupExpressErrorHandler(app);
+}
 
 /* ─── Error handler ─── */
 app.use(errorHandler);

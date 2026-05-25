@@ -113,7 +113,8 @@
       "Bash(node --check c:/Users/justi/Desktop/Zayin/JdVirtual/server/lib/mailer.js)",
       "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual commit -m 'Fix: emails silenciosos al cambiar estado + diagnostico SMTP *)",
       "Bash(findstr /S /N \"new: true\" controllers\\\\*.js)",
-      "Bash(npm i *)"
+      "Bash(npm i *)",
+      "Bash(git -C c:/Users/justi/Desktop/Zayin/JdVirtual push)"
     ],
     "additionalDirectories": [
       "c:\\Users\\justi\\Desktop\\Zayin\\VOStudio"

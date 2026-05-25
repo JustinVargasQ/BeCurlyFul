@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import * as Sentry from '@sentry/react';
 
 /* Class component because hooks don't expose componentDidCatch — the only way
  * to actually intercept a render-phase exception in React.
@@ -27,6 +28,15 @@ export default class ErrorBoundary extends Component {
         });
       } catch {}
     }
+    // Reportar a Sentry con contexto del label (ej: 'ChatbotWidget') para
+    // poder filtrar en el dashboard. Sentry.init() ya verifica si hay DSN;
+    // si no, captureException es no-op.
+    try {
+      Sentry.captureException(error, {
+        tags: { boundary: this.props.label || 'unknown' },
+        extra: { componentStack: info?.componentStack },
+      });
+    } catch {}
   }
 
   reset = () => this.setState({ error: null });
