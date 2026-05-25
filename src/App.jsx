@@ -100,8 +100,10 @@ import useAuthStore from './store/authStore';
 import InstallBanner from './components/ui/InstallBanner';
 import PromoBanner from './components/ui/PromoBanner';
 import ServerWakeup from './components/ui/ServerWakeup';
-import ChatbotWidget from './components/ui/ChatbotWidget';
 import ErrorBoundary from './components/ui/ErrorBoundary';
+// ChatbotWidget = 1000+ lineas (~40KB gz). Sacarlo del entry baja el bundle
+// inicial; el boton flotante aparece despues del primer render via Suspense.
+const ChatbotWidget = lazy(() => import('./components/ui/ChatbotWidget'));
 
 function StorefrontLayout({ children }) {
   const location = useLocation();
@@ -149,7 +151,9 @@ export default function App() {
       <ServerWakeup />
       <Toaster />
       <InstallBanner />
-      <ErrorBoundary label="ChatbotWidget"><ChatbotWidget /></ErrorBoundary>
+      <ErrorBoundary label="ChatbotWidget">
+        <Suspense fallback={null}><ChatbotWidget /></Suspense>
+      </ErrorBoundary>
       <PageTracker />
       <Routes>
         {/* Public storefront — Home eager (entry), resto lazy con skeleton */}
