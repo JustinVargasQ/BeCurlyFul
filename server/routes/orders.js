@@ -1,11 +1,32 @@
 const router      = require('express').Router();
+const rateLimit   = require('express-rate-limit');
 const ctrl        = require('../controllers/orderController');
 const requireAuth = require('../middleware/auth');
 const { optionalUser } = require('../middleware/userAuth');
 
+/* Anti-spam: max 6 ordenes / hora / IP. Un cliente legitimo no necesita mas;
+ * un bot que ataque el endpoint queda capado rapido. standardHeaders='draft-7'
+ * para que Brevo/Render no se confundan con headers viejos. */
+const createOrderLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 6,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Demasiados pedidos en poco tiempo. Intentá de nuevo en unos minutos.' },
+});
+
+/* Tracking publico — separar el limit del de creacion. Es solo lectura,
+ * permitimos mas (30/min) por si alguien refresca su pedido. */
+const trackLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
 /* Public — checkout works for guests AND logged-in users */
-router.post('/',                    optionalUser, ctrl.create);
-router.get('/track/:number',        ctrl.getByNumber);
+router.post('/',                    createOrderLimiter, optionalUser, ctrl.create);
+router.get('/track/:number',        trackLimiter, ctrl.getByNumber);
 
 /* Admin */
 router.get('/admin/all',            requireAuth, ctrl.adminGetAll);

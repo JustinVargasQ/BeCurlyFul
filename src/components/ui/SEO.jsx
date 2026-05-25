@@ -5,11 +5,51 @@ const SITE_URL   = 'https://jd-virtual.vercel.app';
 const DEFAULT_IMG = `${SITE_URL}/icons/icon-512.png`;
 const DEFAULT_DESC = 'Maquillaje y skincare de marcas auténticas con envíos a todo Costa Rica desde El Roble, Puntarenas.';
 
+/* Cuando renderizas SEO sin url (o url === '/'), inyectamos tambien el
+ * structured data de LocalBusiness. Google lo usa para el panel de marca
+ * (logo, nombre, telefono, dirección) en busquedas tipo "JD Virtual" o
+ * "maquillaje El Roble Puntarenas". Solo en la home para no duplicarlo. */
+const LOCAL_BUSINESS_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'Store',
+  name: 'JD Virtual Store',
+  url: 'https://jd-virtual.vercel.app',
+  logo: 'https://res.cloudinary.com/dp82rk4ou/image/upload/v1778759671/jdicono_scsfo2.jpg',
+  image: 'https://res.cloudinary.com/dp82rk4ou/image/upload/v1778759671/jdicono_scsfo2.jpg',
+  description: 'Tienda de maquillaje y skincare originales con envíos a todo Costa Rica desde El Roble, Puntarenas.',
+  telephone: '+506 8804-5100',
+  email: 'utnmaps@gmail.com',
+  priceRange: '₡₡',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'El Roble',
+    addressLocality: 'Puntarenas',
+    addressRegion: 'Puntarenas',
+    addressCountry: 'CR',
+  },
+  areaServed: { '@type': 'Country', name: 'Costa Rica' },
+  sameAs: [
+    'https://wa.me/50688045100',
+  ],
+  openingHoursSpecification: [{
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    opens: '09:00',
+    closes: '19:00',
+  }],
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://jd-virtual.vercel.app/?q={search_term_string}',
+    'query-input': 'required name=search_term_string',
+  },
+};
+
 export default function SEO({ title, description, image, url, type = 'website', product, noindex = false }) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Maquillaje & Skincare | Costa Rica`;
   const desc  = description || DEFAULT_DESC;
   const img   = image || DEFAULT_IMG;
   const canonical = url ? `${SITE_URL}${url}` : SITE_URL;
+  const isHome = !url || url === '/' || url === '';
 
   return (
     <Helmet>
@@ -32,6 +72,14 @@ export default function SEO({ title, description, image, url, type = 'website', 
       <meta name="twitter:title"       content={fullTitle} />
       <meta name="twitter:description" content={desc} />
       <meta name="twitter:image"       content={img} />
+
+      {/* LocalBusiness JSON-LD — solo en la home, para no duplicar en sub-paginas
+          (Google ignora schemas duplicados pero algunos validators los marcan). */}
+      {isHome && !product && (
+        <script type="application/ld+json">
+          {JSON.stringify(LOCAL_BUSINESS_JSONLD)}
+        </script>
+      )}
 
       {/* Product structured data (JSON-LD).
           Includes AggregateRating when there's a real review base — Google

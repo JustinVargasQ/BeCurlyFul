@@ -129,13 +129,18 @@ export default function ProductCard({ product, index = 0 }) {
                   key={imgIdx}
                   src={optimizedImage(currentImg, 600)}
                   alt={product.name}
+                  /* width/height fijan la aspect-ratio de la imagen ANTES de
+                     que descargue el bitmap — sin esto, hasta que llega la
+                     foto el navegador reserva 0px y al cargar empuja el
+                     contenido (CLS). 600x600 matchea el optimizedImage(...600). */
+                  width={600}
+                  height={600}
                   loading="lazy"
                   decoding="async"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.25 }}
                   className="w-full h-full object-cover transition-transform duration-700 ease-snappy group-hover:scale-105"
-                  loading="lazy"
                   onError={() => setImgError(true)}
                 />
                 {/* Image index dots — siempre visibles en mobile (no hay hover) */}
