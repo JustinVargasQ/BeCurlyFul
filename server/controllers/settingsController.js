@@ -20,6 +20,7 @@ exports.update = async (req, res, next) => {
       'heroTitle', 'heroSub', 'heroStyle',
       'shippingCostCorreos', 'shippingCostExpress', 'freeShippingFrom',
       'bankInfo',
+      'sinpePhone', 'sinpeName',
       'notificationEmail',
       'promoBanner', 'promoBannerActive', 'promoBannerColor',
       'autoConfirmOrders',

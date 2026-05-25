@@ -19,6 +19,11 @@ const settingsSchema = new Schema(
 
     bankInfo: { type: String, default: '' },
 
+    /* SINPE Movil — datos del titular para que el cliente pueda transferir.
+     * Editables desde /admin/config para que el dueno cambie sin redeploy. */
+    sinpePhone: { type: String, default: '' },
+    sinpeName:  { type: String, default: '' },
+
     promoBanner:       { type: String, default: '' },
     promoBannerActive: { type: Boolean, default: false },
     promoBannerColor:  { type: String, default: '#B85F72' },

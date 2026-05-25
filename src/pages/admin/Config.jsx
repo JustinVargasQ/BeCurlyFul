@@ -17,6 +17,8 @@ const DEFAULTS = {
   shippingCostExpress: 4500,
   freeShippingFrom: 25000,
   bankInfo: '',
+  sinpePhone: '',
+  sinpeName: '',
   promoBanner: '',
   promoBannerActive: false,
   promoBannerColor: '#B85F72',
@@ -385,12 +387,27 @@ export default function AdminConfig() {
       <div className={sectionCls}>
         <p className="text-xs font-bold text-ink-400 uppercase tracking-widest">Información de pago</p>
 
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Teléfono SINPE Móvil</label>
+            <input type="tel" value={form.sinpePhone} onChange={set('sinpePhone')} className={inputCls}
+              placeholder="8888-8888" />
+            <p className="text-[11px] text-ink-400 mt-1.5">Aparece en el checkout cuando el cliente elige SINPE como método de pago.</p>
+          </div>
+          <div>
+            <label className={labelCls}>Nombre del titular</label>
+            <input type="text" value={form.sinpeName} onChange={set('sinpeName')} className={inputCls}
+              placeholder="Nombre y apellidos del titular de la cuenta" />
+            <p className="text-[11px] text-ink-400 mt-1.5">Como aparece registrado en el banco — el cliente lo necesita para confirmar.</p>
+          </div>
+        </div>
+
         <div>
-          <label className={labelCls}>Datos bancarios / SINPE</label>
-          <textarea value={form.bankInfo} onChange={set('bankInfo')} rows={4}
+          <label className={labelCls}>Notas adicionales (opcional)</label>
+          <textarea value={form.bankInfo} onChange={set('bankInfo')} rows={3}
             className={inputCls + ' resize-none font-mono text-xs'}
-            placeholder="SINPE Móvil: 8804-5100 (JD Virtual)&#10;BAC: CR12 3456 7890 1234 5678" />
-          <p className="text-[11px] text-ink-400 mt-1">Esta información se enviará al cliente por WhatsApp al confirmar el pedido.</p>
+            placeholder="Cuenta IBAN, otro banco, instrucciones extra..." />
+          <p className="text-[11px] text-ink-400 mt-1">Usado en WhatsApp al confirmar el pedido (no en el checkout).</p>
         </div>
       </div>
 
