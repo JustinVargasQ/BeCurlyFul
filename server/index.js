@@ -1,17 +1,7 @@
-require('dotenv').config();
-
-/* Sentry — debe inicializarse ANTES de require de express. Si no hay
- * SENTRY_DSN setearlo es no-op (la SDK ignora el init). En prod (Render)
- * basta con setear SENTRY_DSN en las env vars y la captura empieza sola. */
+/* Sentry: archivo separado requerido al inicio asi auto-instrumenta express,
+ * http, mongoose ANTES de que se carguen. No-op sin SENTRY_DSN. */
+require('./instrument');
 const Sentry = require('@sentry/node');
-if (process.env.SENTRY_DSN) {
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV || 'development',
-    tracesSampleRate: 0,
-    sendDefaultPii: false,
-  });
-}
 
 /* ─── Validate required env vars before anything else ─── */
 const REQUIRED_ENV = ['MONGO_URI', 'JWT_SECRET'];
