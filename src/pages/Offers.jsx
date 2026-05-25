@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useProducts } from '../hooks/useProducts';
 import { formatCRC } from '../lib/currency';
 import ProductCard from '../components/ui/ProductCard';
+import SEO from '../components/ui/SEO';
 
 const SORT_OPTIONS = [
   { value: 'descuento',  label: '% Descuento mayor' },
@@ -50,6 +51,11 @@ export default function Offers() {
 
   return (
     <main className="min-h-screen bg-white">
+      <SEO
+        title="Ofertas y descuentos"
+        description="Encontrá las mejores ofertas en maquillaje y skincare originales en Costa Rica. Descuentos reales en marcas auténticas con envíos a todo el país."
+        url="/ofertas"
+      />
 
       {/* ── Hero header ── */}
       <div className="relative overflow-hidden pt-24 pb-14"

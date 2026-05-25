@@ -5,7 +5,7 @@ const SITE_URL   = 'https://jd-virtual.vercel.app';
 const DEFAULT_IMG = `${SITE_URL}/icons/icon-512.png`;
 const DEFAULT_DESC = 'Maquillaje y skincare de marcas auténticas con envíos a todo Costa Rica desde El Roble, Puntarenas.';
 
-export default function SEO({ title, description, image, url, type = 'website', product }) {
+export default function SEO({ title, description, image, url, type = 'website', product, noindex = false }) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Maquillaje & Skincare | Costa Rica`;
   const desc  = description || DEFAULT_DESC;
   const img   = image || DEFAULT_IMG;
@@ -16,6 +16,7 @@ export default function SEO({ title, description, image, url, type = 'website', 
       <title>{fullTitle}</title>
       <meta name="description" content={desc} />
       <link rel="canonical" href={canonical} />
+      {noindex && <meta name="robots" content="noindex, follow" />}
 
       {/* Open Graph */}
       <meta property="og:site_name"   content={SITE_NAME} />

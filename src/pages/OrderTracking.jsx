@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { formatCRC } from '../lib/currency';
+import SEO from '../components/ui/SEO';
 
 const StepIconReceived = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -83,6 +84,7 @@ export default function OrderTracking() {
 
   return (
     <main className="min-h-screen pt-24 pb-20 px-4">
+      <SEO title="Seguimiento de pedido" url="/pedido" noindex />
       <div className="max-w-lg mx-auto">
         <div className="text-center mb-8">
           <h1 className="font-display text-3xl font-semibold text-ink-900 mb-2">Seguimiento de pedido</h1>

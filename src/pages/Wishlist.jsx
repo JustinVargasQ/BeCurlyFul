@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useWishlist from '../hooks/useWishlist';
 import useCart from '../hooks/useCart';
 import { formatCRC } from '../lib/currency';
+import SEO from '../components/ui/SEO';
 
 const HeartIcon = ({ filled = true, size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -31,6 +32,7 @@ export default function Wishlist() {
 
   return (
     <main className="min-h-screen bg-cream-50 pt-8 pb-20">
+      <SEO title="Mis favoritos" url="/favoritos" noindex />
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
