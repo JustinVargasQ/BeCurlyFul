@@ -30,6 +30,7 @@ const authRoutes          = require('./routes/auth');
 const userRoutes          = require('./routes/users');
 const productRoutes       = require('./routes/products');
 const orderRoutes         = require('./routes/orders');
+const cartRoutes          = require('./routes/cart');
 const settingsRoutes      = require('./routes/settings');
 const reviewsRoutes       = require('./routes/reviews');
 const couponsRoutes       = require('./routes/coupons');
@@ -37,6 +38,7 @@ const restockRoutes       = require('./routes/restock');
 const productReviewRoutes = require('./routes/productReviews');
 const chatbotRoutes       = require('./routes/chatbot');
 const errorHandler        = require('./middleware/errorHandler');
+const { startAbandonedCartJob } = require('./lib/abandonedCartJob');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -130,6 +132,7 @@ app.use('/api/auth',            authLimiter, authRoutes);
 app.use('/api/users',           apiLimiter,  userRoutes);
 app.use('/api/products',        apiLimiter,  productRoutes);
 app.use('/api/orders',          apiLimiter,  orderRoutes);
+app.use('/api/cart',            apiLimiter,  cartRoutes);
 app.use('/api/settings',        apiLimiter,  settingsRoutes);
 app.use('/api/reviews',         apiLimiter,  reviewsRoutes);
 app.use('/api/coupons',         apiLimiter,  couponsRoutes);
@@ -205,6 +208,10 @@ mongoose
   .then(() => {
     console.log('✅ MongoDB conectado');
     app.listen(PORT, () => console.log(`🚀 Servidor en http://localhost:${PORT}`));
+    /* Cron de carritos abandonados — arranca solo despues de tener DB.
+     * El job mismo respeta SMTP/Brevo (si no estan configurados, sendWithProvider
+     * falla silencioso y no marca el cart como enviado, lo retomara la proxima). */
+    startAbandonedCartJob();
   })
   .catch((err) => {
     console.error('❌ Error al conectar MongoDB:', err.message);

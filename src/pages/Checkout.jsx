@@ -201,6 +201,35 @@ export default function Checkout() {
       email: f.email || user.email || '',
     }));
   }, [user]);
+
+  /* Abandoned cart recovery — cuando hay email valido + items en carrito,
+   * guardamos un snapshot en el server (debounced 2s) para que el cron pueda
+   * mandar un recovery email si el cliente no termina. Solo dispara cuando
+   * el email cambia, no en cada keystroke. */
+  useEffect(() => {
+    const email = form.email.trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return undefined;
+    if (!items.length) return undefined;
+    if (!import.meta.env.VITE_API_URL) return undefined;
+    const t = setTimeout(() => {
+      api.post('/cart/save', {
+        email,
+        name: form.name.trim(),
+        userId: user?.id || user?._id || null,
+        items: items.map((i) => ({
+          productId: i.productId || i._id || (typeof i.id === 'string' && i.id.includes('::') ? i.id.split('::')[0] : i.id),
+          slug:  i.slug,
+          name:  i.name,
+          brand: i.brand || '',
+          price: i.price,
+          qty:   i.qty,
+          image: i.images?.[0] || i.img || '',
+          selectedVariants: i.selectedVariants || undefined,
+        })),
+      }).catch(() => {});
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [form.email, form.name, items, user]);
   const [errors,  setErrors]  = useState({});
   const [touched, setTouched] = useState({});
 

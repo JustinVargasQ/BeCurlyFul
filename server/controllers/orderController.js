@@ -2,6 +2,7 @@ const Order    = require('../models/Order');
 const Coupon   = require('../models/Coupon');
 const Product  = require('../models/Product');
 const Settings = require('../models/Settings');
+const Cart     = require('../models/Cart');
 const { broadcast } = require('../lib/sse');
 const { sendOrderNotification, sendCustomerConfirmation, sendCustomerStatusUpdate, sendTestEmail, smtpStatus, verifySmtp } = require('../lib/mailer');
 
@@ -192,6 +193,15 @@ exports.create = async (req, res, next) => {
       .catch(() => {});
 
     sendCustomerConfirmation(order).catch(() => {});
+
+    /* Marcar el cart de recuperacion como convertido, asi el cron no le
+     * manda el email de "abandonaste tu carrito" despues. Fire-and-forget. */
+    if (customer.email) {
+      Cart.updateOne(
+        { email: customer.email.toLowerCase().trim(), convertedToOrder: false },
+        { $set: { convertedToOrder: true } }
+      ).catch(() => {});
+    }
 
     res.status(201).json({ orderNumber: order.orderNumber, id: order._id });
   } catch (err) {

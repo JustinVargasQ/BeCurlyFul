@@ -578,6 +578,103 @@ async function sendCustomerStatusUpdate(order, newStatus) {
 
 /* Envio de prueba — usa la misma cadena de proveedores que los reales para
  * que el diagnostico refleje exactamente lo que pasa con pedidos. */
+/* ── Email de recuperacion de carrito abandonado ──
+ * Trigger: cron job lo llama cuando detecta cart.updatedAt < ahora-1h y
+ * !recoveryEmailSentAt && !convertedToOrder. */
+function buildAbandonedCartHtml(cart) {
+  const firstName = (cart.customerName || '').split(' ')[0] || 'amiga';
+  const items = (cart.items || []).slice(0, 6); /* max 6 en el email */
+  const rows = items.map((i) => `
+    <tr>
+      <td style="padding:12px 8px;border-bottom:1px solid #f5eded;vertical-align:middle;width:64px">
+        ${i.image ? `<img src="${i.image}" alt="" width="60" height="60" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #eee">` : ''}
+      </td>
+      <td style="padding:12px 8px;border-bottom:1px solid #f5eded;font-size:14px;color:#333;vertical-align:middle">
+        <div style="font-weight:600">${i.name}</div>
+        ${variantsHtml(i.selectedVariants)}
+        <div style="color:#888;font-size:12px;margin-top:2px">× ${i.qty}</div>
+      </td>
+      <td style="padding:12px 8px;border-bottom:1px solid #f5eded;text-align:right;font-size:14px;font-weight:600;color:#333;vertical-align:middle;white-space:nowrap">
+        ${fmt(i.price * i.qty)}
+      </td>
+    </tr>
+  `).join('');
+  const moreCount = (cart.items?.length || 0) - items.length;
+
+  const siteUrl = process.env.CLIENT_URL || 'https://jd-virtual.vercel.app';
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Te dejaste algo en el carrito</title></head>
+<body style="margin:0;padding:0;background:#f8f4f4;font-family:Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f4f4;padding:32px 16px">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+
+        <tr>
+          <td style="background:linear-gradient(135deg,#B85F72,#93485A);padding:32px;text-align:center">
+            <img src="${LOGO_URL}" alt="JD Virtual" width="100" style="display:inline-block;max-width:100px;height:auto;border-radius:12px">
+            <h1 style="margin:14px 0 0;color:#fff;font-size:24px;font-weight:bold;letter-spacing:.3px">
+              Te dejaste algo lindo 💕
+            </h1>
+            <p style="margin:8px 0 0;color:#f5d0d8;font-size:14px">Tu carrito te está esperando</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:28px 32px 12px">
+            <p style="margin:0 0 18px;font-size:15px;color:#444;line-height:1.6">
+              Hola <strong>${firstName}</strong>, vimos que armaste un carrito pero no lo finalizaste.
+              Te lo guardamos por si querés volver a verlo o terminar la compra.
+            </p>
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 0">
+              ${rows}
+            </table>
+            ${moreCount > 0 ? `<p style="margin:10px 0 0;font-size:13px;color:#888">+ ${moreCount} producto${moreCount === 1 ? '' : 's'} más en tu carrito</p>` : ''}
+
+            <p style="margin:18px 0 0;text-align:right;font-size:16px;color:#222">
+              Total: <strong style="color:#B85F72">${fmt(cart.subtotal || 0)}</strong>
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:8px 32px 28px;text-align:center">
+            <a href="${siteUrl}/checkout?recover=1" style="display:inline-block;background:#B85F72;color:#fff;text-decoration:none;padding:14px 36px;border-radius:10px;font-size:14px;font-weight:bold;letter-spacing:.5px">
+              Volver a mi carrito →
+            </a>
+            <p style="margin:18px 0 0;font-size:12px;color:#aaa">
+              ¿Alguna duda? Respondé este correo o escribinos por WhatsApp.
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background:#fdf8f8;padding:14px 32px;text-align:center;border-top:1px solid #f0e8e8">
+            <p style="margin:0;font-size:11px;color:#bbb">
+              Si ya no te interesa, podés ignorar este correo y no volverás a recibirlo.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+async function sendAbandonedCartEmail(cart) {
+  if (!cart?.email) return { ok: false, reason: 'no_email' };
+  return sendWithProvider({
+    to: cart.email,
+    subject: '💕 Te dejaste algo en JD Virtual — terminá tu compra',
+    html: buildAbandonedCartHtml(cart),
+    label: `Abandoned cart → ${cart.email}`,
+  });
+}
+
 async function sendTestEmail(to) {
   return sendWithProvider({
     to,
@@ -592,6 +689,7 @@ module.exports = {
   sendOrderNotification,
   sendCustomerConfirmation,
   sendCustomerStatusUpdate,
+  sendAbandonedCartEmail,
   sendTestEmail,
   smtpStatus,
   verifySmtp,
