@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useCart from '../hooks/useCart';
@@ -249,27 +249,12 @@ export default function Checkout() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [submitting,    setSubmitting]    = useState(false);
 
-  /* Metodo de pago — WhatsApp (legacy) o SINPE Movil (cliente paga primero
-   * y sube comprobante). El comprobante se sube a Cloudinary antes de
-   * crear la orden; guardamos solo url + publicId. */
-  const [paymentMethod, setPaymentMethod]   = useState('whatsapp');
-  const [proof,         setProof]           = useState(null);   /* { url, publicId, previewUrl } */
-  const [proofUploading,setProofUploading]  = useState(false);
-  const [proofError,    setProofError]      = useState('');
-
-  /* SINPE config viene del Settings de la DB (admin /admin/config). Sin
-   * estos valores no podemos mostrar el panel — el admin debe configurarlos
-   * primero. */
-  const [sinpeConfig, setSinpeConfig] = useState({ phone: '', name: '' });
-  useEffect(() => {
-    if (!USE_API) return undefined;
-    let cancelled = false;
-    api.get('/settings').then(({ data }) => {
-      if (cancelled) return;
-      setSinpeConfig({ phone: data.sinpePhone || '', name: data.sinpeName || '' });
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, [USE_API]);
+  /* Metodo de pago — el cliente elige WhatsApp o SINPE como preferencia.
+   * En ambos casos finalizamos abriendo WhatsApp para coordinar (asi el
+   * comercio puede confirmar stock fisico antes de pasar el numero SINPE
+   * y evitar cobrar productos que no esten disponibles). No subimos
+   * comprobante ni mostramos datos bancarios en la web. */
+  const [paymentMethod, setPaymentMethod] = useState('whatsapp');
 
   const shippingCost = coupon?.freeShipping ? 0 : SHIPPING[shipping].price;
   const discount     = coupon ? Math.min(coupon.discount || 0, total) : 0;
@@ -326,39 +311,6 @@ export default function Checkout() {
 
   const removeCoupon = () => { setCoupon(null); setCouponError(''); clearCartCoupon(); };
 
-  /* Upload comprobante SINPE — antes de enviar la orden. Devuelve url+publicId
-   * que el submit incluye en el payload. Validacion + Cloudinary del lado del
-   * server (5MB max, magic bytes verificados). */
-  const handleProofUpload = async (file) => {
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setProofError('La imagen no debe pesar mas de 5MB');
-      return;
-    }
-    if (!file.type.startsWith('image/')) {
-      setProofError('Solo se aceptan imagenes (JPG, PNG, WEBP)');
-      return;
-    }
-    setProofError('');
-    setProofUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append('proof', file);
-      const { data } = await api.post('/orders/payment-proof', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setProof({
-        url: data.url,
-        publicId: data.publicId,
-        previewUrl: URL.createObjectURL(file),
-      });
-    } catch (err) {
-      setProofError(err?.response?.data?.error || 'No se pudo subir el comprobante');
-    } finally {
-      setProofUploading(false);
-    }
-  };
-
   /* ── Submit ── */
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -367,11 +319,6 @@ export default function Checkout() {
       return;
     }
     if (submitting) return;
-    if (paymentMethod === 'sinpe' && !proof) {
-      setProofError('Subí el comprobante del SINPE antes de finalizar');
-      document.querySelector('[data-proof-section]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
     trackBeginCheckout(items, grandTotal);
 
     const customerData = {
@@ -379,6 +326,7 @@ export default function Checkout() {
       shippingMethod: SHIPPING[shipping].label,
       shippingCost,
       coupon: coupon ? { code: coupon.code, discount, freeShipping: coupon.freeShipping } : null,
+      paymentMethod,
     };
 
     let orderNumber = null;
@@ -416,8 +364,6 @@ export default function Checkout() {
           subtotal: total, shippingCost, shippingMethod: shipping,
           coupon: coupon ? { code: coupon.code, discount, freeShipping: coupon.freeShipping } : null,
           paymentMethod,
-          paymentProofUrl: proof?.url || '',
-          paymentProofPublicId: proof?.publicId || '',
         });
         orderNumber = data.orderNumber;
         trackPurchase(data.orderNumber, items, grandTotal);
@@ -426,12 +372,11 @@ export default function Checkout() {
       } finally { setSubmitting(false); }
     }
 
-    /* Si el cliente eligio SINPE, no abrimos WhatsApp — el pago ya quedo
-     * registrado con su comprobante. Solo abrimos WA en el flow legacy. */
-    if (paymentMethod === 'whatsapp') {
-      const url = buildWhatsAppMessage(items, customerData, orderNumber);
-      window.open(url, '_blank', 'noopener');
-    }
+    /* Siempre abrimos WhatsApp: el comercio confirma stock fisico antes de
+     * pasar datos SINPE. El metodo de pago elegido va dentro del mensaje
+     * para que el staff sepa como coordinar el cobro. */
+    const url = buildWhatsAppMessage(items, customerData, orderNumber);
+    window.open(url, '_blank', 'noopener');
     clearCart();
     navigate('/confirmacion', { state: { orderNumber, paymentMethod } });
   };
@@ -634,14 +579,6 @@ export default function Checkout() {
               <PaymentSection
                 paymentMethod={paymentMethod}
                 onChange={setPaymentMethod}
-                grandTotal={grandTotal}
-                sinpePhone={sinpeConfig.phone}
-                sinpeName={sinpeConfig.name}
-                proof={proof}
-                proofUploading={proofUploading}
-                proofError={proofError}
-                onProofUpload={handleProofUpload}
-                onProofClear={() => { setProof(null); setProofError(''); }}
               />
             </Section>
 
@@ -769,113 +706,14 @@ export default function Checkout() {
   );
 }
 
-/* Bancos con SINPE Movil en CR. BN es el unico que soporta SMS protocolar
- * (`PASE <monto> <numero>` al 2627). El resto solo tiene apps propietarias
- * sin URL scheme publico documentado — usamos botones best-effort que abren
- * la app si esta instalada, sino caen al store. */
-const BANKS = [
-  {
-    key: 'bn',
-    name: 'BN Móvil',
-    bg: '#005DAA',
-    sms: true,  /* Genera sms:2627?body=PASE ... */
-  },
-  {
-    key: 'bcr',
-    name: 'BCR Móvil',
-    bg: '#00357A',
-    scheme: 'bcrmovil://',
-    android: 'https://play.google.com/store/apps/details?id=cr.co.bancobcr.bcrmovil',
-    ios: 'https://apps.apple.com/cr/app/bcr-m%C3%B3vil/id499450390',
-  },
-  {
-    key: 'popular',
-    name: 'Banco Popular',
-    bg: '#E20B25',
-    android: 'https://play.google.com/store/apps/details?id=com.bancopopular.popularmovilcr',
-    ios: 'https://apps.apple.com/cr/app/popular-m%C3%B3vil/id1454961263',
-  },
-  {
-    key: 'davivienda',
-    name: 'Davivienda',
-    bg: '#ED1C27',
-    android: 'https://play.google.com/store/apps/details?id=com.davivienda.appdaviplata',
-    ios: 'https://apps.apple.com/cr/app/dav%C3%ADvienda-cr/id930766173',
-  },
-  {
-    key: 'wink',
-    name: 'Wink',
-    bg: '#7D3FBF',
-    android: 'https://play.google.com/store/apps/details?id=cr.co.bcr.wink',
-    ios: 'https://apps.apple.com/cr/app/wink-bcr/id1547775117',
-  },
-];
-
 /* ── PaymentSection ──
- * Selector de metodo (WhatsApp / SINPE Movil). Si SINPE: muestra panel con
- * numero+nombre+monto, botones por banco para abrir SINPE en la app, y campo
- * para subir comprobante (validado backend-side). */
-function PaymentSection({
-  paymentMethod, onChange,
-  grandTotal,
-  sinpePhone, sinpeName,
-  proof, proofUploading, proofError,
-  onProofUpload, onProofClear,
-}) {
-  const fileRef = useRef(null);
-  const [copied, setCopied] = useState('');
-
-  const sinpeConfigured = !!(sinpePhone && sinpeName);
-  /* Telefono sin formato — algunas apps pegan mejor si llega solo digitos */
-  const phoneDigits = (sinpePhone || '').replace(/\D/g, '');
-  const formattedPhone = phoneDigits.length === 8
-    ? `${phoneDigits.slice(0, 4)}-${phoneDigits.slice(4)}`
-    : (sinpePhone || '');
-
-  const copyToClipboard = (text, label) => {
-    try {
-      navigator.clipboard?.writeText(text);
-      setCopied(label);
-      setTimeout(() => setCopied((c) => c === label ? '' : c), 1800);
-    } catch {}
-  };
-
-  /* Cuando el cliente clickea un banco:
-   *  - BN: abrimos sms:2627?body=PASE <monto> <telefono>  (funciona real)
-   *  - Otros: intentamos abrir el scheme propio; si en 1s no salio (la app
-   *    no esta instalada / no soporta el scheme), redirigimos al store. */
-  const handleBankClick = (bank) => {
-    if (bank.sms) {
-      const motivo = 'JDVirtual';
-      const body = `PASE ${grandTotal} ${phoneDigits} ${motivo}`;
-      /* iOS y Android difieren en el separador (&body= vs ?body=). El doble
-       * URI con `?` funciona en ambos en la practica. */
-      window.location.href = `sms:2627?&body=${encodeURIComponent(body)}`;
-      return;
-    }
-    if (bank.scheme) {
-      const isAndroid = /Android/i.test(navigator.userAgent);
-      const isIOS = /iPhone|iPad/i.test(navigator.userAgent);
-      const fallback = isAndroid ? bank.android : isIOS ? bank.ios : null;
-
-      const start = Date.now();
-      const timer = setTimeout(() => {
-        if (Date.now() - start < 1500 && fallback) window.location.href = fallback;
-      }, 1000);
-      window.location.href = bank.scheme;
-      /* Limpiar timer si el usuario vuelve (la app se abrio bien) */
-      window.addEventListener('blur', () => clearTimeout(timer), { once: true });
-      return;
-    }
-    /* Sin scheme conocido — solo abrimos el store directo */
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    const fallback = isAndroid ? bank.android : bank.ios;
-    if (fallback) window.open(fallback, '_blank', 'noopener');
-  };
-
+ * Solo selector entre WhatsApp y SINPE. NO mostramos numero/nombre/cuenta
+ * del comercio en el sitio publico — el cliente reserva, la tienda verifica
+ * stock y le pasa los datos por WhatsApp para evitar pagos por productos
+ * que despues no estan disponibles. */
+function PaymentSection({ paymentMethod, onChange }) {
   return (
     <div className="space-y-2.5">
-      {/* Selector de metodo */}
       <label className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${
         paymentMethod === 'whatsapp'
           ? 'border-rose-400 bg-rose-50/60 shadow-sm'
@@ -888,21 +726,17 @@ function PaymentSection({
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.16c-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52s-.67-1.61-.92-2.21c-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35"/></svg>
         </span>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-ink-900">WhatsApp · Coordinamos pago</p>
-          <p className="text-xs text-ink-400 mt-0.5">Te escribimos para confirmar y pasarte el SINPE</p>
+          <p className="text-sm font-semibold text-ink-900">Pago por WhatsApp</p>
+          <p className="text-xs text-ink-400 mt-0.5">Coordinamos el método contigo (efectivo, transferencia, etc.)</p>
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Clásico</span>
       </label>
 
-      <label className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-150 ${
-        !sinpeConfigured
-          ? 'border-cream-200 bg-cream-50 opacity-60 cursor-not-allowed'
-          : paymentMethod === 'sinpe'
-          ? 'border-rose-400 bg-rose-50/60 shadow-sm cursor-pointer'
-          : 'border-cream-200 hover:border-rose-200 bg-white cursor-pointer'
+      <label className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${
+        paymentMethod === 'sinpe'
+          ? 'border-rose-400 bg-rose-50/60 shadow-sm'
+          : 'border-cream-200 hover:border-rose-200 bg-white'
       }`}>
         <input type="radio" name="payment" value="sinpe"
-          disabled={!sinpeConfigured}
           checked={paymentMethod === 'sinpe'} onChange={() => onChange('sinpe')}
           className="accent-rose-500 flex-shrink-0" />
         <span className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${paymentMethod === 'sinpe' ? 'bg-rose-100 text-rose-500' : 'bg-cream-100 text-ink-500'} transition-colors`}>
@@ -911,162 +745,35 @@ function PaymentSection({
           </svg>
         </span>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-ink-900">SINPE Móvil · Pagás ahora</p>
-          <p className="text-xs text-ink-400 mt-0.5">
-            {sinpeConfigured
-              ? 'Adjuntás el comprobante y dejamos todo listo'
-              : 'No disponible — el comercio aún no configuró SINPE'}
-          </p>
+          <p className="text-sm font-semibold text-ink-900">SINPE Móvil</p>
+          <p className="text-xs text-ink-400 mt-0.5">Te enviamos el número por WhatsApp al confirmar disponibilidad</p>
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Rápido</span>
       </label>
 
-      {/* Panel SINPE */}
+      {/* Aviso explicativo cuando elige SINPE */}
       <AnimatePresence>
-        {paymentMethod === 'sinpe' && sinpeConfigured && (
+        {paymentMethod === 'sinpe' && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            data-proof-section
+            transition={{ duration: 0.24 }}
             className="overflow-hidden">
-            <div className="mt-2 rounded-2xl border-2 border-rose-100 bg-gradient-to-br from-rose-50/60 to-white p-4 sm:p-5 space-y-4">
-
-              {/* Datos del pago — 3 cards con copy */}
-              <div className="grid sm:grid-cols-3 gap-2.5">
-                <CopyCard
-                  label="Teléfono SINPE"
-                  value={formattedPhone}
-                  copyValue={phoneDigits}
-                  isCopied={copied === 'phone'}
-                  onCopy={() => copyToClipboard(phoneDigits, 'phone')}
-                  mono
-                />
-                <CopyCard
-                  label="Titular"
-                  value={sinpeName}
-                  isCopied={copied === 'name'}
-                  onCopy={() => copyToClipboard(sinpeName, 'name')}
-                />
-                <CopyCard
-                  label="Monto"
-                  value={formatCRC(grandTotal)}
-                  copyValue={String(grandTotal)}
-                  isCopied={copied === 'amount'}
-                  onCopy={() => copyToClipboard(String(grandTotal), 'amount')}
-                  highlight
-                />
-              </div>
-
-              {/* Banks — abrir SINPE en la app */}
-              <div>
-                <p className="text-[10px] font-bold text-ink-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                  <span className="w-1 h-1 rounded-full bg-rose-500" />
-                  Abrí SINPE en tu banco
+            <div className="mt-1 flex items-start gap-2.5 rounded-xl border border-rose-100 bg-rose-50/50 px-3.5 py-3">
+              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-white border border-rose-100 text-rose-500 flex items-center justify-center mt-0.5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[12px] text-ink-700 leading-relaxed">
+                  <strong>Reservás tu pedido sin pagar ahora.</strong> Verificamos stock y te enviamos por WhatsApp el número de SINPE Móvil para que hagas la transferencia.
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                  {BANKS.map((bank) => (
-                    <button
-                      key={bank.key}
-                      type="button"
-                      onClick={() => handleBankClick(bank)}
-                      className="group relative overflow-hidden rounded-xl p-3 text-white font-bold text-xs flex flex-col items-center justify-center gap-1.5 transition-transform hover:scale-[1.03] active:scale-[0.97] shadow-sm"
-                      style={{ background: bank.bg, minHeight: 64 }}>
-                      <span className="leading-tight text-center">{bank.name}</span>
-                      {bank.sms && (
-                        <span className="text-[9px] font-medium uppercase tracking-wider opacity-80">SMS al 2627</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-[10px] text-ink-400 mt-2 leading-relaxed">
-                  <strong>BN</strong> abre el SMS pre-llenado al 2627.
-                  Los otros bancos intentan abrir su app — si no se abre, copiá los datos de arriba y hacelo desde adentro de la app manualmente.
-                </p>
-              </div>
-
-              {/* Instrucciones */}
-              <ol className="text-[12px] text-ink-700 space-y-1.5 pl-5 list-decimal marker:text-rose-400 marker:font-bold">
-                <li>Hacé el SINPE por <strong>{formatCRC(grandTotal)}</strong> al <strong>{formattedPhone}</strong>.</li>
-                <li>Tomá un <strong>screenshot del comprobante</strong>.</li>
-                <li>Subilo acá abajo y finalizá el pedido.</li>
-              </ol>
-
-              {/* Upload */}
-              <div className="bg-white border-2 border-dashed border-cream-200 rounded-xl p-4">
-                {proof ? (
-                  <div className="flex items-center gap-3">
-                    <img src={proof.previewUrl || proof.url} alt="Comprobante"
-                      className="w-16 h-16 rounded-lg object-cover border border-cream-200" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-emerald-700 flex items-center gap-1.5">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        Comprobante listo
-                      </p>
-                      <p className="text-[11px] text-ink-400 mt-0.5">Cambiar si te equivocaste</p>
-                    </div>
-                    <button type="button" onClick={onProofClear}
-                      className="text-xs font-semibold text-ink-500 hover:text-rose-500 px-3 py-1.5 rounded-lg hover:bg-rose-50 transition-colors">
-                      Quitar
-                    </button>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <input ref={fileRef} type="file" accept="image/*" hidden
-                      onChange={(e) => onProofUpload(e.target.files?.[0])} />
-                    <button type="button" onClick={() => fileRef.current?.click()}
-                      disabled={proofUploading}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-ink-900 hover:bg-rose-500 disabled:opacity-60 text-white text-sm font-bold transition-colors">
-                      {proofUploading ? (
-                        <>
-                          <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                          Subiendo…
-                        </>
-                      ) : (
-                        <>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-                          </svg>
-                          Subir comprobante
-                        </>
-                      )}
-                    </button>
-                    <p className="text-[11px] text-ink-400 mt-2">JPG, PNG o WEBP · máx 5MB</p>
-                  </div>
-                )}
-                {proofError && (
-                  <p className="text-[11px] text-red-600 mt-2 text-center font-medium">{proofError}</p>
-                )}
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-/* CopyCard — card uniforme para mostrar dato + boton "Copiar" con feedback.
- * Si highlight=true, va en rose-500 con texto blanco (para el monto). */
-function CopyCard({ label, value, copyValue, isCopied, onCopy, mono, highlight }) {
-  const bg = highlight ? 'bg-rose-500 text-white shadow-sm' : 'bg-white border border-cream-200';
-  const labelColor = highlight ? 'text-white/85' : 'text-ink-400';
-  const btnCls = highlight
-    ? 'bg-white/15 hover:bg-white/25 text-white'
-    : 'text-rose-600 hover:text-rose-700 hover:bg-rose-50';
-  return (
-    <div className={`rounded-xl px-3 py-2.5 flex items-center justify-between gap-2 ${bg}`}>
-      <div className="min-w-0 flex-1">
-        <p className={`text-[10px] font-bold uppercase tracking-widest ${labelColor}`}>{label}</p>
-        <p className={`leading-tight mt-0.5 truncate ${highlight ? 'text-base font-bold' : 'text-sm font-semibold text-ink-900'} ${mono ? 'font-mono' : ''}`}>
-          {value}
-        </p>
-      </div>
-      <button type="button" onClick={onCopy}
-        className={`text-[11px] font-semibold px-2 py-1 rounded-lg transition-colors flex-shrink-0 ${btnCls}`}>
-        {isCopied ? '✓ Copiado' : 'Copiar'}
-      </button>
     </div>
   );
 }

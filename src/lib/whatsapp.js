@@ -36,6 +36,10 @@ export function buildWhatsAppMessage(items, customer = null, orderNumber = null)
   if (customer?.shippingMethod) {
     parts.push(`Envío (${customer.shippingMethod}): ${shippingCost === 0 ? 'Gratis' : formatCRC(shippingCost)}`);
   }
+  if (customer?.paymentMethod) {
+    const label = customer.paymentMethod === 'sinpe' ? 'SINPE Móvil' : 'WhatsApp';
+    parts.push(`Método de pago: ${label}`);
+  }
   parts.push(`*TOTAL: ${formatCRC(total)}*`);
 
   parts.push('', '━━━━━━━━━━━━━━━━━━', '', '*DATOS DEL CLIENTE*');

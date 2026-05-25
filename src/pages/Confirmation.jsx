@@ -203,11 +203,11 @@ export default function Confirmation() {
             transition={{ delay: 0.5, duration: 0.5 }}
             className="text-center mb-8">
             <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink-900 mb-3 leading-tight">
-              {isSinpe ? '¡Pago recibido!' : '¡Pedido enviado!'}
+              ¡Pedido enviado!
             </h1>
             <p className="text-ink-500 leading-relaxed">
               {isSinpe
-                ? 'Verificamos tu comprobante de SINPE y te confirmamos por WhatsApp en las próximas horas. Tu pedido ya quedó registrado.'
+                ? 'Tu pedido quedó registrado. Verificamos disponibilidad y te enviamos por WhatsApp el número de SINPE Móvil para completar la transferencia.'
                 : 'Tu pedido fue enviado por WhatsApp. Te confirmamos los detalles y coordinamos el envío muy pronto.'}
             </p>
           </motion.div>

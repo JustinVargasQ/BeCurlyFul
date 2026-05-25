@@ -975,23 +975,25 @@ export default function AdminOrders() {
   );
 }
 
-/* Bloque de pago dentro del OrderDrawer.
- * - Chip de metodo (WhatsApp / SINPE) y de estado del pago.
- * - Si SINPE: muestra imagen del comprobante con zoom al click, y CTA
- *   para verificar/rechazar el pago (PATCH /admin/:id/payment-status).
- * - Si WhatsApp: solo informa que el pago se coordina por fuera. */
+
+/* Bloque de pago dentro del OrderDrawer — version simplificada (sin foto
+ * de comprobante porque ahora el pago se coordina por WhatsApp despues de
+ * confirmar stock fisico). Solo muestra:
+ *  - Chip del metodo preferido (WhatsApp / SINPE) que eligio el cliente
+ *  - Estado del cobro: 'Coordinando' (default) / 'Cobrado' / 'Rechazado'
+ *  - CTAs para marcar como cobrado o revertir */
 function PaymentBlock({ order, onVerify }) {
-  const [zoomed, setZoomed] = useState(false);
   const method = order.paymentMethod || 'whatsapp';
   const status = order.paymentStatus || 'na';
 
   const STATUS_PILL = {
-    na:       { label: 'No aplica',   cls: 'bg-cream-100 text-ink-500 border-cream-200' },
-    pending:  { label: 'Por verificar', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-    verified: { label: 'Verificado',  cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    na:       { label: 'Coordinando', cls: 'bg-cream-100 text-ink-500 border-cream-200' },
+    pending:  { label: 'Por cobrar',  cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+    verified: { label: 'Cobrado',     cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
     rejected: { label: 'Rechazado',   cls: 'bg-red-50 text-red-700 border-red-200' },
   };
   const pill = STATUS_PILL[status] || STATUS_PILL.na;
+  const isPaid = status === 'verified';
 
   return (
     <div className="bg-white rounded-2xl border border-cream-100 shadow-card p-5">
@@ -1014,66 +1016,29 @@ function PaymentBlock({ order, onVerify }) {
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-ink-900">
-            {method === 'sinpe' ? 'SINPE Móvil' : 'WhatsApp (coordinación manual)'}
+            Cliente prefiere: <span className="text-rose-600">{method === 'sinpe' ? 'SINPE Móvil' : 'WhatsApp'}</span>
           </p>
           {order.paymentVerifiedAt && (
             <p className="text-[11px] text-ink-400">
-              Verificado el {new Date(order.paymentVerifiedAt).toLocaleString('es-CR')}
+              Cobrado el {new Date(order.paymentVerifiedAt).toLocaleString('es-CR')}
             </p>
           )}
         </div>
       </div>
 
-      {method === 'sinpe' && order.paymentProofUrl && (
-        <>
-          <button type="button" onClick={() => setZoomed(true)}
-            className="block w-full mt-1 rounded-xl overflow-hidden border border-cream-200 hover:border-rose-300 transition-colors group">
-            <img src={order.paymentProofUrl} alt="Comprobante SINPE"
-              className="w-full max-h-64 object-contain bg-cream-50 group-hover:opacity-90 transition-opacity" />
-            <p className="text-[11px] text-ink-400 text-center py-1.5 bg-cream-50">Click para ampliar</p>
+      <div className="flex gap-2">
+        {!isPaid ? (
+          <button onClick={() => onVerify(order._id, 'verified')}
+            className="flex-1 px-3 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors">
+            ✓ Marcar como cobrado
           </button>
-
-          {status === 'pending' && (
-            <div className="mt-3 flex gap-2">
-              <button onClick={() => onVerify(order._id, 'verified')}
-                className="flex-1 px-3 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors">
-                ✓ Marcar como pagado
-              </button>
-              <button onClick={() => onVerify(order._id, 'rejected')}
-                className="px-3 py-2.5 rounded-xl bg-white border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold transition-colors">
-                Rechazar
-              </button>
-            </div>
-          )}
-          {status === 'verified' && (
-            <button onClick={() => onVerify(order._id, 'rejected')}
-              className="mt-3 w-full px-3 py-2 rounded-xl bg-white border border-cream-200 text-ink-500 hover:text-red-600 hover:border-red-200 text-xs font-semibold transition-colors">
-              Revertir verificación
-            </button>
-          )}
-          {status === 'rejected' && (
-            <button onClick={() => onVerify(order._id, 'verified')}
-              className="mt-3 w-full px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors">
-              Marcar como pagado
-            </button>
-          )}
-        </>
-      )}
-
-      {method === 'sinpe' && !order.paymentProofUrl && (
-        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          El cliente eligió SINPE pero no adjuntó comprobante. Coordiná por WhatsApp.
-        </p>
-      )}
-
-      {/* Lightbox del comprobante */}
-      {zoomed && (
-        <div onClick={() => setZoomed(false)}
-          className="fixed inset-0 z-[100] bg-ink-900/85 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out">
-          <img src={order.paymentProofUrl} alt="Comprobante SINPE"
-            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl" />
-        </div>
-      )}
+        ) : (
+          <button onClick={() => onVerify(order._id, 'rejected')}
+            className="flex-1 px-3 py-2.5 rounded-xl bg-white border border-cream-200 text-ink-600 hover:text-red-600 hover:border-red-200 text-xs font-semibold transition-colors">
+            Revertir cobro
+          </button>
+        )}
+      </div>
     </div>
   );
 }

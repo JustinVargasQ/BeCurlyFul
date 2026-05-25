@@ -2,7 +2,6 @@ const router      = require('express').Router();
 const rateLimit   = require('express-rate-limit');
 const ctrl        = require('../controllers/orderController');
 const requireAuth = require('../middleware/auth');
-const upload      = require('../middleware/upload');
 const { optionalUser } = require('../middleware/userAuth');
 
 /* Anti-spam: max 6 ordenes / hora / IP. Un cliente legitimo no necesita mas;
@@ -25,20 +24,8 @@ const trackLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-/* Upload del comprobante SINPE — rate limit propio (5/min/IP).
- * Es publico porque corre durante el checkout antes de tener orden. El
- * upload.toCloud valida magic bytes + tamano antes de hablar con Cloudinary. */
-const proofLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 5,
-  standardHeaders: 'draft-7',
-  legacyHeaders: false,
-  message: { error: 'Demasiados intentos de subida. Esperá un momento.' },
-});
-
 /* Public — checkout works for guests AND logged-in users */
 router.post('/',                    createOrderLimiter, optionalUser, ctrl.create);
-router.post('/payment-proof',       proofLimiter, upload.single('proof'), upload.toCloud, ctrl.uploadPaymentProof);
 router.get('/track/:number',        trackLimiter, ctrl.getByNumber);
 
 /* Admin */

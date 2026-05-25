@@ -18,8 +18,6 @@ exports.create = async (req, res, next) => {
       shippingMethod = 'correos',
       coupon: couponData = null,
       paymentMethod = 'whatsapp',
-      paymentProofUrl = '',
-      paymentProofPublicId = '',
     } = req.body;
 
     /* Validar paymentMethod — solo aceptamos 2 valores por enum. Si el
@@ -172,8 +170,6 @@ exports.create = async (req, res, next) => {
       total,
       shippingMethod,
       paymentMethod: cleanPaymentMethod,
-      paymentProofUrl: cleanPaymentMethod === 'sinpe' ? String(paymentProofUrl || '').slice(0, 500) : '',
-      paymentProofPublicId: cleanPaymentMethod === 'sinpe' ? String(paymentProofPublicId || '').slice(0, 200) : '',
       paymentStatus,
       status:       initialStatus,
       whatsappSent: true,
@@ -585,23 +581,9 @@ exports.bulkUpdateStatus = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-/* POST /payment-proof — sube comprobante a Cloudinary PRE-crear orden.
- * El cliente sube la imagen y obtiene { url, publicId } que despues manda
- * adjuntos al POST /orders. Asi separamos upload del create, evitamos
- * payloads multipart en el flow principal y reusamos el middleware upload. */
-exports.uploadPaymentProof = async (req, res, next) => {
-  try {
-    if (!req.cloudinaryFiles?.length) {
-      return res.status(400).json({ error: 'No se subió ningun archivo' });
-    }
-    const { url, publicId } = req.cloudinaryFiles[0];
-    res.json({ url, publicId });
-  } catch (err) { next(err); }
-};
-
-/* PATCH /admin/:id/payment-status — admin marca pago como verified/rejected.
- * Solo aplica a ordenes con paymentMethod='sinpe' (en whatsapp no hay nada
- * que verificar, paymentStatus queda 'na' siempre). */
+/* PATCH /admin/:id/payment-status — admin marca el cobro como hecho o lo
+ * revierte. Aplica a cualquier metodo (WhatsApp / SINPE) ya que el cobro
+ * siempre se coordina manualmente por WA tras confirmar stock. */
 exports.updatePaymentStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
@@ -610,9 +592,6 @@ exports.updatePaymentStatus = async (req, res, next) => {
     }
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'Pedido no encontrado' });
-    if (order.paymentMethod !== 'sinpe') {
-      return res.status(400).json({ error: 'Solo se puede verificar pagos SINPE' });
-    }
     order.paymentStatus = status;
     order.paymentVerifiedAt = status === 'verified' ? new Date() : null;
     await order.save();
