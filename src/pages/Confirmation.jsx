@@ -183,6 +183,8 @@ const STEPS = [
 export default function Confirmation() {
   const { state }  = useLocation();
   const orderNumber = state?.orderNumber;
+  const paymentMethod = state?.paymentMethod || 'whatsapp';
+  const isSinpe = paymentMethod === 'sinpe';
 
   return (
     <>
@@ -201,10 +203,12 @@ export default function Confirmation() {
             transition={{ delay: 0.5, duration: 0.5 }}
             className="text-center mb-8">
             <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink-900 mb-3 leading-tight">
-              ¡Pedido enviado!
+              {isSinpe ? '¡Pago recibido!' : '¡Pedido enviado!'}
             </h1>
             <p className="text-ink-500 leading-relaxed">
-              Tu pedido fue enviado por WhatsApp. Te confirmamos los detalles y coordinamos el envío muy pronto.
+              {isSinpe
+                ? 'Verificamos tu comprobante de SINPE y te confirmamos por WhatsApp en las próximas horas. Tu pedido ya quedó registrado.'
+                : 'Tu pedido fue enviado por WhatsApp. Te confirmamos los detalles y coordinamos el envío muy pronto.'}
             </p>
           </motion.div>
 

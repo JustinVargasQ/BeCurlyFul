@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useCart from '../hooks/useCart';
@@ -157,6 +157,11 @@ const SectionTruckIcon = () => (
     <circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>
   </svg>
 );
+const SectionPayIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+  </svg>
+);
 
 const inputBase = 'w-full border rounded-xl px-4 py-3 text-ink-900 placeholder-ink-300 focus:outline-none transition-all bg-white text-sm';
 const inputOk   = `${inputBase} border-emerald-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`;
@@ -243,6 +248,14 @@ export default function Checkout() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [submitting,    setSubmitting]    = useState(false);
 
+  /* Metodo de pago — WhatsApp (legacy) o SINPE Movil (cliente paga primero
+   * y sube comprobante). El comprobante se sube a Cloudinary antes de
+   * crear la orden; guardamos solo url + publicId. */
+  const [paymentMethod, setPaymentMethod]   = useState('whatsapp');
+  const [proof,         setProof]           = useState(null);   /* { url, publicId, previewUrl } */
+  const [proofUploading,setProofUploading]  = useState(false);
+  const [proofError,    setProofError]      = useState('');
+
   const shippingCost = coupon?.freeShipping ? 0 : SHIPPING[shipping].price;
   const discount     = coupon ? Math.min(coupon.discount || 0, total) : 0;
   const grandTotal   = Math.max(0, total - discount) + shippingCost;
@@ -298,6 +311,39 @@ export default function Checkout() {
 
   const removeCoupon = () => { setCoupon(null); setCouponError(''); clearCartCoupon(); };
 
+  /* Upload comprobante SINPE — antes de enviar la orden. Devuelve url+publicId
+   * que el submit incluye en el payload. Validacion + Cloudinary del lado del
+   * server (5MB max, magic bytes verificados). */
+  const handleProofUpload = async (file) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setProofError('La imagen no debe pesar mas de 5MB');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setProofError('Solo se aceptan imagenes (JPG, PNG, WEBP)');
+      return;
+    }
+    setProofError('');
+    setProofUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('proof', file);
+      const { data } = await api.post('/orders/payment-proof', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setProof({
+        url: data.url,
+        publicId: data.publicId,
+        previewUrl: URL.createObjectURL(file),
+      });
+    } catch (err) {
+      setProofError(err?.response?.data?.error || 'No se pudo subir el comprobante');
+    } finally {
+      setProofUploading(false);
+    }
+  };
+
   /* ── Submit ── */
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -306,6 +352,11 @@ export default function Checkout() {
       return;
     }
     if (submitting) return;
+    if (paymentMethod === 'sinpe' && !proof) {
+      setProofError('Subí el comprobante del SINPE antes de finalizar');
+      document.querySelector('[data-proof-section]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     trackBeginCheckout(items, grandTotal);
 
     const customerData = {
@@ -349,6 +400,9 @@ export default function Checkout() {
           })),
           subtotal: total, shippingCost, shippingMethod: shipping,
           coupon: coupon ? { code: coupon.code, discount, freeShipping: coupon.freeShipping } : null,
+          paymentMethod,
+          paymentProofUrl: proof?.url || '',
+          paymentProofPublicId: proof?.publicId || '',
         });
         orderNumber = data.orderNumber;
         trackPurchase(data.orderNumber, items, grandTotal);
@@ -357,10 +411,14 @@ export default function Checkout() {
       } finally { setSubmitting(false); }
     }
 
-    const url = buildWhatsAppMessage(items, customerData, orderNumber);
-    window.open(url, '_blank', 'noopener');
+    /* Si el cliente eligio SINPE, no abrimos WhatsApp — el pago ya quedo
+     * registrado con su comprobante. Solo abrimos WA en el flow legacy. */
+    if (paymentMethod === 'whatsapp') {
+      const url = buildWhatsAppMessage(items, customerData, orderNumber);
+      window.open(url, '_blank', 'noopener');
+    }
     clearCart();
-    navigate('/confirmacion', { state: { orderNumber } });
+    navigate('/confirmacion', { state: { orderNumber, paymentMethod } });
   };
 
   if (items.length === 0) {
@@ -389,7 +447,7 @@ export default function Checkout() {
             </div>
             {/* Progress pills */}
             <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold">
-              {['Datos','Envío'].map((s, i) => (
+              {['Datos','Envío','Pago'].map((s, i) => (
                 <div key={s} className="flex items-center gap-1.5">
                   <span className={`px-3 py-1 rounded-full ${i === 0 ? 'bg-rose-500 text-white' : 'bg-white text-ink-400 border border-cream-200'}`}>
                     {i + 1}. {s}
@@ -407,7 +465,7 @@ export default function Checkout() {
           <div className="space-y-5">
 
             {/* Contact */}
-            <Section step="1/2" Icon={SectionUserIcon} title="Datos de contacto" sub="Información para coordinar tu pedido">
+            <Section step="1/3" Icon={SectionUserIcon} title="Datos de contacto" sub="Información para coordinar tu pedido">
               <div className="grid sm:grid-cols-2 gap-4">
 
                 <Field label="Nombre completo" required error={errors.name} touched={touched.name} icon={<UserIcon />}>
@@ -529,7 +587,7 @@ export default function Checkout() {
             </Section>
 
             {/* Shipping */}
-            <Section step="2/2" Icon={SectionTruckIcon} title="Método de envío" sub="Elegí cómo recibir tu pedido">
+            <Section step="2/3" Icon={SectionTruckIcon} title="Método de envío" sub="Elegí cómo recibir tu pedido">
               <div className="space-y-2.5">
                 {Object.entries(SHIPPING).map(([key, val]) => (
                   <label key={key}
@@ -554,6 +612,20 @@ export default function Checkout() {
                   </label>
                 ))}
               </div>
+            </Section>
+
+            {/* Payment */}
+            <Section step="3/3" Icon={SectionPayIcon} title="Método de pago" sub="Elegí cómo querés pagar tu pedido">
+              <PaymentSection
+                paymentMethod={paymentMethod}
+                onChange={setPaymentMethod}
+                grandTotal={grandTotal}
+                proof={proof}
+                proofUploading={proofUploading}
+                proofError={proofError}
+                onProofUpload={handleProofUpload}
+                onProofClear={() => { setProof(null); setProofError(''); }}
+              />
             </Section>
 
           </div>
@@ -667,7 +739,9 @@ export default function Checkout() {
                   )}
                 </motion.button>
                 <p className="text-center text-[11px] text-ink-400 mt-2.5 leading-relaxed">
-                  Se abrirá WhatsApp con tu pedido listo para enviar
+                  {paymentMethod === 'sinpe'
+                    ? 'Tu comprobante queda adjunto. Verificamos el pago y te confirmamos por WhatsApp.'
+                    : 'Se abrirá WhatsApp con tu pedido listo para enviar'}
                 </p>
               </div>
             </div>
@@ -675,5 +749,201 @@ export default function Checkout() {
         </form>
       </div>
     </main>
+  );
+}
+
+/* ── PaymentSection ──
+ * Selector de metodo (WhatsApp / SINPE Movil). Si SINPE: muestra panel con
+ * numero+nombre+monto, QR con los datos de pago para escanear desde la app
+ * del banco, y campo para subir comprobante (validado backend-side).
+ * Lift state: paymentMethod, proof, proofUploading, proofError vienen del
+ * Checkout — esta seccion es solo presentacion + dispatch de upload. */
+function PaymentSection({
+  paymentMethod, onChange,
+  grandTotal,
+  proof, proofUploading, proofError,
+  onProofUpload, onProofClear,
+}) {
+  const qrRef = useRef(null);
+  const fileRef = useRef(null);
+
+  /* Pintar el QR solo cuando esta seleccionado SINPE — no hace falta cargar
+   * la lib qrcode (~50KB) si el cliente eligio WhatsApp. Import dinamico. */
+  useEffect(() => {
+    if (paymentMethod !== 'sinpe' || !qrRef.current) return;
+    let cancelled = false;
+    /* Contenido del QR: instrucciones legibles para que el cliente las copie
+     * si su app no soporta deep links de SINPE (la mayoria de los bancos no
+     * tiene URI scheme estandar). El QR sirve sobre todo como visual + para
+     * escanear desde la PC y leer en el celu. */
+    const payload = [
+      'SINPE Movil — JD Virtual',
+      `Tel: ${SINPE_NUMBER}`,
+      `Nombre: ${SINPE_NAME}`,
+      `Monto: ${formatCRC(grandTotal)}`,
+    ].join('\n');
+    import('qrcode').then((QR) => {
+      if (cancelled || !qrRef.current) return;
+      QR.toCanvas(qrRef.current, payload, { width: 180, margin: 1, color: { dark: '#1a1414', light: '#ffffff' } });
+    });
+    return () => { cancelled = true; };
+  }, [paymentMethod, grandTotal]);
+
+  const copyToClipboard = (text) => {
+    try { navigator.clipboard?.writeText(text); } catch {}
+  };
+
+  return (
+    <div className="space-y-2.5">
+      {/* Selector de metodo */}
+      <label className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${
+        paymentMethod === 'whatsapp'
+          ? 'border-rose-400 bg-rose-50/60 shadow-sm'
+          : 'border-cream-200 hover:border-rose-200 bg-white'
+      }`}>
+        <input type="radio" name="payment" value="whatsapp"
+          checked={paymentMethod === 'whatsapp'} onChange={() => onChange('whatsapp')}
+          className="accent-rose-500 flex-shrink-0" />
+        <span className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${paymentMethod === 'whatsapp' ? 'bg-rose-100 text-rose-500' : 'bg-cream-100 text-ink-500'} transition-colors`}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.16c-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52s-.67-1.61-.92-2.21c-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35"/></svg>
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-ink-900">WhatsApp · Coordinamos pago</p>
+          <p className="text-xs text-ink-400 mt-0.5">Te escribimos para confirmar y pasarte el SINPE</p>
+        </div>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Clásico</span>
+      </label>
+
+      <label className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${
+        paymentMethod === 'sinpe'
+          ? 'border-rose-400 bg-rose-50/60 shadow-sm'
+          : 'border-cream-200 hover:border-rose-200 bg-white'
+      }`}>
+        <input type="radio" name="payment" value="sinpe"
+          checked={paymentMethod === 'sinpe'} onChange={() => onChange('sinpe')}
+          className="accent-rose-500 flex-shrink-0" />
+        <span className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${paymentMethod === 'sinpe' ? 'bg-rose-100 text-rose-500' : 'bg-cream-100 text-ink-500'} transition-colors`}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+          </svg>
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-ink-900">SINPE Móvil · Pagás ahora</p>
+          <p className="text-xs text-ink-400 mt-0.5">Adjuntás el comprobante y dejamos todo listo</p>
+        </div>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Rápido</span>
+      </label>
+
+      {/* Panel SINPE */}
+      <AnimatePresence>
+        {paymentMethod === 'sinpe' && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            data-proof-section
+            className="overflow-hidden">
+            <div className="mt-2 rounded-2xl border-2 border-rose-100 bg-gradient-to-br from-rose-50/60 to-white p-4 sm:p-5 space-y-4">
+              <div className="grid sm:grid-cols-[180px_1fr] gap-4 items-start">
+                {/* QR */}
+                <div className="flex flex-col items-center bg-white border border-cream-200 rounded-xl p-3">
+                  <canvas ref={qrRef} className="rounded" />
+                  <p className="text-[10px] text-ink-400 mt-2 font-semibold uppercase tracking-widest">Datos del pago</p>
+                </div>
+
+                {/* Detalles + copy */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between gap-2 bg-white border border-cream-200 rounded-xl px-3.5 py-2.5">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-ink-400 uppercase tracking-widest">Teléfono SINPE</p>
+                      <p className="text-base font-mono font-bold text-ink-900">{SINPE_NUMBER}</p>
+                    </div>
+                    <button type="button" onClick={() => copyToClipboard(SINPE_NUMBER.replace(/\D/g, ''))}
+                      className="text-xs font-semibold text-rose-600 hover:text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50 transition-colors flex-shrink-0">
+                      Copiar
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 bg-white border border-cream-200 rounded-xl px-3.5 py-2.5">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-ink-400 uppercase tracking-widest">Nombre del titular</p>
+                      <p className="text-sm font-semibold text-ink-900 truncate">{SINPE_NAME}</p>
+                    </div>
+                    <button type="button" onClick={() => copyToClipboard(SINPE_NAME)}
+                      className="text-xs font-semibold text-rose-600 hover:text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50 transition-colors flex-shrink-0">
+                      Copiar
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 bg-rose-500 text-white rounded-xl px-3.5 py-2.5 shadow-sm">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-widest opacity-85">Monto a transferir</p>
+                      <p className="text-lg font-bold leading-tight">{formatCRC(grandTotal)}</p>
+                    </div>
+                    <button type="button" onClick={() => copyToClipboard(String(grandTotal))}
+                      className="text-xs font-bold bg-white/15 hover:bg-white/25 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
+                      Copiar
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Instrucciones */}
+              <ol className="text-[12px] text-ink-700 space-y-1.5 pl-5 list-decimal marker:text-rose-400 marker:font-bold">
+                <li>Abrí la app de tu banco y entrá a <strong>SINPE Móvil</strong>.</li>
+                <li>Transferí <strong>{formatCRC(grandTotal)}</strong> al <strong>{SINPE_NUMBER}</strong> ({SINPE_NAME}).</li>
+                <li>Tomá un <strong>screenshot del comprobante</strong> y subilo acá abajo.</li>
+              </ol>
+
+              {/* Upload */}
+              <div className="bg-white border-2 border-dashed border-cream-200 rounded-xl p-4">
+                {proof ? (
+                  <div className="flex items-center gap-3">
+                    <img src={proof.previewUrl || proof.url} alt="Comprobante"
+                      className="w-16 h-16 rounded-lg object-cover border border-cream-200" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-emerald-700 flex items-center gap-1.5">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Comprobante listo
+                      </p>
+                      <p className="text-[11px] text-ink-400 mt-0.5">Cambiar si te equivocaste</p>
+                    </div>
+                    <button type="button" onClick={onProofClear}
+                      className="text-xs font-semibold text-ink-500 hover:text-rose-500 px-3 py-1.5 rounded-lg hover:bg-rose-50 transition-colors">
+                      Quitar
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <input ref={fileRef} type="file" accept="image/*" hidden
+                      onChange={(e) => onProofUpload(e.target.files?.[0])} />
+                    <button type="button" onClick={() => fileRef.current?.click()}
+                      disabled={proofUploading}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-ink-900 hover:bg-rose-500 disabled:opacity-60 text-white text-sm font-bold transition-colors">
+                      {proofUploading ? (
+                        <>
+                          <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                          Subiendo…
+                        </>
+                      ) : (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                          </svg>
+                          Subir comprobante
+                        </>
+                      )}
+                    </button>
+                    <p className="text-[11px] text-ink-400 mt-2">JPG, PNG o WEBP · máx 5MB</p>
+                  </div>
+                )}
+                {proofError && (
+                  <p className="text-[11px] text-red-600 mt-2 text-center font-medium">{proofError}</p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

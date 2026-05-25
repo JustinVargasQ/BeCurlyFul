@@ -17,7 +17,14 @@ exports.create = async (req, res, next) => {
       items,
       shippingMethod = 'correos',
       coupon: couponData = null,
+      paymentMethod = 'whatsapp',
+      paymentProofUrl = '',
+      paymentProofPublicId = '',
     } = req.body;
+
+    /* Validar paymentMethod — solo aceptamos 2 valores por enum. Si el
+     * cliente manda algo raro, fallback a whatsapp (no rompemos el pedido). */
+    const cleanPaymentMethod = paymentMethod === 'sinpe' ? 'sinpe' : 'whatsapp';
 
     /* ── Basic shape validation ── */
     if (!customer || !items?.length) {
@@ -146,6 +153,12 @@ exports.create = async (req, res, next) => {
       customer.email = req.user.email;
     }
 
+    /* Estado de pago derivado del metodo:
+     *  - whatsapp -> 'na' (cliente coordina pago manual por WA, fuera del sistema)
+     *  - sinpe con comprobante -> 'pending' (admin verifica)
+     *  - sinpe sin comprobante -> 'pending' tambien (caso raro pero posible) */
+    const paymentStatus = cleanPaymentMethod === 'sinpe' ? 'pending' : 'na';
+
     const order = await Order.create({
       customer,
       userId: req.user?.id || null,
@@ -158,6 +171,10 @@ exports.create = async (req, res, next) => {
       shippingCost,
       total,
       shippingMethod,
+      paymentMethod: cleanPaymentMethod,
+      paymentProofUrl: cleanPaymentMethod === 'sinpe' ? String(paymentProofUrl || '').slice(0, 500) : '',
+      paymentProofPublicId: cleanPaymentMethod === 'sinpe' ? String(paymentProofPublicId || '').slice(0, 200) : '',
+      paymentStatus,
       status:       initialStatus,
       whatsappSent: true,
     });
@@ -565,6 +582,44 @@ exports.bulkUpdateStatus = async (req, res, next) => {
     }
     const result = await Order.updateMany({ _id: { $in: ids } }, { status });
     res.json({ updated: result.modifiedCount });
+  } catch (err) { next(err); }
+};
+
+/* POST /payment-proof — sube comprobante a Cloudinary PRE-crear orden.
+ * El cliente sube la imagen y obtiene { url, publicId } que despues manda
+ * adjuntos al POST /orders. Asi separamos upload del create, evitamos
+ * payloads multipart en el flow principal y reusamos el middleware upload. */
+exports.uploadPaymentProof = async (req, res, next) => {
+  try {
+    if (!req.cloudinaryFiles?.length) {
+      return res.status(400).json({ error: 'No se subió ningun archivo' });
+    }
+    const { url, publicId } = req.cloudinaryFiles[0];
+    res.json({ url, publicId });
+  } catch (err) { next(err); }
+};
+
+/* PATCH /admin/:id/payment-status — admin marca pago como verified/rejected.
+ * Solo aplica a ordenes con paymentMethod='sinpe' (en whatsapp no hay nada
+ * que verificar, paymentStatus queda 'na' siempre). */
+exports.updatePaymentStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    if (!['verified', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Estado invalido — usá verified o rejected' });
+    }
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ error: 'Pedido no encontrado' });
+    if (order.paymentMethod !== 'sinpe') {
+      return res.status(400).json({ error: 'Solo se puede verificar pagos SINPE' });
+    }
+    order.paymentStatus = status;
+    order.paymentVerifiedAt = status === 'verified' ? new Date() : null;
+    await order.save();
+    res.json({
+      paymentStatus: order.paymentStatus,
+      paymentVerifiedAt: order.paymentVerifiedAt,
+    });
   } catch (err) { next(err); }
 };
 

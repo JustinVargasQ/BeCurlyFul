@@ -44,6 +44,23 @@ const orderSchema = new Schema(
     // 'retiro' (no 'pickup') porque asi lo usa el frontend y el controller.
     // Aceptamos 'pickup' como alias historico para no romper ordenes viejas.
     shippingMethod:{ type: String, enum: ['correos', 'express', 'retiro', 'pickup'], default: 'correos' },
+    /* Metodo de pago — 'whatsapp' es el flujo legacy (cliente sale a WA y
+     * coordina). 'sinpe' es el nuevo flujo donde el cliente paga primero y
+     * sube el comprobante. */
+    paymentMethod: { type: String, enum: ['whatsapp', 'sinpe'], default: 'whatsapp' },
+    /* Comprobante: URL en Cloudinary + publicId para poder borrar despues.
+     * Si paymentMethod='whatsapp' suelen quedar vacios. */
+    paymentProofUrl: { type: String, default: '' },
+    paymentProofPublicId: { type: String, default: '' },
+    /* Estado del pago independiente del estado del pedido. 'na' = no aplica
+     * (whatsapp), 'pending' = comprobante subido pero falta verificar,
+     * 'verified' = admin confirmo el pago, 'rejected' = comprobante invalido. */
+    paymentStatus: {
+      type: String,
+      enum: ['na', 'pending', 'verified', 'rejected'],
+      default: 'na',
+    },
+    paymentVerifiedAt: { type: Date, default: null },
     status: {
       type: String,
       enum: ['pendiente', 'confirmado', 'preparando', 'enviado', 'entregado', 'cancelado'],
