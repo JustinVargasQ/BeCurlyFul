@@ -840,52 +840,44 @@ const STATS = [
   { to: 100,  suffix: '%', label: 'Originales garantizados',  Icon: StatShield  },
 ];
 
+const RUTINA_STEPS = [
+  { step: 1, emoji: '🚿', label: 'Limpieza', desc: 'Shampoo para rizos', color: 'bg-sky-50 border-sky-100', slug: 'shampoo-limpieza-profunda',
+    img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996547/becurlyfulcr/productos/shampoo-limpieza-profunda.jpg' },
+  { step: 2, emoji: '💧', label: 'Hidratación', desc: 'Acondicionador revitalizante', color: 'bg-teal-50 border-teal-100', slug: 'acondicionador-revitalizante',
+    img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996548/becurlyfulcr/productos/acondicionador-revitalizante.jpg' },
+  { step: 3, emoji: '💜', label: 'Tratamiento', desc: 'Mascarilla 1× semana', color: 'bg-violet-50 border-violet-100', slug: 'mascarilla-hidronutritiva',
+    img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996550/becurlyfulcr/productos/mascarilla-hidronutritiva.jpg' },
+  { step: 4, emoji: '✨', label: 'Estilizado', desc: 'Activador de rizos', color: 'bg-amber-50 border-amber-100', slug: 'activador-de-rizos',
+    img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996541/becurlyfulcr/productos/activador-de-rizos.jpg' },
+];
+
 function StatsStrip() {
   return (
-    <section className="relative py-12 sm:py-16 overflow-hidden">
-      <div className="absolute inset-0"
-        style={{ background: 'linear-gradient(135deg, #E879A0 0%, #C9547E 45%, #C4728A 100%)' }} />
-      <div className="pointer-events-none absolute top-0 right-0 w-72 h-72 rounded-full bg-white/10 blur-3xl animate-orb-pulse" />
-      <div className="pointer-events-none absolute bottom-0 left-8 w-48 h-48 rounded-full bg-white/8 blur-2xl animate-orb-pulse" style={{ animationDelay: '2s' }} />
-      {[{x:'6%',y:'25%',s:4,d:'0.2s',t:'3.1s'},{x:'92%',y:'55%',s:3,d:'1.2s',t:'3.8s'},{x:'48%',y:'78%',s:4,d:'0.7s',t:'2.9s'}].map((p,i)=>(
-        <div key={i} className="pointer-events-none absolute rounded-full bg-white/50"
-          style={{left:p.x,top:p.y,width:p.s,height:p.s,
-            animationName:'sparkle-float',animationDuration:p.t,animationDelay:p.d,
-            animationTimingFunction:'ease-out',animationIterationCount:'infinite'}} />
-      ))}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10">
-          {STATS.map((s, i) => (
-            <motion.div key={s.label}
-              initial={{ opacity: 0, y: 28 }}
+    <section className="py-14 sm:py-20 bg-white border-t border-rose-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10">
+          <span className="section-label">La clave de los rizos perfectos</span>
+          <h2 className="section-title">Tu rutina Be Curlyful</h2>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {RUTINA_STEPS.map((r, i) => (
+            <motion.div key={r.step}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.55, ease: [0.3, 1, 0.3, 1] }}
-              whileHover={{ y: -4 }}
-              className="flex flex-col items-center text-center group cursor-default">
-
-              {/* Icon in glass bubble */}
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center mb-4 text-white transition-transform duration-300 group-hover:scale-110"
-                style={{
-                  background: 'rgba(255,255,255,0.14)',
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255,255,255,0.28)',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.3)',
-                }}
-              >
-                <s.Icon />
-              </div>
-
-              <p className="text-4xl sm:text-5xl font-bold text-white leading-none tabular-nums tracking-tight">
-                <CountNumView to={s.to} duration={2} />{s.suffix}
-              </p>
-              <p className="text-white/60 text-sm mt-2.5 font-medium leading-tight max-w-[120px]">{s.label}</p>
-
-              {/* Subtle bottom accent line */}
-              <div className="w-8 h-0.5 mt-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{ background: 'rgba(255,255,255,0.5)' }} />
+              transition={{ delay: i * 0.1, duration: 0.5 }}>
+              <Link to={`/producto/${r.slug}`}
+                className={`group block ${r.color} border rounded-3xl p-5 hover:shadow-[0_8px_24px_rgba(232,121,160,0.15)] transition-all duration-300 hover:-translate-y-1`}>
+                <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden mb-4 shadow-sm group-hover:shadow-md transition-shadow">
+                  <img src={r.img} alt={r.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <div className="text-center">
+                  <span className="text-[11px] font-bold text-ink-300 tracking-widest uppercase">Paso {r.step}</span>
+                  <h3 className="font-display font-extrabold text-ink-900 text-lg mt-0.5">{r.label}</h3>
+                  <p className="text-rose-500 text-sm font-semibold mt-1">{r.desc}</p>
+                  <span className="text-xl mt-2 block">{r.emoji}</span>
+                </div>
+              </Link>
             </motion.div>
           ))}
         </div>
@@ -894,112 +886,99 @@ function StatsStrip() {
   );
 }
 
-/* ─── Featured section ─── */
+/* ─── Featured section — horizontal scroll ─── */
 function FeaturedSection() {
-  const products = useFeatured(4);
+  const products = useFeatured(8);
   if (!products.length) return null;
 
   return (
-    <section className="py-14 sm:py-20 bg-cream-50 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-          className="flex items-end justify-between mb-8">
+    <section className="py-12 sm:py-16 bg-rose-50 overflow-hidden">
+      <div className="max-w-7xl mx-auto">
+        <div className="px-4 sm:px-6 lg:px-8 flex items-end justify-between mb-7">
           <div>
-            <span className="section-label">Tendencias</span>
-            <h2 className="section-title animated-underline">Favoritas del momento</h2>
+            <span className="section-label">Top productos</span>
+            <h2 className="section-title">Lo más pedido</h2>
           </div>
-          <Link to="/?featured=true"
-            className="text-sm font-semibold text-rose-500 hover:text-rose-600 transition-colors hidden sm:flex items-center gap-1 group">
-            Ver todos
-            <span className="group-hover:translate-x-1 transition-transform duration-200 text-base">→</span>
+          <Link to="/" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-bold text-rose-500 hover:text-rose-600 transition-colors">
+            Ver todo <span className="text-base">→</span>
           </Link>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+        {/* Horizontal scroll */}
+        <div className="flex gap-4 overflow-x-auto px-4 sm:px-6 lg:px-8 pb-4 chips-scroll scroll-smooth">
           {products.map((p, i) => (
-            <motion.div
-              key={p.id || p._id}
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5, ease: [0.3, 1, 0.3, 1] }}>
+            <motion.div key={p.id || p._id}
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ delay: i * 0.06, duration: 0.4 }}
+              className="flex-shrink-0 w-44 sm:w-52">
               <ProductCard product={p} index={i} />
             </motion.div>
           ))}
         </div>
-
-        <div className="mt-6 sm:hidden flex justify-center">
-          <Link to="/?featured=true"
-            className="text-sm font-semibold text-rose-500 flex items-center gap-1">
-            Ver todos los favoritos →
-          </Link>
-        </div>
       </div>
     </section>
   );
 }
 
-/* ─── Promo banner — dark editorial ─── */
+/* ─── Kids spotlight banner ─── */
+const KIDS_IMGS = [
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996552/becurlyfulcr/productos/shampoo-kids.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996554/becurlyfulcr/productos/acondicionador-kids.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996555/becurlyfulcr/productos/crema-peinar-kids.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996556/becurlyfulcr/productos/gel-liquido-kids.jpg',
+];
+
 function PromoBanner() {
   return (
     <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-6 sm:py-8">
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.6, ease: [0.3, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-3xl bg-ink-900 px-8 sm:px-14 py-12 sm:py-16 flex flex-col sm:flex-row items-center justify-between gap-6">
+        transition={{ duration: 0.6 }}
+        className="relative overflow-hidden rounded-3xl"
+        style={{ background: 'linear-gradient(135deg, #FFFDE7 0%, #FFF9C4 40%, #FFF0F7 100%)' }}>
 
-        {/* Animated ambient orbs */}
-        <div className="pointer-events-none absolute -top-16 -right-16 w-72 h-72 rounded-full bg-rose-500/22 blur-3xl animate-orb-pulse" />
-        <div className="pointer-events-none absolute -bottom-10 -left-10 w-56 h-56 rounded-full bg-rose-600/16 blur-2xl animate-orb-pulse" style={{ animationDelay: '2.2s' }} />
-        <div className="pointer-events-none absolute top-1/2 left-1/3 -translate-y-1/2 w-40 h-40 rounded-full bg-[#F472B6]/10 blur-2xl animate-orb-pulse" style={{ animationDelay: '1.1s' }} />
+        <div className="grid lg:grid-cols-2 gap-8 items-center px-8 sm:px-12 py-10 sm:py-14">
+          {/* Text */}
+          <div>
+            <span className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] uppercase text-amber-600 bg-amber-100 px-3 py-1 rounded-full mb-5">
+              ✨ Línea infantil
+            </span>
+            <h3 className="font-display font-extrabold text-ink-900 leading-tight mb-4"
+              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)' }}>
+              Be Curlyful <span className="text-rose-500">Kids</span>
+            </h3>
+            <p className="text-ink-500 leading-relaxed mb-6 max-w-sm">
+              Cuidado capilar delicado para los rizos de tus pequeños. Fórmulas suaves, sin lágrimas y con ingredientes naturales.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/?cat=kids"
+                className="btn-primary text-sm px-6 py-3">
+                Ver línea Kids →
+              </Link>
+              <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-white border border-rose-200 text-ink-900 font-bold px-6 py-3 rounded-2xl text-sm hover:border-rose-400 transition-colors">
+                <WaIcon /> Consultar
+              </a>
+            </div>
+          </div>
 
-        {/* Sparkle accents */}
-        {[
-          { x: '5%', y: '15%', d: '0.4s', t: '4.2s', s: 4 },
-          { x: '12%', y: '75%', d: '1.5s', t: '3.6s', s: 3 },
-          { x: '88%', y: '20%', d: '0.8s', t: '4.8s', s: 3 },
-          { x: '92%', y: '70%', d: '2.2s', t: '3.9s', s: 4 },
-        ].map((s, i) => (
-          <div key={i}
-            className="pointer-events-none absolute rounded-full bg-white/30"
-            style={{
-              left: s.x, top: s.y,
-              width: s.s, height: s.s,
-              animationName: 'sparkle-float',
-              animationDuration: s.t,
-              animationDelay: s.d,
-              animationTimingFunction: 'ease-out',
-              animationIterationCount: 'infinite',
-            }} />
-        ))}
-
-        <div className="relative z-10 text-center sm:text-left">
-          <p className="text-xs font-bold tracking-[0.2em] uppercase text-rose-400 mb-3">Productos 100% originales</p>
-          <h3 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white mb-3">
-            Las marcas que amas,<br className="hidden sm:block" /> al mejor precio en{' '}
-            <span className="text-rose-400">CR</span>
-          </h3>
-          {/* Payment methods row */}
-          <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
-            {['SINPE Móvil', 'Transferencia', 'Efectivo'].map((m) => (
-              <span key={m} className="text-[11px] font-semibold text-white/60 bg-white/8 border border-white/12 px-2.5 py-1 rounded-full">
-                {m}
-              </span>
+          {/* Product photos grid */}
+          <div className="grid grid-cols-2 gap-3">
+            {KIDS_IMGS.map((url, i) => (
+              <motion.div key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
+                className={`rounded-2xl overflow-hidden aspect-square shadow-md ${i % 2 === 1 ? 'mt-4' : ''}`}>
+                <img src={url} alt="Kids" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+              </motion.div>
             ))}
           </div>
-        </div>
-        <div className="relative z-10 flex-shrink-0 flex flex-col items-center gap-3">
-          <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.04] active:scale-[0.97] text-sm sm:text-base whitespace-nowrap">
-            <WaIcon /> Pedir por WhatsApp
-          </a>
-          <p className="text-white/35 text-xs">Respuesta en minutos</p>
         </div>
       </motion.div>
     </section>
@@ -1316,53 +1295,61 @@ function Catalog({ externalCat, catalogRef }) {
 
 /* ─── Testimonials — auto-scroll on desktop, snap-scroll on mobile ─── */
 const TESTIMONIALS = [
-  { quote: 'Llegó en 2 días en perfecto estado. La paleta es idéntica a la foto.',     name: 'María F.',     city: 'Heredia',       tag: 'Ojos' },
-  { quote: 'Ya es mi tercera compra. Siempre responden rapidísimo por WhatsApp.',      name: 'Daniela R.',   city: 'San José',      tag: 'Skincare' },
-  { quote: 'Precios mejores que en el mall y todo original, 100% recomendadas.',        name: 'Andrea S.',    city: 'Liberia',       tag: 'Maquillaje' },
-  { quote: 'Me asesoraron por WhatsApp para elegir mi tono de base. Atención de 10.', name: 'Karen M.',     city: 'Pérez Zeledón', tag: 'Rostro' },
-  { quote: 'La entrega fue súper fácil y los productos llegaron perfectos.',              name: 'Valeria C.',   city: 'Costa Rica',    tag: 'Rulos' },
-  { quote: 'El envío llegó rapidísimo. Todo bien empacado y sellado.',                  name: 'Sofía P.',     city: 'Alajuela',      tag: 'Skincare' },
-  { quote: 'Empaque bellísimo, se nota que le ponen amor a cada pedido.',               name: 'Natalia B.',   city: 'Cartago',       tag: 'Maquillaje' },
-  { quote: 'Mi paleta favorita. Volveré por más, sin dudarlo.',                          name: 'Fiorella G.',  city: 'San Ramón',     tag: 'Ojos' },
-  { quote: 'Envío llegó antes de lo esperado. Recomendadísimas a todas mis amigas.',   name: 'Stephanie L.', city: 'Guanacaste',    tag: 'Skincare' },
+  { quote: 'El Activador de Rizos es increíble. Mis rizos quedaron definitivos y sin frizz todo el día. ¡Ya no puedo vivir sin él!',   name: 'María F.',     city: 'Heredia',       tag: 'Rizos' },
+  { quote: 'La Mascarilla Hidro-Nutritiva transformó mi cabello. Lo uso 1 vez a la semana y la diferencia es total.',                  name: 'Daniela R.',   city: 'San José',      tag: 'Tratamiento' },
+  { quote: 'El Shampoo Limpieza Profunda me quitó toda la acumulación. Cabello limpio sin resecarse. 100% recomendado.',               name: 'Andrea S.',    city: 'Liberia',       tag: 'Limpieza' },
+  { quote: 'La línea Kids es perfecta para mi hija. El shampoo no lágrimas y la crema de peinar son mis favoritos.',                  name: 'Karen M.',     city: 'Pérez Zeledón', tag: 'Kids' },
+  { quote: 'El Travel KIT fue mi salvación de vacaciones. Todo en formato pequeño y de calidad. Llegó rapidísimo.',                    name: 'Valeria C.',   city: 'Costa Rica',    tag: 'Kits' },
+  { quote: 'La Crema Gel dejó mis rizos perfectos sin pegajosidad. El olor es delicioso. Ya ordené el doble.',                        name: 'Sofía P.',     city: 'Alajuela',      tag: 'Rizos' },
+  { quote: 'Me asesoraron por WhatsApp para mi tipo de rizo. Atención de 10. Los productos llegaron bien empacados y rápido.',         name: 'Natalia B.',   city: 'Cartago',       tag: 'Servicio' },
+  { quote: 'El Acondicionador Revitalizante es como un tratamiento. Mi cabello quedó suave y brillante. Lo uso cada lavado.',          name: 'Fiorella G.',  city: 'San Ramón',     tag: 'Tratamiento' },
+  { quote: 'Primera compra y ya soy clienta fiel. El Gel Alta Fijación mantiene mis rizos perfectos todo el día sin costra.',          name: 'Stephanie L.', city: 'Guanacaste',    tag: 'Rizos' },
 ];
 
 function TestimonialCard({ t }) {
   const rating  = t.rating || 5;
   const rounded = Math.round(rating);
-  const stars   = '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
   const hasText = Boolean(t.quote && t.quote.trim());
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-cream-200 hover:border-rose-200 hover:shadow-card transition-all duration-300 mb-4">
-      <div className="text-rose-400 text-sm mb-2.5 tracking-wider">{stars}</div>
+    <div className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(232,121,160,0.1)] border border-rose-50 mb-4 group hover:shadow-[0_8px_32px_rgba(232,121,160,0.18)] transition-all duration-300">
+      {/* Stars */}
+      <div className="flex gap-0.5 mb-3">
+        {[1,2,3,4,5].map(s => (
+          <svg key={s} width="14" height="14" viewBox="0 0 24 24"
+            fill={s <= rounded ? '#E879A0' : 'none'}
+            stroke={s <= rounded ? '#E879A0' : '#F9A8D4'}
+            strokeWidth="1.5">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        ))}
+      </div>
 
       {hasText ? (
-        <p className="text-ink-700 text-sm leading-relaxed mb-4 line-clamp-6">"{t.quote}"</p>
+        <p className="text-ink-600 text-sm leading-relaxed mb-4 line-clamp-4">"{t.quote}"</p>
       ) : (
-        <div className="mb-4 flex items-center gap-2 py-2">
-          <span className="text-2xl text-rose-400 leading-none">{rating.toFixed(1)}</span>
-          <span className="text-xs text-ink-400 italic">
-            {rating >= 5 ? 'Calificación perfecta' : `Calificó con ${rounded} estrellas`}
-          </span>
+        <div className="mb-4 flex items-center gap-2 py-1">
+          <span className="text-2xl font-display font-extrabold text-rose-500">{rating.toFixed(1)}</span>
+          <span className="text-xs text-ink-400">Calificación perfecta</span>
         </div>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 pt-3 border-t border-rose-50">
         {t.avatar ? (
           <img src={t.avatar} alt={t.name} referrerPolicy="no-referrer"
-            className="w-9 h-9 rounded-full object-cover flex-shrink-0 bg-cream-100" />
+            className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
         ) : (
-          <div className="w-9 h-9 rounded-full bg-rose-100 text-rose-500 font-bold flex items-center justify-center text-sm flex-shrink-0">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-display font-extrabold flex-shrink-0 text-white"
+            style={{ background: 'linear-gradient(135deg, #E879A0, #F472B6)' }}>
             {t.name?.charAt(0) || '?'}
           </div>
         )}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-ink-900 truncate">{t.name}</p>
-          <p className="text-xs text-ink-400 truncate">{t.city}</p>
+          <p className="text-[11px] text-ink-400 truncate">{t.city}</p>
         </div>
         {t.tag && (
-          <span className="text-[10px] font-semibold text-rose-500 bg-rose-50 px-2 py-1 rounded-full flex-shrink-0">{t.tag}</span>
+          <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-full flex-shrink-0 border border-rose-100">{t.tag}</span>
         )}
       </div>
     </div>
@@ -1419,7 +1406,7 @@ function TestimonialsSection() {
   const col3 = distribute(2);
 
   return (
-    <section className="bg-cream-50 py-16 sm:py-24 overflow-hidden">
+    <section className="bg-white py-16 sm:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -1427,17 +1414,12 @@ function TestimonialsSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.55 }}
           className="text-center mb-12">
-          <span className="section-label">Lo que dicen nuestras clientas</span>
+          <span className="section-label">Comunidad Be Curlyful</span>
           <h2 className="section-title">
             {hasReal ? (
-              <>
-                Reseñas <em className="font-display italic text-rose-500">verificadas</em>
-              </>
+              <>Reseñas <span className="text-rose-500">verificadas</span></>
             ) : (
-              <>
-                Miles de reseñas,{' '}
-                <em className="font-display italic text-rose-500">una sola promesa</em>
-              </>
+              <>Lo que dicen <span className="text-rose-500">nuestras clientas</span></>
             )}
           </h2>
 
