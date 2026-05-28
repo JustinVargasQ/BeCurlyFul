@@ -352,88 +352,115 @@ function HeroGridLayout({ onCatSelect }) {
   return (
     <section className="relative overflow-hidden bg-white">
 
-      {/* ══════ MOBILE HERO — imagen arriba, card de texto deslizándose ══════ */}
-      <div className="lg:hidden">
+      {/* ══════ MOBILE HERO — full screen inmersivo ══════ */}
+      <div className="lg:hidden relative" style={{ height: '100svh', minHeight: '600px' }}>
 
-        {/* Foto collage 2×2 sobre fondo rosa */}
-        <div className="relative pb-16"
-          style={{ background: 'linear-gradient(160deg, #FFF0F7 0%, #FFD6EC 60%, #F9A8D4 100%)' }}>
-
-          {/* Logo badge top-left */}
-          <div className="absolute top-4 left-4 z-10">
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-sm flex items-center gap-2">
-              <img src="/icons/logo.jpg" alt="Be Curlyful" className="h-7 rounded-lg" />
-              <div>
-                <p className="font-display font-extrabold text-ink-900 text-xs leading-none">Be Curlyful</p>
-                <p className="text-rose-500 text-[10px] font-semibold">Costa Rica 🇨🇷</p>
-              </div>
-            </div>
-          </div>
-
-          {/* 2×2 product collage */}
-          <div className="grid grid-cols-2 gap-3 px-5 pt-20 max-w-sm mx-auto">
-            {HERO_PRODUCTS.map((p, i) => (
-              <motion.div
-                key={p.slug}
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1, duration: 0.5, ease: [0.3, 1, 0.3, 1] }}
-                className={i % 2 === 1 ? 'mt-6' : ''}>
-                <Link to={`/producto/${p.slug}`}
-                  className="block rounded-2xl overflow-hidden aspect-square shadow-[0_8px_24px_rgba(232,121,160,0.3)]">
-                  <img src={p.img} alt="" loading="eager" className="w-full h-full object-cover" />
-                </Link>
-              </motion.div>
-            ))}
-          </div>
+        {/* BG: 4 fotos llenando toda la pantalla, Ken Burns lento */}
+        <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
+          {HERO_PRODUCTS.map((p, i) => (
+            <motion.div key={p.slug}
+              className="relative overflow-hidden"
+              initial={{ scale: 1.1 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 10, ease: 'easeOut', delay: i * 0.15 }}>
+              <img src={p.img} alt="" loading="eager"
+                className="w-full h-full object-cover" />
+            </motion.div>
+          ))}
         </div>
 
-        {/* Text card — se desliza sobre la imagen */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: [0.3, 1, 0.3, 1] }}
-          className="-mt-12 relative z-10 bg-white rounded-t-[2rem] px-6 pt-8 pb-6 shadow-[0_-8px_32px_rgba(0,0,0,0.06)]">
+        {/* Gradiente oscuro de abajo: hace texto legible */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.93) 0%, rgba(0,0,0,0.55) 38%, rgba(0,0,0,0.15) 62%, transparent 100%)' }} />
 
-          {/* Handle bar */}
-          <div className="w-10 h-1 bg-rose-200 rounded-full mx-auto mb-6" />
+        {/* Pink glow central */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div className="w-72 h-72 rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(232,121,160,0.4) 0%, transparent 70%)', filter: 'blur(32px)' }} />
+        </div>
 
-          <span className="section-label">Felicidad en tus rizos ✨</span>
-          <h1 className="font-display font-extrabold text-ink-900 leading-tight mt-1 mb-3"
-            style={{ fontSize: 'clamp(2rem, 8vw, 2.8rem)' }}>
-            Amá tus <span className="text-rose-500">rizos</span> hoy
-          </h1>
-          <p className="text-ink-400 text-sm leading-relaxed mb-6">
-            Productos Be Curlyful para cabello rizado. Envíos a todo Costa Rica desde ₡2,000.
-          </p>
+        {/* TOP BAR: logo + live badge */}
+        <div className="absolute top-0 left-0 right-0 px-5 pt-12 flex items-center justify-between z-20">
+          <motion.img
+            src="/icons/logo.jpg"
+            alt="Be Curlyful"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="h-11 w-11 rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.4)]" />
 
-          <div className="flex gap-3">
-            <motion.button
-              onClick={() => onCatSelect(null)}
-              whileTap={{ scale: 0.97 }}
-              className="btn-primary flex-1 py-3.5 text-sm justify-center">
-              Ver catálogo
-            </motion.button>
-            <motion.button
-              onClick={() => onCatSelect('kids')}
-              whileTap={{ scale: 0.97 }}
-              className="btn-outline flex-1 py-3.5 text-sm justify-center">
-              Kids
-            </motion.button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-full"
+            style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)' }}>
+            <motion.span
+              animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
+              transition={{ duration: 1.8, repeat: Infinity }}
+              className="w-1.5 h-1.5 rounded-full bg-rose-400 block" />
+            <span className="text-white text-[11px] font-bold tracking-wide">Be Curlyful CR</span>
+          </motion.div>
+        </div>
 
-          {/* Trust mini-strip compacto */}
-          <div className="mt-6 pt-5 border-t border-rose-50 grid grid-cols-2 gap-3">
-            {TRUST.map((t, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl flex items-center justify-center text-rose-500 bg-rose-50 flex-shrink-0 text-xs">
-                  <t.Icon />
-                </span>
-                <p className="text-[11px] font-semibold text-ink-700 leading-tight">{t.title}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+        {/* BOTTOM: texto grande + CTAs */}
+        <div className="absolute bottom-0 left-0 right-0 px-5 pb-10 z-20">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.5, ease: [0.3, 1, 0.3, 1] }}>
+
+            {/* Label */}
+            <div className="flex items-center gap-2 mb-3">
+              <div className="h-px flex-1 bg-rose-400/50" />
+              <span className="text-rose-400 text-[10px] font-bold tracking-[0.25em] uppercase">Felicidad en tus rizos</span>
+              <div className="h-px flex-1 bg-rose-400/50" />
+            </div>
+
+            {/* Título gigante */}
+            <h1 className="font-display font-extrabold text-white leading-[0.88] mb-5"
+              style={{ fontSize: 'clamp(3.2rem, 16vw, 5.5rem)' }}>
+              Amá<br />
+              tus <span style={{ color: '#F472B6' }}>rizos</span>
+            </h1>
+
+            {/* Subtítulo */}
+            <p className="text-white/55 text-[13px] font-medium mb-6 leading-relaxed">
+              Productos Be Curlyful · Envíos a todo CR desde ₡2,000
+            </p>
+
+            {/* CTAs */}
+            <div className="flex gap-3 mb-6">
+              <motion.button
+                onClick={() => onCatSelect(null)}
+                whileTap={{ scale: 0.96 }}
+                className="flex-1 bg-white text-ink-900 font-extrabold py-4 rounded-2xl text-sm shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                Ver catálogo
+              </motion.button>
+              <motion.button
+                onClick={() => onCatSelect('kids')}
+                whileTap={{ scale: 0.96 }}
+                className="flex-1 font-bold py-4 rounded-2xl text-sm text-white"
+                style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)' }}>
+                Línea Kids
+              </motion.button>
+            </div>
+
+            {/* Scroll indicator */}
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+              className="flex items-center justify-center gap-2 opacity-40">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+              <span className="text-white text-[10px] uppercase tracking-[0.2em] font-bold">Deslizá</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
 
       {/* ══════ DESKTOP HERO — split layout ══════ */}
