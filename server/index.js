@@ -1,4 +1,4 @@
-/* Sentry: archivo separado requerido al inicio asi auto-instrumenta express,
+﻿/* Sentry: archivo separado requerido al inicio asi auto-instrumenta express,
  * http, mongoose ANTES de que se carguen. No-op sin SENTRY_DSN. */
 require('./instrument');
 const Sentry = require('@sentry/node');
@@ -54,7 +54,7 @@ app.set('trust proxy', 1);
 const ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:4173',
-  'https://becurlyfulcr.vercel.app',
+  'https://becurlyful.vercel.app',
   'https://becurly-full-cr.vercel.app',
   process.env.CLIENT_URL,
   process.env.CLIENT_URL2,
@@ -148,7 +148,7 @@ app.get('/api/health', (req, res) =>
 /* SEO: sitemap.xml + robots.txt — sirvelos sin /api para que crawlers los encuentren */
 app.get('/sitemap.xml', require('./controllers/productController').sitemap);
 app.get('/robots.txt', (req, res) => {
-  const SITE_URL = process.env.CLIENT_URL || 'https://becurlyfulcr.vercel.app';
+  const SITE_URL = process.env.CLIENT_URL || 'https://becurlyful.vercel.app';
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=86400');
   res.send(
