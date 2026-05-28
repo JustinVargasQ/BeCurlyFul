@@ -42,7 +42,7 @@ const useUserStore = create(
       },
     }),
     {
-      name: 'jd-user',   // localStorage key
+      name: 'bcf-user',   // localStorage key
       partialize: (s) => ({ token: s.token, user: s.user }),
     }
   )

@@ -1,9 +1,9 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 
 export default function AdminLogin() {
-  const [form, setForm]   = useState({ email: 'admin@jdvirtual.com', password: '' });
+  const [form, setForm]   = useState({ email: 'admin@becurlyful.cr', password: '' });
   const [show, setShow]   = useState(false);
   const { login, error, loading } = useAuthStore();
   const navigate = useNavigate();
@@ -28,9 +28,7 @@ export default function AdminLogin() {
             style={{ left:p.x, top:p.y }} />
         ))}
         <div className="relative z-10 text-center">
-          <p className="font-display text-5xl font-bold text-white mb-2">
-            JD <span className="text-rose-400">Virtual</span>
-          </p>
+          <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-16 w-auto rounded-xl mx-auto mb-3" />
           <p className="text-white/40 text-sm tracking-[0.22em] uppercase mb-10">Panel de administración</p>
           <div className="w-16 h-px bg-rose-500/40 mx-auto mb-10" />
           <div className="space-y-4">
@@ -41,7 +39,7 @@ export default function AdminLogin() {
             ].map((f) => (
               <div key={f.text} className="flex items-center gap-3 text-left">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center text-rose-300 flex-shrink-0"
-                  style={{ background: 'rgba(184,95,114,0.15)' }}>
+                  style={{ background: 'rgba(232,121,160,0.15)' }}>
                   {f.icon}
                 </div>
                 <p className="text-white/60 text-sm">{f.text}</p>
@@ -75,7 +73,7 @@ export default function AdminLogin() {
               <input
                 type="email" required value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                placeholder="admin@jdvirtual.com"
+                placeholder="admin@becurlyful.cr"
                 className="w-full border border-cream-200 rounded-xl px-4 py-3 text-sm text-ink-900 placeholder-ink-300 focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all bg-white"
               />
             </div>

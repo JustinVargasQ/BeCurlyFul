@@ -31,8 +31,8 @@ async function sendViaResend({ from, to, subject, html, text }) {
 function resendFromAddress() {
   // Hasta verificar dominio, Resend permite usar onboarding@resend.dev para
   // pruebas. Override con RESEND_FROM si verificaste un dominio (ej:
-  // 'JD Virtual <pedidos@jd-virtual.com>').
-  return process.env.RESEND_FROM || 'JD Virtual <onboarding@resend.dev>';
+  // 'Be Curly Full CR <pedidos@becurlyful.cr>').
+  return process.env.RESEND_FROM || 'Be Curly Full CR <onboarding@resend.dev>';
 }
 
 /* ─── Brevo (HTTP) ───
@@ -55,7 +55,7 @@ async function sendViaBrevo({ to, subject, html }) {
         'api-key': process.env.BREVO_API_KEY,
       },
       body: JSON.stringify({
-        sender: { name: process.env.BREVO_SENDER_NAME || 'JD Virtual', email: senderEmail },
+        sender: { name: process.env.BREVO_SENDER_NAME || 'Be Curly Full CR', email: senderEmail },
         to: [{ email: to }],
         subject,
         htmlContent: html,
@@ -187,7 +187,7 @@ function buildOrderHtml(order) {
         <!-- Header -->
         <tr>
           <td style="background:#B85F72;padding:28px 32px;text-align:center">
-            <img src="${LOGO_URL}" alt="JD Virtual" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
+            <img src="${LOGO_URL}" alt="Be Curly Full CR" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
             <h1 style="margin:8px 0 0;color:#fff;font-size:26px;font-weight:bold;letter-spacing:1px">
               Nuevo pedido
             </h1>
@@ -266,7 +266,7 @@ function buildOrderHtml(order) {
         <!-- Footer -->
         <tr>
           <td style="background:#fdf8f8;padding:16px 32px;text-align:center;border-top:1px solid #f0e8e8">
-            <p style="margin:0;font-size:12px;color:#bbb">JD Virtual Store · Notificación automática</p>
+            <p style="margin:0;font-size:12px;color:#bbb">Be Curly Full CR Store · Notificación automática</p>
           </td>
         </tr>
 
@@ -299,7 +299,7 @@ async function trySmtp({ to, subject, html }) {
   if (!t) return { ok: false, reason: 'smtp_not_configured' };
   try {
     await t.sendMail({
-      from: `"JD Virtual" <${process.env.SMTP_USER}>`,
+      from: `"Be Curly Full CR" <${process.env.SMTP_USER}>`,
       to, subject, html,
     });
     return { ok: true, via: 'smtp' };
@@ -376,7 +376,7 @@ function buildConfirmationHtml(order) {
         <!-- Header -->
         <tr>
           <td style="background:#B85F72;padding:32px;text-align:center">
-            <img src="${LOGO_URL}" alt="JD Virtual" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
+            <img src="${LOGO_URL}" alt="Be Curly Full CR" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
             <h1 style="margin:10px 0 0;color:#fff;font-size:26px;font-weight:bold">¡Tu pedido fue recibido!</h1>
             <p style="margin:10px 0 0;color:#f5d0d8;font-size:20px;font-weight:bold;font-family:monospace">${order.orderNumber}</p>
           </td>
@@ -443,7 +443,7 @@ function buildConfirmationHtml(order) {
         <!-- Footer -->
         <tr>
           <td style="background:#fdf8f8;padding:16px 32px;text-align:center;border-top:1px solid #f0e8e8">
-            <p style="margin:0;font-size:12px;color:#bbb">JD Virtual Store · Gracias por tu compra 🌸</p>
+            <p style="margin:0;font-size:12px;color:#bbb">Be Curly Full CR Store · Gracias por tu compra 🌸</p>
           </td>
         </tr>
 
@@ -499,7 +499,7 @@ function buildStatusHtml(order, newStatus) {
 
         <tr>
           <td style="background:#B85F72;padding:32px;text-align:center">
-            <img src="${LOGO_URL}" alt="JD Virtual" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
+            <img src="${LOGO_URL}" alt="Be Curly Full CR" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
             <p style="margin:12px 0 0;font-size:40px">${msg.emoji}</p>
             <h1 style="margin:8px 0 0;color:#fff;font-size:22px;font-weight:bold">${msg.titulo}</h1>
             <p style="margin:8px 0 0;color:#f5d0d8;font-size:16px;font-family:monospace">${order.orderNumber}</p>
@@ -524,7 +524,7 @@ function buildStatusHtml(order, newStatus) {
 
         <tr>
           <td style="background:#fdf8f8;padding:16px 32px;text-align:center;border-top:1px solid #f0e8e8">
-            <p style="margin:0;font-size:12px;color:#bbb">JD Virtual Store · Notificación automática</p>
+            <p style="margin:0;font-size:12px;color:#bbb">Be Curly Full CR Store · Notificación automática</p>
           </td>
         </tr>
 
@@ -543,7 +543,7 @@ async function sendCustomerConfirmation(order) {
   }
   return sendWithProvider({
     to: email,
-    subject: `Tu pedido ${order.orderNumber} fue recibido — JD Virtual`,
+    subject: `Tu pedido ${order.orderNumber} fue recibido — Be Curly Full CR`,
     html: buildConfirmationHtml(order),
     label: `Confirmacion cliente ${email}`,
   });
@@ -601,7 +601,7 @@ function buildAbandonedCartHtml(cart) {
   `).join('');
   const moreCount = (cart.items?.length || 0) - items.length;
 
-  const siteUrl = process.env.CLIENT_URL || 'https://jd-virtual.vercel.app';
+  const siteUrl = process.env.CLIENT_URL || 'https://becurlyfulcr.vercel.app';
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -613,7 +613,7 @@ function buildAbandonedCartHtml(cart) {
 
         <tr>
           <td style="background:linear-gradient(135deg,#B85F72,#93485A);padding:32px;text-align:center">
-            <img src="${LOGO_URL}" alt="JD Virtual" width="100" style="display:inline-block;max-width:100px;height:auto;border-radius:12px">
+            <img src="${LOGO_URL}" alt="Be Curly Full CR" width="100" style="display:inline-block;max-width:100px;height:auto;border-radius:12px">
             <h1 style="margin:14px 0 0;color:#fff;font-size:24px;font-weight:bold;letter-spacing:.3px">
               Te dejaste algo lindo 💕
             </h1>
@@ -669,7 +669,7 @@ async function sendAbandonedCartEmail(cart) {
   if (!cart?.email) return { ok: false, reason: 'no_email' };
   return sendWithProvider({
     to: cart.email,
-    subject: '💕 Te dejaste algo en JD Virtual — terminá tu compra',
+    subject: '💕 Te dejaste algo en Be Curly Full CR — terminá tu compra',
     html: buildAbandonedCartHtml(cart),
     label: `Abandoned cart → ${cart.email}`,
   });
@@ -678,8 +678,8 @@ async function sendAbandonedCartEmail(cart) {
 async function sendTestEmail(to) {
   return sendWithProvider({
     to,
-    subject: '✅ Prueba de email — JD Virtual',
-    html: `<p>Si recibís este correo, el sistema de emails de JD Virtual está funcionando correctamente 💕</p>
+    subject: '✅ Prueba de email — Be Curly Full CR',
+    html: `<p>Si recibís este correo, el sistema de emails de Be Curly Full CR está funcionando correctamente 💕</p>
            <p style="color:#888;font-size:12px">Enviado desde el diagnóstico de /admin/config</p>`,
     label: `Test → ${to}`,
   });

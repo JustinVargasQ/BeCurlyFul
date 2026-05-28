@@ -91,7 +91,7 @@ const useCartStore = create(
       },
     }),
     {
-      name: 'jd-cart-v2',
+      name: 'bcf-cart-v1',
       // Bump a v2: items guardados con id = solo productId pero ahora la key
       // incluye variantes. Recomputamos la id desde producto+variantes para
       // que +/-/trash sigan funcionando despues del cambio.

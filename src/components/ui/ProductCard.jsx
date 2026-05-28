@@ -119,7 +119,8 @@ export default function ProductCard({ product, index = 0 }) {
         className="h-full"
       >
         <Link to={`/producto/${product.slug}`}
-          className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-cream-200 hover:border-rose-200 hover:shadow-card-hover transition-all duration-500">
+          className="group flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-rose-100 hover:border-rose-300 transition-all duration-500"
+          style={{ boxShadow: '0 2px 12px rgba(232,121,160,0.08)' }}>
 
           {/* ── Image ── */}
           <div className="relative overflow-hidden bg-cream-50" style={{ aspectRatio: '1' }}>
@@ -226,7 +227,7 @@ export default function ProductCard({ product, index = 0 }) {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  window.open(`https://wa.me/50688045100?text=${encodeURIComponent(`Hola! Me interesa: ${product.name} a ${formatCRC(product.price)}`)}`, '_blank', 'noopener');
+                  window.open(`https://wa.me/50672125261?text=${encodeURIComponent(`Hola! Me interesa: ${product.name} a ${formatCRC(product.price)}`)}`, '_blank', 'noopener');
                 }}
                 aria-label={`Consultar ${product.name} por WhatsApp`}
                 className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white rounded-xl shadow-lg transition-colors">
@@ -247,59 +248,40 @@ export default function ProductCard({ product, index = 0 }) {
             </button>
           </div>
 
-          {/* ── Info ──
-           * Estructura simple: dos grupos visuales (top: brand+nombre+stars,
-           * bottom: precio+savings). El bottom se ancla al fondo del card vía
-           * mt-auto. Los grupos no reservan slots: si un producto no tiene
-           * stock-bajo o descuento, simplemente esa línea no aparece y el
-           * espacio se distribuye naturalmente entre los dos grupos.
-           */}
-          <div className="px-4 pt-4 pb-5 flex-1 flex flex-col">
-            {/* Top group: brand + nombre + stars + opcional urgency */}
-            <div>
-              <p className="text-[11px] text-ink-400 font-semibold uppercase tracking-widest mb-1">{product.brand || 'JD Virtual'}</p>
-              <h3 className="text-sm font-semibold text-ink-900 leading-snug mb-2 line-clamp-2 group-hover:text-rose-500 transition-colors duration-200">
-                {product.name}
-              </h3>
+          {/* ── Info ── */}
+          <div className="px-4 pt-3 pb-4 flex-1 flex flex-col">
+            {/* Brand pill */}
+            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-rose-500 bg-rose-50 px-2.5 py-0.5 rounded-full w-fit mb-2">
+              {product.brand || 'Be Curlyful'}
+            </span>
 
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <div className="flex gap-0.5 items-center">
-                  {[1,2,3,4,5].map((s) => <StarIcon key={s} filled={s <= Math.round(product.rating || 5)} />)}
-                </div>
-                {product.reviews > 0 && (
-                  <span className="text-[11px] text-ink-400">({product.reviews})</span>
-                )}
-                {/* Urgency en línea con las estrellas — separa con un punto cuando hay reviews */}
-                {product.stock !== undefined && product.stock > 0 && product.stock <= 5 ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600">
-                    <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" />
-                    Solo {product.stock}
-                  </span>
-                ) : product.reviews >= 30 ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-500">
-                    <span className="w-1 h-1 rounded-full bg-rose-500 animate-pulse" />
-                    Popular
-                  </span>
-                ) : null}
-              </div>
-            </div>
+            {/* Product name */}
+            <h3 className="font-display font-extrabold text-ink-900 text-[15px] leading-tight line-clamp-2 mb-auto group-hover:text-rose-500 transition-colors duration-200">
+              {product.name}
+            </h3>
 
-            {/* Bottom group anclado al fondo: precio + opcional savings */}
-            <div className="mt-auto pt-3">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-bold text-ink-900 text-base">{formatCRC(product.price)}</span>
+            {/* Low stock alert */}
+            {product.stock !== undefined && product.stock > 0 && product.stock <= 5 && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 mt-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                Solo {product.stock} disponibles
+              </span>
+            )}
+
+            {/* Price row */}
+            <div className="mt-3 flex items-center justify-between gap-2">
+              <div className="flex items-baseline gap-2">
+                <span className="font-extrabold text-rose-500 text-lg leading-none">{formatCRC(product.price)}</span>
                 {product.oldPrice && product.oldPrice > product.price && (
-                  <>
-                    <span className="text-xs text-ink-300 line-through">{formatCRC(product.oldPrice)}</span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full ml-auto">
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
-                      −{formatCRC(product.oldPrice - product.price)}
-                    </span>
-                  </>
+                  <span className="text-xs text-ink-300 line-through">{formatCRC(product.oldPrice)}</span>
                 )}
               </div>
+              {product.oldPrice && product.oldPrice > product.price && (
+                <span className="text-[10px] font-bold text-white px-2 py-0.5 rounded-full flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg,#E879A0,#F472B6)' }}>
+                  -{Math.round((1 - product.price / product.oldPrice) * 100)}%
+                </span>
+              )}
             </div>
           </div>
         </Link>

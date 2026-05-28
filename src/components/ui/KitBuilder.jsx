@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api, { optimizedImage, normalizeVariants } from '../../lib/api';
@@ -24,7 +24,7 @@ export default function KitBuilder() {
   // gente que ya sabe lo que quiere.
   const [isOpen, setIsOpen]       = useState(false);
   const [budget, setBudget]       = useState(15000);
-  const [category, setCategory]   = useState('maquillaje');
+  const [category, setCategory]   = useState('rizos');
   const [data, setData]           = useState(null);
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState(null);
@@ -35,7 +35,7 @@ export default function KitBuilder() {
   const [picks, setPicks] = useState(() => {
     if (typeof window === 'undefined') return {};
     try {
-      const raw = localStorage.getItem('jd-kit-picks');
+      const raw = localStorage.getItem('bcf-kit-picks');
       if (!raw) return {};
       const parsed = JSON.parse(raw);
       // Validar shape minimo
@@ -58,9 +58,9 @@ export default function KitBuilder() {
     if (typeof window === 'undefined') return;
     try {
       if (Object.keys(picks).length === 0) {
-        localStorage.removeItem('jd-kit-picks');
+        localStorage.removeItem('bcf-kit-picks');
       } else {
-        localStorage.setItem('jd-kit-picks', JSON.stringify(picks));
+        localStorage.setItem('bcf-kit-picks', JSON.stringify(picks));
       }
     } catch {}
   }, [picks]);
@@ -193,7 +193,7 @@ export default function KitBuilder() {
               <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink-900 leading-tight">
                 Armá tu kit{' '}
                 <span className="italic" style={{
-                  background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)',
+                  background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                 }}>
                   perfecto
@@ -216,7 +216,7 @@ export default function KitBuilder() {
               onClick={() => setIsOpen(true)}
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               className="relative flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-sm font-bold text-white shadow-btn hover:shadow-btn-hover transition-shadow flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }}>
+              style={{ background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
@@ -235,7 +235,7 @@ export default function KitBuilder() {
             <h2 className="font-display text-3xl sm:text-4xl font-bold text-ink-900 leading-tight">
               Armá tu kit{' '}
               <span className="italic" style={{
-                background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)',
+                background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>
                 perfecto
@@ -720,7 +720,7 @@ function KitProductModal({ product, subKey, subLabel, isSelected, onClose, onCon
                 isSelected ? 'bg-ink-900 text-white hover:bg-ink-700' : 'text-white'
               }`}
               style={!isSelected && canConfirm
-                ? { background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }
+                ? { background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }
                 : undefined}>
               {outOfStock ? (
                 'Agotado'
@@ -836,7 +836,7 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
               onClick={onOpenCart}
               disabled={count === 0}
               className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-btn hover:shadow-btn-hover"
-              style={{ background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }}>
+              style={{ background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }}>
               Ver carrito · {count} producto{count === 1 ? '' : 's'}
             </button>
           </div>
@@ -864,7 +864,7 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
             <button
               onClick={onOpenCart}
               className="px-4 py-2 rounded-full text-xs font-bold text-white shadow-md"
-              style={{ background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }}>
+              style={{ background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }}>
               Ver · {count}
             </button>
           </div>
@@ -890,7 +890,7 @@ function ProgressBar({ progress, overBudget, compact, active = true }) {
         animate={{ width: `${Math.min(progress, 100)}%` }}
         transition={{ type: 'spring', damping: 30, stiffness: 200 }}
         className={`relative h-full rounded-full overflow-hidden ${overBudget ? 'bg-red-500' : ''}`}
-        style={overBudget ? undefined : { background: 'linear-gradient(90deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }}>
+        style={overBudget ? undefined : { background: 'linear-gradient(90deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }}>
         {/* Shimmer animado mientras la barra esta llena y no sobrepaso el budget */}
         {active && !overBudget && progress > 0 && (
           <motion.span

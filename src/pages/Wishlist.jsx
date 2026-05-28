@@ -109,7 +109,7 @@ export default function Wishlist() {
                       </button>
                     </Link>
                     <div className="p-3 sm:p-4">
-                      <p className="text-[10px] text-ink-400 font-semibold uppercase tracking-widest mb-1">{p.brand || 'JD Virtual'}</p>
+                      <p className="text-[10px] text-ink-400 font-semibold uppercase tracking-widest mb-1">{p.brand || 'Be Curly Full CR'}</p>
                       <Link to={`/producto/${p.slug}`}
                         className="text-sm font-semibold text-ink-900 leading-snug line-clamp-2 hover:text-rose-500 transition-colors block mb-2">
                         {p.name}

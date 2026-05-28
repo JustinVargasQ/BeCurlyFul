@@ -14,7 +14,7 @@ const useAuthStore = create(
         set({ loading: true, error: null });
         try {
           const { data } = await api.post('/auth/login', { email, password });
-          localStorage.setItem('jd-admin-token', data.token);
+          localStorage.setItem('bcf-admin-token', data.token);
           set({ token: data.token, admin: data.admin, loading: false });
           return true;
         } catch (err) {
@@ -25,12 +25,12 @@ const useAuthStore = create(
       },
 
       logout: () => {
-        localStorage.removeItem('jd-admin-token');
+        localStorage.removeItem('bcf-admin-token');
         set({ token: null, admin: null, error: null });
       },
     }),
     {
-      name: 'jd-admin-auth',
+      name: 'bcf-admin-auth',
       partialize: (s) => ({ token: s.token, admin: s.admin }),
     }
   )

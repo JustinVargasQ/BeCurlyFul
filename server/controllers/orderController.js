@@ -315,7 +315,7 @@ exports.smtpDiagnostic = async (req, res, next) => {
         ok: !!senderEmail,
         providerOrder: order,
         primary: 'brevo',
-        from: senderEmail ? `${process.env.BREVO_SENDER_NAME || 'JD Virtual'} <${senderEmail}>` : '(falta BREVO_SENDER_EMAIL)',
+        from: senderEmail ? `${process.env.BREVO_SENDER_NAME || 'Be Curly Full CR'} <${senderEmail}>` : '(falta BREVO_SENDER_EMAIL)',
         notificationEmail: notifTo,
         message: !senderEmail
           ? 'Brevo tiene API key pero falta BREVO_SENDER_EMAIL en Render — los emails no van a salir. Agregá la var con el Gmail que verificaste en Brevo.'
@@ -333,7 +333,7 @@ exports.smtpDiagnostic = async (req, res, next) => {
         ok: true,
         providerOrder: order,
         primary: 'resend',
-        from: process.env.RESEND_FROM || 'JD Virtual <onboarding@resend.dev>',
+        from: process.env.RESEND_FROM || 'Be Curly Full CR <onboarding@resend.dev>',
         notificationEmail: notifTo,
         message: notifTo
           ? `Resend configurado. Las notificaciones de pedidos llegan a ${notifTo}.${order.includes('smtp') ? ' SMTP queda como fallback.' : ''}`

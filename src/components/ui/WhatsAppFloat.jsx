@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
-const WA_NUMBER = '50688045100';
+const WA_NUMBER = '50672125261';
 const WA_MSG    = encodeURIComponent('Hola! Tengo una consulta sobre un producto 😊');
 
 export default function WhatsAppFloat() {

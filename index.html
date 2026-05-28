@@ -6,46 +6,34 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="JD Virtual Store — Maquillaje y skincare de marcas auténticas. Envíos a todo Costa Rica desde El Roble, Puntarenas." />
-    <meta name="theme-color" content="#B85F72" />
+    <meta name="description" content="Be Curly Full CR — Productos para cabello rizado y cuidado capilar. Envíos a todo Costa Rica." />
+    <meta name="theme-color" content="#EC4899" />
 
     <!-- Open Graph -->
     <meta property="og:type"        content="website" />
-    <meta property="og:url"         content="https://jd-virtual.vercel.app/" />
-    <meta property="og:site_name"   content="JD Virtual Store" />
-    <meta property="og:title"       content="JD Virtual Store — Maquillaje &amp; Skincare | Costa Rica" />
-    <meta property="og:description" content="Maquillaje y skincare de marcas auténticas con envíos a todo Costa Rica desde El Roble, Puntarenas." />
-    <meta property="og:image"       content="https://jd-virtual.vercel.app/icons/icon-512.png" />
+    <meta property="og:url"         content="https://becurlyfulcr.vercel.app/" />
+    <meta property="og:site_name"   content="Be Curly Full CR" />
+    <meta property="og:title"       content="Be Curly Full CR — Productos para Cabello Rizado | Costa Rica" />
+    <meta property="og:description" content="Productos para cabello rizado y cuidado capilar con envíos a todo Costa Rica." />
+    <meta property="og:image"       content="https://becurlyfulcr.vercel.app/icons/icon-512.png" />
     <meta property="og:locale"      content="es_CR" />
     <meta name="twitter:card"       content="summary_large_image" />
 
     <!-- SEO adicional -->
     <meta name="robots"   content="index, follow" />
-    <meta name="author"   content="JD Virtual Store" />
-    <meta name="keywords" content="maquillaje costa rica, skincare costa rica, beauty creations, the ordinary, cerave, puntarenas, el roble, comprar maquillaje online" />
+    <meta name="author"   content="Be Curly Full CR" />
+    <meta name="keywords" content="cabello rizado costa rica, curly girl, productos rulos, curl care, cuidado capilar, comprar online costa rica" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="JD Virtual" />
+    <meta name="apple-mobile-web-app-title" content="Be Curly" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-    <title>JD Virtual Store — Maquillaje & Skincare | Costa Rica</title>
-    <!-- Google Analytics 4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PMP26BQ68Y"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-PMP26BQ68Y', { send_page_view: false });
-    </script>
+    <title>Be Curly Full CR — Cabello Rizado | Costa Rica</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      // Service worker only in production. In dev (Vite on localhost) the SW
-      // caches JS/CSS cache-first and a normal F5 serves stale modules → blank
-      // page until Ctrl+Shift+R. Detect dev and unregister + clear caches so
-      // future F5s work; auto-reload once after cleanup.
       if ('serviceWorker' in navigator) {
         var isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
         if (isDev) {
@@ -60,8 +48,8 @@
                 }
               })
               .then(function () {
-                if (hadSW && !sessionStorage.getItem('jd-sw-cleaned')) {
-                  sessionStorage.setItem('jd-sw-cleaned', '1');
+                if (hadSW && !sessionStorage.getItem('bcf-sw-cleaned')) {
+                  sessionStorage.setItem('bcf-sw-cleaned', '1');
                   location.reload();
                 }
               });

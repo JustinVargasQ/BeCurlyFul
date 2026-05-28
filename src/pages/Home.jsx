@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate, useInView } from 'framer-motion';
 import ProductCard from '../components/ui/ProductCard';
@@ -16,33 +16,33 @@ const USE_API = import.meta.env.VITE_API_URL;
 /* Si querés usar fotos custom, ponelas en /public/imgs/hero/ y cambiá las urls de abajo */
 const SLIDE_CONFIG = [
   {
-    eyebrow: 'Nuevos ingresos',
-    title:   'Tu nueva\nobsesión',
-    sub:     'Maquillaje y skincare de marcas originales con envíos a todo Costa Rica.',
+    eyebrow: 'Felicidad en tus rizos',
+    title:   'Amá tus\nrizos hoy',
+    sub:     'Productos Be Curlyful para cabello rizado. Envíos a todo Costa Rica.',
     cta:     'Ver catálogo',
     cat:     null,
-    img:     'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=1400&q=85&auto=format&fit=crop',
-    fallback: '/imgs/Skincare.jpeg',
+    img:     '/imgs/productos/Travel KIT.jpg',
+    fallback: '/imgs/productos/Travel KIT.jpg',
+    objectPosition: 'center 40%',
+  },
+  {
+    eyebrow: 'Rizos definidos',
+    title:   'Definí y\nbrillarás',
+    sub:     'Activadores, cremas y geles para rizos perfectos sin frizz.',
+    cta:     'Ver rizos',
+    cat:     'rizos',
+    img:     '/imgs/productos/Activador de Rizos.jpg',
+    fallback: '/imgs/productos/Activador de Rizos.jpg',
     objectPosition: 'center 30%',
   },
   {
-    eyebrow: 'Skincare coreano',
-    title:   'Cuida tu\npiel hoy',
-    sub:     'Productos auténticos con resultados reales para tu rutina diaria.',
-    cta:     'Ver skincare',
-    cat:     'skincare',
-    img:     'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=1400&q=85&auto=format&fit=crop',
-    fallback: '/imgs/Skincare.jpeg',
-    objectPosition: 'center 25%',
-  },
-  {
-    eyebrow: 'Maquillaje 2025',
-    title:   'Brilla con\ntu estilo',
-    sub:     'Las marcas que amas al mejor precio en Costa Rica.',
-    cta:     'Ver maquillaje',
-    cat:     'maquillaje',
-    img:     'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1400&q=85&auto=format&fit=crop',
-    fallback: '/imgs/makeup.jpg',
+    eyebrow: 'Línea Kids',
+    title:   'También\npara ellos',
+    sub:     'Be Curlyful Kids: cuidado capilar delicado para los rizos de tus peques.',
+    cta:     'Ver Kids',
+    cat:     'kids',
+    img:     '/imgs/productos/Shampoo KIDS.jpg',
+    fallback: '/imgs/productos/Shampoo KIDS.jpg',
     objectPosition: 'center 30%',
   },
 ];
@@ -81,15 +81,16 @@ const TrustCardIcon = () => (
 );
 
 const TRUST = [
-  { Icon: TrustTruckIcon,  title: 'Envío a todo CR',      sub: 'Correos · Uber · Express' },
-  { Icon: TrustShieldIcon, title: '100% Originales',       sub: 'Marcas auténticas' },
+  { Icon: TrustTruckIcon,  title: 'Envío a todo CR',      sub: 'Correos · Express' },
+  { Icon: TrustShieldIcon, title: 'Marca propia',          sub: 'Be Curlyful original' },
   { Icon: TrustChatIcon,   title: 'Atención WhatsApp',     sub: 'Respuesta rápida' },
   { Icon: TrustCardIcon,   title: 'SINPE · Transferencia', sub: 'Pago seguro' },
 ];
 
 const MARQUEE_BRANDS = [
-  'Beauty Creations','The Ordinary','CeraVe','Italia Deluxe','ELF',
-  'Beau Visage','Amor Us','Mixsoon','Ushas','Amuse','Celavi','Kevin y Coco',
+  'Be Curlyful','Activador de Rizos','Crema Gel','Mascarilla Hidro-Nutritiva',
+  'Be Curlyful Kids','Shampoo Limpieza Profunda','Travel KIT','Crema Hidratante',
+  'Gel Alta Fijación','Acondicionador Revitalizante','Be Curlyful','Shampoo KIDS',
 ];
 
 /* ─── Icons ─── */
@@ -179,7 +180,7 @@ function ShowcaseCard({ product, size = 'md', rotate = 0, animDelay = 0 }) {
         whileHover={{ y: -8, rotate: 0, scale: 1.02 }}
         className={`${sizes[size]} relative rounded-2xl overflow-hidden bg-white transition-shadow duration-300`}
         style={{
-          boxShadow: '0 20px 50px -10px rgba(15,9,11,0.18), 0 6px 18px -8px rgba(184,95,114,0.18)',
+          boxShadow: '0 20px 50px -10px rgba(15,9,11,0.18), 0 6px 18px -8px rgba(232,121,160,0.18)',
         }}>
         {/* Image */}
         {product.img ? (
@@ -242,14 +243,14 @@ function HeroShowcase({ className = '', style }) {
       {/* Soft pastel gradient background */}
       <div className="absolute inset-0"
         style={{
-          background: 'linear-gradient(135deg, #FBF0F2 0%, #FEF7F0 45%, #F5EFE8 100%)',
+          background: 'linear-gradient(135deg, #FFF0F7 0%, #FEF7F0 45%, #F5EFE8 100%)',
         }} />
 
       {/* Decorative blurred circles */}
       <div className="absolute -top-24 -right-20 w-[420px] h-[420px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(184,95,114,0.25) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+        style={{ background: 'radial-gradient(circle, rgba(232,121,160,0.25) 0%, transparent 70%)', filter: 'blur(40px)' }} />
       <div className="absolute -bottom-32 -left-24 w-[380px] h-[380px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(201,168,117,0.22) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+        style={{ background: 'radial-gradient(circle, rgba(244,114,182,0.22) 0%, transparent 70%)', filter: 'blur(50px)' }} />
       <div className="absolute top-1/2 left-1/3 w-[200px] h-[200px] rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%)', filter: 'blur(30px)' }} />
 
@@ -290,9 +291,9 @@ function HeroShowcase({ className = '', style }) {
                 background: 'rgba(255,255,255,0.85)',
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
-                border: '1px solid rgba(184,95,114,0.2)',
-                color: '#B85F72',
-                boxShadow: '0 8px 24px -6px rgba(184,95,114,0.2)',
+                border: '1px solid rgba(232,121,160,0.2)',
+                color: '#E879A0',
+                boxShadow: '0 8px 24px -6px rgba(232,121,160,0.2)',
               }}>
               <span>Ver más productos</span>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -420,7 +421,7 @@ function HeroGridLayout({ onCatSelect }) {
                       className="inline-flex items-center gap-2 bg-white text-ink-900 hover:bg-rose-500 hover:text-white font-bold px-7 py-3.5 rounded-full transition-all duration-300 text-sm shadow-lg">
                       {slide.cta} <ArrowRight />
                     </motion.button>
-                    <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+                    <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-bold px-6 py-3.5 rounded-full transition-all duration-300 text-sm shadow-lg">
                       <WaIcon /> WhatsApp
                     </a>
@@ -548,14 +549,12 @@ function HeroVideoLayout({ onCatSelect }) {
           {/* Subtle vignettes */}
           <div className="absolute inset-x-0 bottom-0 h-2/3 pointer-events-none"
             style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.55) 0%, rgba(15,9,11,0.15) 50%, transparent 100%)' }} />
-          {/* TikTok pill */}
-          <a href="https://www.tiktok.com/@jd_virtual_store" target="_blank" rel="noopener noreferrer"
+          {/* Instagram pill */}
+          <a href="https://www.instagram.com/becurlyfulcr" target="_blank" rel="noopener noreferrer"
             className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/25"
             style={{ background: 'rgba(255,255,255,0.15)' }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
-              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
-            </svg>
-            <span className="text-white text-[10px] font-bold tracking-wider">@jd_virtual_store</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            <span className="text-white text-[10px] font-bold tracking-wider">@becurlyfulcr</span>
           </a>
         </div>
 
@@ -583,7 +582,7 @@ function HeroVideoLayout({ onCatSelect }) {
                   className="inline-flex items-center gap-2 bg-ink-900 hover:bg-rose-500 text-white font-semibold px-7 py-3.5 rounded-full transition-all duration-300 text-sm shadow-btn">
                   {slide.cta} <ArrowRight />
                 </motion.button>
-                <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+                <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-semibold px-6 py-3.5 rounded-full transition-all duration-300 text-sm shadow-btn">
                   <WaIcon /> WhatsApp
                 </a>
@@ -619,7 +618,7 @@ function HeroVideoLayout({ onCatSelect }) {
 
         {/* Brand rose accent */}
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 50% 60% at 5% 50%, rgba(184,95,114,0.25) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(ellipse 50% 60% at 5% 50%, rgba(232,121,160,0.25) 0%, transparent 70%)' }} />
 
         {/* Text content overlay — left aligned */}
         <div className="relative h-full flex items-center" style={{ minHeight: '70vh' }}>
@@ -664,7 +663,7 @@ function HeroVideoLayout({ onCatSelect }) {
                       className="inline-flex items-center gap-2 bg-white text-ink-900 hover:bg-rose-500 hover:text-white font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-xl">
                       {slide.cta} <ArrowRight />
                     </motion.button>
-                    <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+                    <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-bold px-7 py-4 rounded-full transition-all duration-300 shadow-xl">
                       <WaIcon /> WhatsApp
                     </a>
@@ -698,14 +697,12 @@ function HeroVideoLayout({ onCatSelect }) {
           </div>
         </div>
 
-        {/* TikTok pill — bottom right */}
-        <a href="https://www.tiktok.com/@jd_virtual_store" target="_blank" rel="noopener noreferrer"
+        {/* Instagram pill — bottom right */}
+        <a href="https://www.instagram.com/becurlyfulcr" target="_blank" rel="noopener noreferrer"
           className="absolute bottom-6 right-6 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-md border border-white/30 hover:scale-105 transition-transform"
           style={{ background: 'rgba(255,255,255,0.15)' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
-            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
-          </svg>
-          <span className="text-white text-[11px] font-bold tracking-wider">@jd_virtual_store</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          <span className="text-white text-[11px] font-bold tracking-wider">@becurlyfulcr</span>
         </a>
       </div>
 
@@ -758,21 +755,18 @@ const FacebookIcon = () => (
 /* ─── Location + social bar ─── */
 /* Exact coordinates from Google Maps place data */
 const GMAPS_KEY      = import.meta.env.VITE_GOOGLE_MAPS_KEY;
-const MAP_SRC        = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3929!2d-84.7373714!3d9.9831039!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa03154759b38a3%3A0xac4f35b09c9145f1!2sJD%20Virtual%20Store!5e0!3m2!1ses!2scr!4v1713500000000!5m2!1ses!2scr';
-const STREET_SRC     = GMAPS_KEY
-  ? `https://www.google.com/maps/embed/v1/streetview?key=${GMAPS_KEY}&location=9.9830986,-84.7347965&heading=210&pitch=10&fov=80`
-  : 'https://maps.google.com/maps?q=JD+Virtual+Store,+El+Roble,+Puntarenas&layer=c&cbll=9.9830986,-84.7347965&cbp=12,0,0,0,0&output=svembed';
-const MAPS_SHARE_URL = 'https://maps.app.goo.gl/6xtpLET4qTGUxvme9';
-const STREET_OPEN_URL = 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=9.9830986,-84.7347965';
+const MAP_SRC        = '';
+const STREET_SRC     = '';
+const MAPS_SHARE_URL = 'https://maps.app.goo.gl/jTQyfaynGTQEfAQ96';
+const STREET_OPEN_URL = '';
 
 function LocationSocialBar() {
   const [view, setView] = useState('street');
 
   const SOCIALS = [
-    { href: 'https://www.instagram.com/jd_virtual/',                        label: 'Instagram', icon: <InstagramIcon />, color: '#E1306C', bg: 'rgba(225,48,108,0.12)' },
-    { href: 'https://www.tiktok.com/@jd_virtual_store',                     label: 'TikTok',    icon: <TikTokIcon />,    color: '#ffffff', bg: 'rgba(255,255,255,0.08)' },
-    { href: 'https://www.facebook.com/p/JD-Virtual-Store-100057624661917/', label: 'Facebook',  icon: <FacebookIcon />,  color: '#1877F2', bg: 'rgba(24,119,242,0.12)' },
-    { href: 'https://wa.me/50688045100',                                    label: 'WhatsApp',  icon: <WaIcon />,        color: '#25D366', bg: 'rgba(37,211,102,0.12)' },
+    { href: 'https://www.instagram.com/becurlyfulcr',             label: 'Instagram', icon: <InstagramIcon />, color: '#E1306C', bg: 'rgba(225,48,108,0.12)' },
+    { href: 'https://www.facebook.com/share/1BzCcTxMcy/',         label: 'Facebook',  icon: <FacebookIcon />,  color: '#1877F2', bg: 'rgba(24,119,242,0.12)' },
+    { href: 'https://wa.me/50672125261',                          label: 'WhatsApp',  icon: <WaIcon />,        color: '#25D366', bg: 'rgba(37,211,102,0.12)' },
   ];
 
   return (
@@ -792,7 +786,7 @@ function LocationSocialBar() {
           className="mb-8 sm:mb-10">
           <span className="text-xs font-bold tracking-[0.22em] uppercase text-rose-400 block mb-1">Encuéntranos</span>
           <h2 className="font-display text-2xl sm:text-3xl font-semibold text-white leading-tight">
-            Visitanos en <span className="text-rose-400">El Roble</span>, Puntarenas
+            Encuéntranos en <span className="text-rose-400">Be Curly</span> Full CR
           </h2>
         </motion.div>
 
@@ -849,7 +843,7 @@ function LocationSocialBar() {
                   transition: 'opacity 0.35s ease',
                 }}
                 loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade"
-                title="JD Virtual Store — mapa"
+                title="Be Curly Full CR — mapa"
               />
 
               {/* Street View iframe — works on all devices with Embed API key, desktop-only with legacy URL */}
@@ -863,7 +857,7 @@ function LocationSocialBar() {
                   transition: 'opacity 0.35s ease',
                 }}
                 loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade"
-                title="JD Virtual Store — Street View"
+                title="Be Curly Full CR — Street View"
                 className={GMAPS_KEY ? '' : 'hidden md:block'}
               />
 
@@ -881,7 +875,7 @@ function LocationSocialBar() {
                 <span className="pointer-events-none absolute -bottom-16 -left-12 w-56 h-56 rounded-full bg-rose-400/15 blur-3xl" />
 
                 <div className="relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
-                  style={{ background: 'rgba(184,95,114,0.15)', border: '1px solid rgba(184,95,114,0.3)' }}>
+                  style={{ background: 'rgba(232,121,160,0.15)', border: '1px solid rgba(232,121,160,0.3)' }}>
                   🚶
                 </div>
                 <div className="relative z-10">
@@ -916,13 +910,13 @@ function LocationSocialBar() {
 
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-rose-300"
-                  style={{ background: 'rgba(184,95,114,0.18)', border: '1px solid rgba(184,95,114,0.25)' }}>
+                  style={{ background: 'rgba(232,121,160,0.18)', border: '1px solid rgba(232,121,160,0.25)' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                   </svg>
                 </div>
                 <div>
-                  <p className="text-white font-semibold text-sm leading-tight">El Roble, Puntarenas</p>
+                  <p className="text-white font-semibold text-sm leading-tight">Be Curly Full CR</p>
                   <p className="text-white/35 text-xs mt-0.5">Costa Rica</p>
                 </div>
               </div>
@@ -1033,7 +1027,7 @@ function StatsStrip() {
   return (
     <section className="relative py-12 sm:py-16 overflow-hidden">
       <div className="absolute inset-0"
-        style={{ background: 'linear-gradient(135deg, #B85F72 0%, #93485A 45%, #C4728A 100%)' }} />
+        style={{ background: 'linear-gradient(135deg, #E879A0 0%, #C9547E 45%, #C4728A 100%)' }} />
       <div className="pointer-events-none absolute top-0 right-0 w-72 h-72 rounded-full bg-white/10 blur-3xl animate-orb-pulse" />
       <div className="pointer-events-none absolute bottom-0 left-8 w-48 h-48 rounded-full bg-white/8 blur-2xl animate-orb-pulse" style={{ animationDelay: '2s' }} />
       {[{x:'6%',y:'25%',s:4,d:'0.2s',t:'3.1s'},{x:'92%',y:'55%',s:3,d:'1.2s',t:'3.8s'},{x:'48%',y:'78%',s:4,d:'0.7s',t:'2.9s'}].map((p,i)=>(
@@ -1146,7 +1140,7 @@ function PromoBanner() {
         {/* Animated ambient orbs */}
         <div className="pointer-events-none absolute -top-16 -right-16 w-72 h-72 rounded-full bg-rose-500/22 blur-3xl animate-orb-pulse" />
         <div className="pointer-events-none absolute -bottom-10 -left-10 w-56 h-56 rounded-full bg-rose-600/16 blur-2xl animate-orb-pulse" style={{ animationDelay: '2.2s' }} />
-        <div className="pointer-events-none absolute top-1/2 left-1/3 -translate-y-1/2 w-40 h-40 rounded-full bg-[#C9A875]/10 blur-2xl animate-orb-pulse" style={{ animationDelay: '1.1s' }} />
+        <div className="pointer-events-none absolute top-1/2 left-1/3 -translate-y-1/2 w-40 h-40 rounded-full bg-[#F472B6]/10 blur-2xl animate-orb-pulse" style={{ animationDelay: '1.1s' }} />
 
         {/* Sparkle accents */}
         {[
@@ -1184,7 +1178,7 @@ function PromoBanner() {
           </div>
         </div>
         <div className="relative z-10 flex-shrink-0 flex flex-col items-center gap-3">
-          <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+          <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.04] active:scale-[0.97] text-sm sm:text-base whitespace-nowrap">
             <WaIcon /> Pedir por WhatsApp
           </a>
@@ -1259,13 +1253,13 @@ function GuaranteeSection() {
               className="group relative bg-cream-50 hover:bg-white border border-cream-200 hover:border-rose-200 hover:shadow-card rounded-2xl p-7 transition-all duration-300 text-center">
               {/* Top accent line */}
               <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-t-2xl"
-                style={{ background: 'linear-gradient(90deg, #C9A875, #B85F72)' }} />
+                style={{ background: 'linear-gradient(90deg, #F472B6, #E879A0)' }} />
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5 text-rose-500 transition-transform duration-300 group-hover:scale-110"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(184,95,114,0.14) 0%, rgba(201,168,117,0.09) 100%)',
-                  border: '1px solid rgba(184,95,114,0.22)',
-                  boxShadow: '0 4px 16px rgba(184,95,114,0.13)',
+                  background: 'linear-gradient(135deg, rgba(232,121,160,0.14) 0%, rgba(244,114,182,0.09) 100%)',
+                  border: '1px solid rgba(232,121,160,0.22)',
+                  boxShadow: '0 4px 16px rgba(232,121,160,0.13)',
                 }}
               >
                 <g.Icon />
@@ -1306,12 +1300,12 @@ function SkeletonCard() {
  * grandes redundantes con el navbar). Sigue siendo el switch rapido de
  * categoria dentro del catalogo. ─── */
 const CATEGORY_CHIPS = [
-  { label: 'Todos',      cat: 'todos',      img: 'https://res.cloudinary.com/dp82rk4ou/image/upload/v1778759671/jdicono_scsfo2.jpg', bg: 'linear-gradient(135deg,#B85F72,#93485A)' },
-  { label: 'Skin care',  cat: 'skincare',   img: '/imgs/Skincare.jpeg'   },
-  { label: 'Maquillaje', cat: 'maquillaje', img: '/imgs/Maquillaje.jpeg' },
-  { label: 'Accesorios', cat: 'accesorios', img: '/imgs/Accesorios.jpeg' },
-  { label: 'Perfumes',   cat: 'perfumes',   img: '/imgs/Perfume.jpeg'    },
-  { label: 'Cabello',    cat: 'cabello',    img: '/imgs/Cabello.jpeg'    },
+  { label: 'Todos',       cat: 'todos',       img: '/icons/logo.jpg', bg: 'linear-gradient(135deg,#E879A0,#C9547E)' },
+  { label: 'Rizos',       cat: 'rizos',       img: '/imgs/productos/Activador de Rizos.jpg'       },
+  { label: 'Limpieza',    cat: 'limpieza',    img: '/imgs/productos/Shampoo Limpieza Profunda.jpg' },
+  { label: 'Tratamiento', cat: 'tratamiento', img: '/imgs/productos/Mascarilla Hidronutritiva.jpg' },
+  { label: 'Kids',        cat: 'kids',        img: '/imgs/productos/Shampoo KIDS.jpg'              },
+  { label: 'Kits',        cat: 'kits',        img: '/imgs/productos/Travel KIT.jpg'               },
 ];
 
 function CategoryChips({ cat, onCat }) {
@@ -1420,9 +1414,9 @@ function Catalog({ externalCat, catalogRef }) {
   });
 
   const catLabel = {
-    todos: 'Todos los productos', ojos: 'Ojos', labios: 'Labios',
-    rostro: 'Rostro', skincare: 'Skincare', cabello: 'Cabello',
-    maquillaje: 'Maquillaje', accesorios: 'Accesorios', perfumes: 'Perfumes',
+    todos: 'Todos los productos', rizos: 'Rizos',
+    limpieza: 'Limpieza', tratamiento: 'Tratamiento',
+    kids: 'Kids', kits: 'Kits',
   }[cat] || cat;
 
   const visible = products.slice(0, visibleCount);
@@ -1531,7 +1525,7 @@ const TESTIMONIALS = [
   { quote: 'Ya es mi tercera compra. Siempre responden rapidísimo por WhatsApp.',      name: 'Daniela R.',   city: 'San José',      tag: 'Skincare' },
   { quote: 'Precios mejores que en el mall y todo original, 100% recomendadas.',        name: 'Andrea S.',    city: 'Liberia',       tag: 'Maquillaje' },
   { quote: 'Me asesoraron por WhatsApp para elegir mi tono de base. Atención de 10.', name: 'Karen M.',     city: 'Pérez Zeledón', tag: 'Rostro' },
-  { quote: 'Las retiré en El Roble, súper fácil y super amables.',                      name: 'Valeria C.',   city: 'Puntarenas',    tag: 'Labios' },
+  { quote: 'La entrega fue súper fácil y los productos llegaron perfectos.',              name: 'Valeria C.',   city: 'Costa Rica',    tag: 'Rulos' },
   { quote: 'El envío llegó rapidísimo. Todo bien empacado y sellado.',                  name: 'Sofía P.',     city: 'Alajuela',      tag: 'Skincare' },
   { quote: 'Empaque bellísimo, se nota que le ponen amor a cada pedido.',               name: 'Natalia B.',   city: 'Cartago',       tag: 'Maquillaje' },
   { quote: 'Mi paleta favorita. Volveré por más, sin dudarlo.',                          name: 'Fiorella G.',  city: 'San Ramón',     tag: 'Ojos' },
@@ -1724,13 +1718,13 @@ function AboutSection() {
             Tu tienda de <em className="text-rose-400 not-italic">confianza</em> en CR
           </h2>
           <p className="text-white/65 leading-relaxed mb-4 max-w-2xl mx-auto">
-            Somos JD Virtual Store, desde El Roble, Puntarenas. Nos especializamos en maquillaje y skincare de marcas auténticas al mejor precio.
+            Somos Be Curly Full CR, especializados en productos para cabello rizado y cuidado capilar al mejor precio.
           </p>
           <p className="text-white/65 leading-relaxed mb-8 max-w-2xl mx-auto">
             Cada producto es cuidadosamente seleccionado. Atendemos por WhatsApp con respuesta rápida y enviamos a toda Costa Rica.
           </p>
           <motion.a
-            href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+            href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
             whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
             className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-bold px-8 py-4 rounded-full transition-colors shadow-xl">
             <WaIcon /> Escríbenos
@@ -1776,14 +1770,14 @@ function ShippingSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-14 sm:mb-20">
           <span className="section-label">Así de fácil</span>
-          <h2 className="section-title">¿Cómo comprar en JD Virtual?</h2>
+          <h2 className="section-title">¿Cómo comprar en Be Curly Full CR?</h2>
         </motion.div>
 
         {/* Steps */}
         <div className="relative grid sm:grid-cols-3 gap-10 sm:gap-6">
           {/* Dashed connector line (desktop only) */}
           <div className="hidden sm:block absolute top-10 left-[calc(16.67%+2.5rem)] right-[calc(16.67%+2.5rem)] h-px"
-            style={{ background: 'repeating-linear-gradient(90deg,#EDB7C1 0,#EDB7C1 8px,transparent 8px,transparent 18px)' }} />
+            style={{ background: 'repeating-linear-gradient(90deg,#FBCFE8 0,#FBCFE8 8px,transparent 8px,transparent 18px)' }} />
 
           {HOW_STEPS.map((s, i) => (
             <motion.div key={s.num}
@@ -1816,7 +1810,7 @@ function ShippingSection() {
           transition={{ delay: 0.5, duration: 0.5 }}
           className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4">
           <motion.a
-            href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+            href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
             whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
             className="inline-flex items-center gap-2 bg-ink-900 hover:bg-rose-500 text-white font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-btn hover:shadow-btn-hover">
             <WaIcon /> Empezar a comprar
@@ -1859,7 +1853,7 @@ function TrackOrderSection() {
             <input
               value={num}
               onChange={(e) => setNum(e.target.value.toUpperCase())}
-              placeholder="JD-2025-0001"
+              placeholder="BCF-2025-0001"
               className="flex-1 border border-cream-200 rounded-xl px-4 py-3 text-sm font-mono tracking-wider text-ink-900 placeholder-ink-300 focus:outline-none focus:border-rose-400 transition-colors"
             />
             <motion.button
@@ -1878,7 +1872,7 @@ function TrackOrderSection() {
 
 /* ─── FAQ ─── */
 const FAQ_ITEMS = [
-  { q: '¿Cuanto demora el envio?', a: 'Por Correos de Costa Rica de 3 a 5 dias habiles. Express en la zona de Puntarenas en 24-48 horas. Pickup en El Roble coordinas la entrega por WhatsApp.' },
+  { q: '¿Cuanto demora el envio?', a: 'Por Correos de Costa Rica de 3 a 5 dias habiles. Express en tu zona en 24-48 horas. Coordinas la entrega por WhatsApp.' },
   { q: '¿Como pago?', a: 'Aceptamos SINPE Movil, transferencia bancaria y pago en efectivo en el local. Te enviamos los datos al confirmar tu pedido por WhatsApp.' },
   { q: '¿Los productos son originales?', a: 'Si, todos nuestros productos son 100% originales de marcas autenticas. Trabajamos directamente con distribuidores certificados.' },
   { q: '¿Puedo cambiar o devolver un producto?', a: 'Si el producto llega danado o defectuoso hacemos el cambio sin costo. Escribinos por WhatsApp con fotos del producto y coordinamos.' },
@@ -1933,8 +1927,8 @@ export default function Home() {
 
   useEffect(() => {
     const fn = (e) => handleCatSelect(e.detail);
-    window.addEventListener('jd:selectcat', fn);
-    return () => window.removeEventListener('jd:selectcat', fn);
+    window.addEventListener('bcf:selectcat', fn);
+    return () => window.removeEventListener('bcf:selectcat', fn);
   }, []);
 
   return (

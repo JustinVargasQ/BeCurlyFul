@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useCart from '../../hooks/useCart';
@@ -11,17 +11,17 @@ import UserButton from '../ui/UserButton';
 const ANNOUNCEMENTS = [
   'Envíos a todo Costa Rica desde ₡2,000',
   'Productos 100% originales y auténticos',
-  'Atención personalizada por WhatsApp · 8804-5100',
+  'Atención personalizada por WhatsApp · 7212-5261',
 ];
 
 const CATEGORIES = [
-  { label: 'Skin care',  path: '/?cat=skincare'   },
-  { label: 'Maquillaje', path: '/?cat=maquillaje' },
-  { label: 'Accesorios', path: '/?cat=accesorios' },
-  { label: 'Perfumes',   path: '/?cat=perfumes'   },
-  { label: 'Cabello',    path: '/?cat=cabello'    },
-  { label: 'Todo',       path: '/'                },
-  { label: 'Ofertas',    path: '/ofertas',  highlight: true },
+  { label: 'Rizos',       path: '/?cat=rizos'       },
+  { label: 'Limpieza',    path: '/?cat=limpieza'    },
+  { label: 'Tratamiento', path: '/?cat=tratamiento' },
+  { label: 'Kids',        path: '/?cat=kids'        },
+  { label: 'Kits',        path: '/?cat=kits'        },
+  { label: 'Todo',        path: '/'                 },
+  { label: 'Ofertas',     path: '/ofertas', highlight: true },
 ];
 
 /* ── Icons ── */
@@ -211,7 +211,7 @@ export default function Navbar() {
     <>
       {/* ── Announcement bar — pausa al hover/touch para que se alcance a leer ── */}
       <div
-        className="bg-ink-900 text-white text-xs font-medium h-9 flex items-center justify-center overflow-hidden relative z-50 cursor-default"
+        className="text-rose-600 text-xs font-semibold h-8 flex items-center justify-center overflow-hidden relative z-50 cursor-default bg-rose-50 border-b border-rose-100"
         onMouseEnter={() => setAnnPaused(true)}
         onMouseLeave={() => setAnnPaused(false)}
         onTouchStart={() => setAnnPaused(true)}
@@ -232,13 +232,13 @@ export default function Navbar() {
       <div className="sticky top-3 z-50 px-4 sm:px-6">
         <header
           className={`max-w-7xl mx-auto transition-all duration-300 ease-out ${
-            expanded ? 'rounded-[28px]' : 'rounded-full'
+            expanded ? 'rounded-[24px]' : 'rounded-2xl'
           } ${
             scrolled
-              ? 'bg-white/80 backdrop-blur-xl shadow-modal border border-white/60'
-              : 'bg-white/55 backdrop-blur-lg border border-white/60 shadow-card'
+              ? 'bg-white shadow-[0_4px_24px_rgba(232,121,160,0.12)] border border-rose-100'
+              : 'bg-white/90 backdrop-blur-lg border border-rose-100/60 shadow-[0_2px_12px_rgba(232,121,160,0.08)]'
           }`}
-          style={{ WebkitBackdropFilter: 'blur(18px) saturate(180%)' }}>
+          style={{ WebkitBackdropFilter: 'blur(18px)' }}>
 
           {/* Top row — logo + search (prominente) + icons */}
           <div className="px-5 sm:px-7 h-[62px] flex items-center gap-4">
@@ -251,8 +251,8 @@ export default function Navbar() {
             </button>
 
             {/* Logo */}
-            <Link to="/" className="flex-shrink-0 font-display text-xl font-bold text-ink-900 tracking-tight">
-              JD <span className="text-rose-500">Virtual</span>
+            <Link to="/" className="flex-shrink-0" aria-label="Be Curly Full CR">
+              <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-10 w-auto rounded-lg" />
             </Link>
 
             {/* Search bar — desktop (ocupa el centro) */}
@@ -294,7 +294,7 @@ export default function Navbar() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-ink-900 truncate group-hover:text-rose-500 transition-colors">{p.name}</p>
-                          <p className="text-xs text-ink-400">{p.brand || 'JD Virtual'}</p>
+                          <p className="text-xs text-ink-400">{p.brand || 'Be Curly Full CR'}</p>
                         </div>
                         <span className="text-sm font-bold text-ink-900 flex-shrink-0">{formatCRC(p.price)}</span>
                       </button>
@@ -318,9 +318,9 @@ export default function Navbar() {
               </button>
 
               {/* WhatsApp */}
-              <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+              <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
                 className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-green-600 hover:text-green-700 px-3 py-2 rounded-full hover:bg-green-50 transition-colors">
-                <WaIcon /> 8804-5100
+                <WaIcon /> 7212-5261
               </a>
 
               {/* User */}
@@ -394,9 +394,7 @@ export default function Navbar() {
               transition={{ type: 'spring', damping: 28, stiffness: 260 }}
               className="fixed left-0 top-0 h-full w-72 z-50 bg-white shadow-modal flex flex-col">
               <div className="flex items-center justify-between px-6 py-5 border-b border-cream-200">
-                <span className="font-display text-xl font-bold text-ink-900">
-                  JD <span className="text-rose-500">Virtual</span>
-                </span>
+                <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-9 w-auto rounded-lg" />
                 <button onClick={() => setMenuOpen(false)} aria-label="Cerrar menú" className="p-2 text-ink-400 hover:text-ink-900 transition-colors">
                   <CloseIcon />
                 </button>
@@ -412,9 +410,9 @@ export default function Navbar() {
                 ))}
               </nav>
               <div className="p-6 border-t border-cream-200">
-                <a href="https://wa.me/50688045100" target="_blank" rel="noopener noreferrer"
+                <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl transition-colors">
-                  <WaIcon /> WhatsApp 8804-5100
+                  <WaIcon /> WhatsApp 7212-5261
                 </a>
               </div>
             </motion.aside>
@@ -464,7 +462,7 @@ export default function Navbar() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-ink-900 truncate">{p.name}</p>
-                          <p className="text-xs text-ink-400">{p.brand || 'JD Virtual'}</p>
+                          <p className="text-xs text-ink-400">{p.brand || 'Be Curly Full CR'}</p>
                         </div>
                         <span className="text-sm font-bold text-ink-900 flex-shrink-0">{formatCRC(p.price)}</span>
                       </button>

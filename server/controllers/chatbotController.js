@@ -675,7 +675,7 @@ async function handleRestockFlow(messages, allCatalog) {
     } catch (err) {
       console.error('❌ saveRestockRequest:', err.message);
       return {
-        reply: `Hubo un problema guardando tu aviso 🥺 Mejor escribinos por WhatsApp y te anotamos a mano.\n\n[[link: Abrir WhatsApp|https://wa.me/50688045100]]\n\n[[sug: Seguir viendo | Mostrame ofertas]]`,
+        reply: `Hubo un problema guardando tu aviso 🥺 Mejor escribinos por WhatsApp y te anotamos a mano.\n\n[[link: Abrir WhatsApp|https://wa.me/50672125261]]\n\n[[sug: Seguir viendo | Mostrame ofertas]]`,
         kind: 'restock_error',
       };
     }
@@ -1214,7 +1214,7 @@ function ruleBasedBrowse(currentText, priorContextText, allCatalog, opts = {}) {
   return `${intro}:\n${list}\n\n¿Querés ver más opciones o algo más específico?\n\n[[sug: ${sugList}]]`;
 }
 
-const SYSTEM_PROMPT = `Eres "JD Asistente", la asesora virtual de belleza de **JD Virtual**, una tienda costarricense de maquillaje, skincare, perfumes y cuidado del cabello ubicada en El Roble, Puntarenas.
+const SYSTEM_PROMPT = `Eres "Curly Asistente", la asesora virtual de **Be Curly Full CR**, una tienda costarricense especializada en productos para cabello rizado y cuidado capilar.
 
 PERSONALIDAD:
 - Cálida, cercana y profesional. Hablás en español de Costa Rica con tono amistoso (usá "vos" naturalmente).
@@ -1324,7 +1324,7 @@ function timeBasedGreeting() {
 function ruleBasedReply(intent) {
   switch (intent) {
     case 'greeting':
-      return `${timeBasedGreeting()} Soy JD Asistente. Te ayudo a encontrar maquillaje, skincare, perfumes o productos para el cabello. ¿Qué buscás hoy?\n\n[[sug: Quiero un labial | Ver skincare | Mostrame ofertas | Tengo ₡10 mil]]`;
+      return `${timeBasedGreeting()} Soy Curly Asistente. Te ayudo a encontrar los mejores productos para tu cabello rizado. ¿Qué buscás hoy?\n\n[[sug: Productos para rulos | Ver ofertas | Necesito hidratación | Quiero definir rizos]]`;
     case 'thanks':
       return '¡Con mucho gusto! 💕 Si necesitás algo más, acá estoy.';
     case 'chitchat':
@@ -1336,9 +1336,9 @@ function ruleBasedReply(intent) {
     case 'tracking':
       return 'Para rastrear tu pedido andá a la sección **[Pedido](/pedido)** y escribí tu número de orden. Ahí vas a ver el estado actualizado.\n\n[[sug: Tengo otra pregunta | Mostrame productos | Hablar por WhatsApp]]';
     case 'how_to_buy':
-      return 'En **[Cómo comprar](/como-comprar)** encontrás todo: métodos de pago (SINPE Móvil, transferencia bancaria), zonas de envío y tiempos de entrega. Cualquier duda, también podés escribirnos por WhatsApp al **8804-5100**.\n\n[[sug: Quiero ver productos | ¿Hacen envío a mi zona? | Mostrame ofertas]]';
+      return 'En **[Cómo comprar](/como-comprar)** encontrás todo: métodos de pago (SINPE Móvil, transferencia bancaria), zonas de envío y tiempos de entrega. Cualquier duda, también podés escribirnos por WhatsApp al **7212-5261**.\n\n[[sug: Quiero ver productos | ¿Hacen envío a mi zona? | Mostrame ofertas]]';
     case 'location':
-      return 'Estamos en **El Roble, Puntarenas** 🌴 También podés escribirnos por **WhatsApp al 8804-5100** o ver detalles en **[Cómo comprar](/como-comprar)**.\n\n[[sug: ¿Hacen envíos? | Quiero ver productos | Mostrame ofertas]]';
+      return 'Estamos en **Costa Rica** 🌴 También podés escribirnos por **WhatsApp al 7212-5261** o ver detalles en **[Cómo comprar](/como-comprar)**.\n\n[[sug: ¿Hacen envíos? | Quiero ver productos | Mostrame ofertas]]';
     case 'apartados':
       return 'Sí, tenemos **sistema de apartados** 💕\n\n💰 **50%** del valor para reservar el producto\n🗓️ **Hasta 1 mes** apartado\n🔔 Te avisamos 1-2 días antes de que venza\n💕 Te pedimos respetar el plazo\n\nTe paso a la página con todos los detalles 👇\n\n[[link: Ver sistema de apartados|/apartados]]\n\n[[sug: Quiero apartar algo | Hablar por WhatsApp | Mostrame productos]]';
     case 'off_topic':
@@ -1463,7 +1463,7 @@ function tryRuleBasedReply(messages, allCatalog) {
   // 2.3b. WhatsApp escalation — convert sug click into a clickable link button.
   if (/^(hablar por whatsapp|whatsapp|hablar con humano|hablar con alguien|chat real|persona real)$/i.test(normalizeText(userText).trim())) {
     return {
-      reply: `Te paso con una persona real por WhatsApp 💕\n\n[[link: Abrir WhatsApp|${WHATSAPP_URL}]]\n\nNuestro número directo es **8804-5100**. Te respondemos lo antes posible.\n\n[[sug: Seguir viendo | Mostrame ofertas | Tengo otra pregunta]]`,
+      reply: `Te paso con una persona real por WhatsApp 💕\n\n[[link: Abrir WhatsApp|${WHATSAPP_URL}]]\n\nNuestro número directo es **7212-5261**. Te respondemos lo antes posible.\n\n[[sug: Seguir viendo | Mostrame ofertas | Tengo otra pregunta]]`,
       kind: 'whatsapp_redirect',
     };
   }
@@ -1608,8 +1608,8 @@ function tryRuleBasedReply(messages, allCatalog) {
 }
 
 /* WhatsApp deep link — used by `Hablar por WhatsApp` suggestion clicks. */
-const WHATSAPP_NUMBER = '50688045100';
-const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola JD Virtual, vengo del chat de la web y necesito ayuda 💕')}`;
+const WHATSAPP_NUMBER = '50672125261';
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola Be Curly Full CR, vengo del chat de la web y necesito ayuda 💕')}`;
 
 /* Best-effort fallback when Gemini is unavailable — local catalog search.
  * Only shows products if there's a genuine topic signal (category/price/offer/browse-keyword).
@@ -1630,7 +1630,7 @@ function bestEffortFallback(messages, allCatalog) {
 
   // No clear topic — return helpful "not found" with category picker
   if (!hasTopic) {
-    return `Mmm, no encontré productos que coincidan con "${userText.slice(0, 40)}" 🥺\n\nProbá explorando estas categorías:\n\n💄 **Maquillaje** — labiales, bases, sombras\n🧴 **Skincare** — cremas, serums, protector solar\n🌸 **Perfumes** — fragancias\n💇 **Cabello** — shampoos, tratamientos\n\nO escribinos por WhatsApp al **8804-5100** para ayudarte personalmente.\n\n[[sug: Mostrame maquillaje | Quiero skincare | Ver perfumes | Hablar por WhatsApp]]`;
+    return `Mmm, no encontré productos que coincidan con "${userText.slice(0, 40)}" 🥺\n\nProbá explorando estas categorías:\n\n💄 **Maquillaje** — labiales, bases, sombras\n🧴 **Skincare** — cremas, serums, protector solar\n🌸 **Perfumes** — fragancias\n💇 **Cabello** — shampoos, tratamientos\n\nO escribinos por WhatsApp al **7212-5261** para ayudarte personalmente.\n\n[[sug: Mostrame maquillaje | Quiero skincare | Ver perfumes | Hablar por WhatsApp]]`;
   }
 
   // Has topic — score and return real matches
@@ -1644,7 +1644,7 @@ function bestEffortFallback(messages, allCatalog) {
 
   const top = scored.slice(0, 4).map((x) => x.p);
   const list = top.map((p) => `[[${p.slug}]]`).join('\n');
-  return `Te muestro algunos productos que pueden interesarte:\n${list}\n\n_Para recomendaciones más personalizadas, escribinos por WhatsApp al **8804-5100**._\n\n[[sug: Mostrame más | ¿Cómo comprar? | Hablar por WhatsApp]]`;
+  return `Te muestro algunos productos que pueden interesarte:\n${list}\n\n_Para recomendaciones más personalizadas, escribinos por WhatsApp al **7212-5261**._\n\n[[sug: Mostrame más | ¿Cómo comprar? | Hablar por WhatsApp]]`;
 }
 
 /* ─── Per-IP simple cooldown to prevent abuse ─── */

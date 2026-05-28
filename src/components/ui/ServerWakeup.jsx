@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const API = import.meta.env.VITE_API_URL;
@@ -77,13 +77,13 @@ export default function ServerWakeup() {
         >
           {/* Ambient orbs */}
           <div className="pointer-events-none absolute -top-32 -left-20 w-96 h-96 rounded-full blur-3xl animate-orb-pulse"
-            style={{ background: 'rgba(184,95,114,0.18)' }} />
+            style={{ background: 'rgba(232,121,160,0.18)' }} />
           <div className="pointer-events-none absolute -bottom-20 -right-10 w-80 h-80 rounded-full blur-3xl animate-orb-pulse"
-            style={{ background: 'rgba(184,95,114,0.12)', animationDelay: '2s' }} />
+            style={{ background: 'rgba(232,121,160,0.12)', animationDelay: '2s' }} />
 
           {/* Gold top line */}
           <div className="absolute inset-x-0 top-0 h-px"
-            style={{ background: 'linear-gradient(90deg, transparent 0%, #C9A875 25%, #B85F72 50%, #C9A875 75%, transparent 100%)' }} />
+            style={{ background: 'linear-gradient(90deg, transparent 0%, #F472B6 25%, #E879A0 50%, #F472B6 75%, transparent 100%)' }} />
 
           {/* Sparkles */}
           {SPARKLES.map((s, i) => (
@@ -103,12 +103,7 @@ export default function ServerWakeup() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.6, ease: [0.3, 1, 0.3, 1] }}
             >
-              <p className="font-display text-4xl sm:text-5xl font-bold text-white mb-1 tracking-tight">
-                JD <span style={{ color: '#B85F72' }}>Virtual</span>
-              </p>
-              <p className="font-display italic text-lg mb-10 tracking-wide" style={{ color: 'rgba(201,168,117,0.7)' }}>
-                Beauty Store
-              </p>
+              <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-20 w-auto rounded-2xl mb-10 mx-auto" />
             </motion.div>
 
             {/* Status */}
@@ -152,7 +147,7 @@ export default function ServerWakeup() {
                   <div className="w-48 h-1 rounded-full overflow-hidden bg-white/10">
                     <motion.div
                       className="h-full rounded-full"
-                      style={{ background: 'linear-gradient(90deg, #B85F72, #C9A875)' }}
+                      style={{ background: 'linear-gradient(90deg, #E879A0, #F472B6)' }}
                       initial={{ width: '8%' }}
                       animate={{ width: elapsed >= 20 ? '85%' : `${Math.min(8 + elapsed * 4, 80)}%` }}
                       transition={{ duration: 1, ease: 'easeOut' }}
@@ -178,7 +173,7 @@ export default function ServerWakeup() {
 
           {/* Bottom note */}
           <p className="absolute bottom-8 text-white/20 text-xs text-center px-6">
-            JD Virtual Store · El Roble, Puntarenas · Costa Rica
+            Be Curly Full CR · Costa Rica
           </p>
         </motion.div>
       )}

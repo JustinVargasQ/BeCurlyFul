@@ -36,7 +36,7 @@ const useWishlistStore = create(
         return get().items.length;
       },
     }),
-    { name: 'jd-wishlist-v1' }
+    { name: 'bcf-wishlist-v1' }
   )
 );
 

@@ -1,11 +1,11 @@
 {
-  "name": "JD Virtual Store",
-  "short_name": "JD Virtual",
-  "description": "Maquillaje y skincare de marcas auténticas. Envíos a todo Costa Rica.",
+  "name": "Be Curly Full CR",
+  "short_name": "Be Curly",
+  "description": "Productos para cabello rizado y cuidado capilar. Envíos a todo Costa Rica.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FAF7F5",
-  "theme_color": "#B85F72",
+  "theme_color": "#EC4899",
   "orientation": "portrait-primary",
   "lang": "es-CR",
   "icons": [
@@ -20,14 +20,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/public/imgs/makeup.jpg",
-      "sizes": "1280x720",
-      "type": "image/jpeg",
-      "form_factor": "wide"
     }
   ],
   "categories": ["shopping", "lifestyle"],

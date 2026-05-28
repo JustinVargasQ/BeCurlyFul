@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SEO from '../components/ui/SEO';
 
-const WHATSAPP_URL = 'https://wa.me/50688045100?text=' + encodeURIComponent('Hola, quiero apartar un producto 💕');
+const WHATSAPP_URL = 'https://wa.me/50672125261?text=' + encodeURIComponent('Hola, quiero apartar un producto 💕');
 
 const RULES = [
   {
@@ -29,7 +29,7 @@ const RULES = [
 
 const STEPS = [
   { n: 1, title: 'Elegí tu producto', body: 'Buscá lo que querés en la tienda y mandanos un mensaje por WhatsApp con el nombre o foto.' },
-  { n: 2, title: 'Pagás el 50%', body: 'Te confirmamos disponibilidad y precio. Pagás la mitad por SINPE Móvil al 8804-5100.' },
+  { n: 2, title: 'Pagás el 50%', body: 'Te confirmamos disponibilidad y precio. Pagás la mitad por SINPE Móvil al 7212-5261.' },
   { n: 3, title: 'Reservamos tu producto', body: 'Lo apartamos físicamente con tu nombre por hasta 1 mes.' },
   { n: 4, title: 'Cancelás y retirás', body: 'Cancelás el otro 50% y coordinamos entrega o envío.' },
 ];
@@ -59,7 +59,7 @@ export default function Apartados() {
           <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink-900 leading-tight mb-4">
             Sistema de
             <span className="block italic font-medium" style={{
-              background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)',
+              background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -111,7 +111,7 @@ export default function Apartados() {
               <div key={i} className="flex items-start gap-4">
                 <div
                   className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-display font-bold text-base shadow-sm"
-                  style={{ background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)' }}>
+                  style={{ background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }}>
                   {s.n}
                 </div>
                 <div>
@@ -131,7 +131,7 @@ export default function Apartados() {
           transition={{ duration: 0.4 }}
           className="relative overflow-hidden rounded-3xl p-8 sm:p-12 text-center text-white shadow-modal"
           style={{
-            background: 'linear-gradient(135deg, #1A1414 0%, #2E1A1F 25%, #6B3540 55%, #B85F72 85%, #C9A875 100%)',
+            background: 'linear-gradient(135deg, #1A1414 0%, #1A0A12 25%, #831843 55%, #E879A0 85%, #F472B6 100%)',
           }}>
           {/* Sparkle pattern */}
           <div
@@ -168,7 +168,7 @@ export default function Apartados() {
               </Link>
             </div>
             <p className="text-white/60 text-xs mt-5">
-              También podés llamarnos al <strong className="text-white/90">8804-5100</strong>
+              También podés llamarnos al <strong className="text-white/90">7212-5261</strong>
             </p>
           </div>
         </motion.div>

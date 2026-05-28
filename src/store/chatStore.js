@@ -241,7 +241,7 @@ const useChatStore = create(
       },
     }),
     {
-      name: 'jd-chatbot-history',
+      name: 'bcf-chatbot-history',
       partialize: (state) => ({
         messages: state.messages.slice(-MAX_STORED),
         savedAt: Date.now(),

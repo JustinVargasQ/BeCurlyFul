@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+﻿import { useEffect, useRef, useState, useCallback } from 'react';
 import { loadGoogleMaps, hasGoogleMapsKey } from '../../lib/loadGoogleMaps';
 
 const CR_CENTER = { lat: 9.9281, lng: -84.0907 };
@@ -195,7 +195,7 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
           {/* Step pill con gradiente */}
           <span
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest text-white shadow-sm"
-            style={{ background: 'linear-gradient(135deg,#B85F72,#93485A)' }}>
+            style={{ background: 'linear-gradient(135deg,#E879A0,#C9547E)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
             PASO 1 DE 2
           </span>
@@ -249,7 +249,7 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
             <div className="flex-1 flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-white shadow-sm border border-rose-100">
               <div
                 className="w-8 h-8 rounded-xl text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm"
-                style={{ background: 'linear-gradient(135deg,#B85F72,#93485A)' }}>
+                style={{ background: 'linear-gradient(135deg,#E879A0,#C9547E)' }}>
                 1
               </div>
               <div className="min-w-0">
@@ -283,7 +283,7 @@ function AddressPreStepModal({ initialText, onContinue, onClose }) {
               disabled={!isValid}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-white text-sm font-bold transition-all shadow-btn hover:shadow-btn-hover disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
               style={isValid
-                ? { background: 'linear-gradient(135deg,#B85F72,#93485A)' }
+                ? { background: 'linear-gradient(135deg,#E879A0,#C9547E)' }
                 : { background: '#E5C8CF' }}>
               Continuar al mapa
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -350,7 +350,7 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
           visible: false,
           icon: {
             path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z',
-            fillColor: '#B85F72',
+            fillColor: '#E879A0',
             fillOpacity: 1,
             strokeColor: '#ffffff',
             strokeWeight: 2.5,
@@ -452,7 +452,7 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
 
           <span
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest text-white shadow-sm"
-            style={{ background: 'linear-gradient(135deg,#B85F72,#93485A)' }}>
+            style={{ background: 'linear-gradient(135deg,#E879A0,#C9547E)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
             PASO 2 DE 2
           </span>
@@ -493,9 +493,9 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
               style={{
                 background: locating
                   ? 'linear-gradient(135deg,#6366f1,#4f46e5)'
-                  : 'linear-gradient(135deg,#B85F72,#D17D8D 60%,#C9A875)',
+                  : 'linear-gradient(135deg,#E879A0,#F472B6 60%,#F472B6)',
                 color: '#fff',
-                boxShadow: '0 6px 22px rgba(184,95,114,0.32)',
+                boxShadow: '0 6px 22px rgba(232,121,160,0.32)',
               }}>
               {/* Shimmer al hover */}
               {!locating && (
@@ -620,7 +620,7 @@ function MapPickerModal({ userDescription, onClose, onConfirm }) {
               className="flex-1 px-4 py-3 rounded-2xl text-white text-sm font-bold transition-all shadow-btn hover:shadow-btn-hover disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
               style={{ background: (mapLoading || !!mapError || !hasMarked || geocoding)
                 ? '#E5C8CF'
-                : 'linear-gradient(135deg,#B85F72,#93485A)' }}>
+                : 'linear-gradient(135deg,#E879A0,#C9547E)' }}>
               Confirmar ubicación
             </button>
           </div>

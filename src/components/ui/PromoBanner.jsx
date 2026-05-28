@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import api from '../../lib/api';
 
 const USE_API = import.meta.env.VITE_API_URL;
@@ -12,7 +12,7 @@ export default function PromoBanner() {
     api.get('/settings')
       .then(({ data }) => {
         if (data.promoBannerActive && data.promoBanner) {
-          setBanner({ text: data.promoBanner, color: data.promoBannerColor || '#B85F72' });
+          setBanner({ text: data.promoBanner, color: data.promoBannerColor || '#E879A0' });
         }
       })
       .catch(() => {});

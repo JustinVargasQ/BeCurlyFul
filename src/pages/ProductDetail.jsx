@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProduct, useProducts } from '../hooks/useProducts';
@@ -372,7 +372,7 @@ export default function ProductDetail() {
 
   const shareWa = () => {
     const url = window.location.href;
-    window.open(`https://wa.me/?text=${encodeURIComponent(`Mira este producto en JD Virtual: ${product.name} - ${url}`)}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(`Mira este producto en Be Curly Full CR: ${product.name} - ${url}`)}`, '_blank');
   };
 
   const shareLink = () => {
@@ -470,7 +470,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Brand + Name */}
-            <p className="text-rose-500 font-semibold text-xs tracking-widest uppercase mb-1.5">{product.brand || 'JD Virtual'}</p>
+            <p className="text-rose-500 font-semibold text-xs tracking-widest uppercase mb-1.5">{product.brand || 'Be Curly Full CR'}</p>
             <h1 className="font-display text-3xl sm:text-4xl font-semibold text-ink-900 leading-snug mb-3">{product.name}</h1>
 
             {/* Rating */}
@@ -569,7 +569,7 @@ export default function ProductDetail() {
                 ) : (
                   <div className="flex gap-2">
                     <input value={restockPhone} onChange={(e) => setRestockPhone(e.target.value)}
-                      placeholder="Tu WhatsApp (ej: 8804-5100)"
+                      placeholder="Tu WhatsApp (ej: 7212-5261)"
                       className="flex-1 border border-cream-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-rose-400 transition-colors" />
                     <button onClick={handleRestock} disabled={restockLoading || !restockPhone.trim()}
                       className="px-4 py-2.5 rounded-xl text-sm font-bold bg-ink-900 text-white hover:bg-rose-500 transition-colors disabled:opacity-50">
@@ -635,7 +635,7 @@ export default function ProductDetail() {
 
             {/* Apartar — boton full-width con caption descriptiva debajo */}
             <a
-              href={`https://wa.me/50688045100?text=${encodeURIComponent(`Hola 💕 Quiero apartar este producto: ${product.name} (₡${product.price.toLocaleString('es-CR')}). ¿Cómo procedemos?`)}`}
+              href={`https://wa.me/50672125261?text=${encodeURIComponent(`Hola 💕 Quiero apartar este producto: ${product.name} (₡${product.price.toLocaleString('es-CR')}). ¿Cómo procedemos?`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="group w-full flex items-center justify-center gap-2 px-4 py-3 mb-1.5 rounded-xl text-sm font-semibold bg-rose-50 hover:bg-rose-100 border border-rose-200 hover:border-rose-300 text-rose-700 hover:text-rose-800 transition-all">
@@ -676,7 +676,7 @@ export default function ProductDetail() {
             <div className="grid grid-cols-3 gap-2.5 border-t border-cream-100 pt-5">
               {[
                 { icon: <ShieldIcon />,    label: 'Pago seguro',       bg: 'rgba(16,185,129,0.1)',  color: '#059669' },
-                { icon: <StarBadgeIcon />, label: 'Producto original', bg: 'rgba(184,95,114,0.1)',  color: '#B85F72' },
+                { icon: <StarBadgeIcon />, label: 'Producto original', bg: 'rgba(232,121,160,0.1)',  color: '#E879A0' },
                 { icon: <TruckIcon />,     label: 'Envío coordinado',  bg: 'rgba(59,130,246,0.1)',  color: '#3b82f6' },
               ].map(({ icon, label, bg, color }, i) => (
                 <motion.div

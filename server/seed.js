@@ -130,13 +130,13 @@ async function seed() {
   // Admin
   const passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'jd2024', 12);
   await Admin.create({
-    name:  'Admin JD',
-    email: process.env.ADMIN_EMAIL || 'admin@jdvirtual.com',
+    name:  'Admin BCF',
+    email: process.env.ADMIN_EMAIL || 'admin@becurlyful.cr',
     passwordHash,
   });
   console.log('✅ Admin creado');
   console.log('──────────────────────────────────');
-  console.log('   Email:', process.env.ADMIN_EMAIL || 'admin@jdvirtual.com');
+  console.log('   Email:', process.env.ADMIN_EMAIL || 'admin@becurlyful.cr');
   console.log('   Password:', process.env.ADMIN_PASSWORD || 'jd2024');
   console.log('──────────────────────────────────');
 

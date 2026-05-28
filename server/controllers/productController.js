@@ -201,7 +201,7 @@ exports.topSellers = async (req, res, next) => {
  * Output is plain XML, cacheable for 1 hour. */
 exports.sitemap = async (req, res, next) => {
   try {
-    const SITE_URL = process.env.CLIENT_URL || 'https://jd-virtual.vercel.app';
+    const SITE_URL = process.env.CLIENT_URL || 'https://becurlyfulcr.vercel.app';
     const products = await Product.find({ isActive: true })
       .select('slug updatedAt')
       .sort({ updatedAt: -1 })

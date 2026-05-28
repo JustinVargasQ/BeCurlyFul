@@ -54,7 +54,7 @@ app.set('trust proxy', 1);
 const ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:4173',
-  'https://jd-virtual.vercel.app',   // dominio de producción hardcoded como fallback
+  'https://becurlyfulcr.vercel.app',  // dominio de producción hardcoded como fallback
   process.env.CLIENT_URL,
   process.env.CLIENT_URL2,
 ].filter(Boolean);
@@ -147,7 +147,7 @@ app.get('/api/health', (req, res) =>
 /* SEO: sitemap.xml + robots.txt — sirvelos sin /api para que crawlers los encuentren */
 app.get('/sitemap.xml', require('./controllers/productController').sitemap);
 app.get('/robots.txt', (req, res) => {
-  const SITE_URL = process.env.CLIENT_URL || 'https://jd-virtual.vercel.app';
+  const SITE_URL = process.env.CLIENT_URL || 'https://becurlyfulcr.vercel.app';
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=86400');
   res.send(

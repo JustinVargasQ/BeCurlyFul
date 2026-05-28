@@ -68,7 +68,7 @@ export default function LoginModal({ open, onClose, title = 'Iniciá sesión', s
                 {/* Brand accent line */}
                 <div className="flex items-center gap-2 mb-5">
                   <span className="block w-8 h-px bg-rose-400" />
-                  <span className="text-[10px] font-bold tracking-[0.22em] uppercase text-rose-500">JD Virtual</span>
+                  <span className="text-[10px] font-bold tracking-[0.22em] uppercase text-rose-500">Be Curly Full CR</span>
                 </div>
 
                 <h3 className="font-display text-2xl font-bold text-ink-900 leading-[1.1] tracking-tight pr-6">

@@ -4,13 +4,13 @@ const settingsSchema = new Schema(
   {
     key:       { type: String, default: 'main', unique: true },
 
-    storeName: { type: String, default: 'JD Virtual' },
-    whatsapp:  { type: String, default: '50688045100' },
+    storeName: { type: String, default: 'Be Curly Full CR' },
+    whatsapp:  { type: String, default: '50672125261' },
     email:     { type: String, default: '' },
     address:   { type: String, default: '' },
 
     heroTitle: { type: String, default: 'Belleza auténtica' },
-    heroSub:   { type: String, default: 'Maquillaje y skincare de marcas originales.' },
+    heroSub:   { type: String, default: 'Productos para cabello rizado y cuidado capilar.' },
     heroStyle: { type: String, enum: ['grid', 'video'], default: 'grid' },
 
     shippingCostCorreos: { type: Number, default: 2500, min: 0 },

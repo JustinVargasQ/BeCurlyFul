@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { PRODUCTS as LOCAL_PRODUCTS, CATEGORIES } from '../../data/products';
 import { formatCRC } from '../../lib/currency';
@@ -313,7 +313,7 @@ function BulkImportButton({ onDone }) {
                   onChange={(e) => handleFile(e.target.files?.[0])}
                   className="text-xs flex-1" />
                 <button
-                  onClick={() => setText('name,brand,category,price,oldPrice,description,stock,tags,badge\nLabial mate rojo,Beauty Creations,labios,3500,4000,Mate de larga duración,12,"labial,mate,rojo",NUEVO\nCrema hidratante,The Ordinary,skincare,8900,,Hidratación 24h,5,"crema,hidratante,natural",')}
+                  onClick={() => setText('name,brand,category,price,oldPrice,description,stock,tags,badge\nActivador de Rizos XL,Be Curlyful,rizos,12000,,Hidratación intensa y rizos definidos,10,"rizos,activador,hidratacion",TOP\nShampoo Limpieza Diaria,Be Curlyful,limpieza,8500,,Limpieza suave para uso diario,15,"shampoo,limpieza,rizos",')}
                   className="text-xs px-2.5 py-1 rounded-lg bg-cream-100 hover:bg-cream-200 text-ink-600 font-semibold">
                   Cargar plantilla
                 </button>
@@ -535,12 +535,12 @@ function generateCatalog(products) {
     return `<div style="border:1px solid #eee;border-radius:12px;overflow:hidden;break-inside:avoid">
       ${img ? `<img src="${img}" alt="${p.name}" style="width:100%;height:160px;object-fit:cover">` : `<div style="width:100%;height:160px;background:#f5f0f0;display:flex;align-items:center;justify-content:center;color:#ccc"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>`}
       <div style="padding:12px">
-        <p style="font-size:10px;color:#B85F72;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin:0 0 2px">${p.brand || ''}</p>
+        <p style="font-size:10px;color:#E879A0;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin:0 0 2px">${p.brand || ''}</p>
         <p style="font-size:13px;font-weight:600;color:#111;margin:0 0 6px;line-height:1.3">${p.name}</p>
         <div style="display:flex;align-items:baseline;gap:6px">
           <span style="font-size:15px;font-weight:bold;color:#111">${fmt(p.price)}</span>
           ${p.oldPrice ? `<span style="font-size:11px;color:#999;text-decoration:line-through">${fmt(p.oldPrice)}</span>` : ''}
-          ${discount > 0 ? `<span style="font-size:10px;font-weight:bold;color:#B85F72;background:#FBF0F2;padding:1px 5px;border-radius:20px">-${discount}%</span>` : ''}
+          ${discount > 0 ? `<span style="font-size:10px;font-weight:bold;color:#E879A0;background:#FFF0F7;padding:1px 5px;border-radius:20px">-${discount}%</span>` : ''}
         </div>
         ${typeof p.stock === 'number' && p.stock === 0 ? `<p style="font-size:10px;color:#ef4444;margin:4px 0 0">Agotado</p>` : ''}
       </div>
@@ -549,20 +549,20 @@ function generateCatalog(products) {
 
   const w = window.open('', '_blank', 'width=900,height=700');
   w.document.write(`<!DOCTYPE html><html lang="es"><head>
-    <meta charset="utf-8"><title>Catálogo JD Virtual</title>
+    <meta charset="utf-8"><title>Catálogo Be Curly Full CR</title>
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
       body{font-family:Arial,sans-serif;padding:24px;color:#111;background:#fff}
-      .header{text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #B85F72}
-      .title{font-size:28px;font-weight:bold;color:#B85F72}
+      .header{text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #E879A0}
+      .title{font-size:28px;font-weight:bold;color:#E879A0}
       .subtitle{color:#888;font-size:13px;margin-top:4px}
       .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-      .print-btn{display:block;margin:24px auto 0;padding:10px 28px;background:#B85F72;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
+      .print-btn{display:block;margin:24px auto 0;padding:10px 28px;background:#E879A0;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
       @media print{.print-btn{display:none!important}body{padding:12px}.grid{grid-template-columns:repeat(3,1fr);gap:10px}}
     </style>
   </head><body>
     <div class="header">
-      <div class="title">JD Virtual Store</div>
+      <div class="title">Be Curly Full CR</div>
       <div class="subtitle">Catálogo de productos · ${new Date().toLocaleDateString('es-CR', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
       <div class="subtitle">${active.length} productos disponibles</div>
     </div>

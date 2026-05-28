@@ -1,35 +1,34 @@
 import { Helmet } from 'react-helmet-async';
 
-const SITE_NAME  = 'JD Virtual Store';
-const SITE_URL   = 'https://jd-virtual.vercel.app';
+const SITE_NAME  = 'Be Curly Full CR';
+const SITE_URL   = 'https://becurlyfulcr.vercel.app';
 const DEFAULT_IMG = `${SITE_URL}/icons/icon-512.png`;
-const DEFAULT_DESC = 'Maquillaje y skincare de marcas auténticas con envíos a todo Costa Rica desde El Roble, Puntarenas.';
+const DEFAULT_DESC = 'Productos para cabello rizado y cuidado capilar con envíos a todo Costa Rica.';
 
 /* Cuando renderizas SEO sin url (o url === '/'), inyectamos tambien el
  * structured data de LocalBusiness. Google lo usa para el panel de marca
- * (logo, nombre, telefono, dirección) en busquedas tipo "JD Virtual" o
- * "maquillaje El Roble Puntarenas". Solo en la home para no duplicarlo. */
+ * (logo, nombre, telefono) en busquedas tipo "Be Curly Full CR".
+ * Solo en la home para no duplicarlo. */
 const LOCAL_BUSINESS_JSONLD = {
   '@context': 'https://schema.org',
   '@type': 'Store',
-  name: 'JD Virtual Store',
-  url: 'https://jd-virtual.vercel.app',
-  logo: 'https://res.cloudinary.com/dp82rk4ou/image/upload/v1778759671/jdicono_scsfo2.jpg',
-  image: 'https://res.cloudinary.com/dp82rk4ou/image/upload/v1778759671/jdicono_scsfo2.jpg',
-  description: 'Tienda de maquillaje y skincare originales con envíos a todo Costa Rica desde El Roble, Puntarenas.',
-  telephone: '+506 8804-5100',
-  email: 'utnmaps@gmail.com',
+  name: 'Be Curly Full CR',
+  url: 'https://becurlyfulcr.vercel.app',
+  logo: `${SITE_URL}/icons/icon-512.png`,
+  image: `${SITE_URL}/icons/icon-512.png`,
+  description: 'Tienda especializada en productos para cabello rizado y cuidado capilar con envíos a todo Costa Rica.',
+  telephone: '+506 7212-5261',
+  email: 'info@becurlyful.cr',
   priceRange: '₡₡',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'El Roble',
-    addressLocality: 'Puntarenas',
-    addressRegion: 'Puntarenas',
     addressCountry: 'CR',
   },
   areaServed: { '@type': 'Country', name: 'Costa Rica' },
   sameAs: [
-    'https://wa.me/50688045100',
+    'https://wa.me/50672125261',
+    'https://www.instagram.com/becurlyfulcr',
+    'https://www.facebook.com/share/1BzCcTxMcy/',
   ],
   openingHoursSpecification: [{
     '@type': 'OpeningHoursSpecification',
@@ -39,13 +38,13 @@ const LOCAL_BUSINESS_JSONLD = {
   }],
   potentialAction: {
     '@type': 'SearchAction',
-    target: 'https://jd-virtual.vercel.app/?q={search_term_string}',
+    target: 'https://becurlyfulcr.vercel.app/?q={search_term_string}',
     'query-input': 'required name=search_term_string',
   },
 };
 
 export default function SEO({ title, description, image, url, type = 'website', product, noindex = false }) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Maquillaje & Skincare | Costa Rica`;
+  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Cabello Rizado | Costa Rica`;
   const desc  = description || DEFAULT_DESC;
   const img   = image || DEFAULT_IMG;
   const canonical = url ? `${SITE_URL}${url}` : SITE_URL;

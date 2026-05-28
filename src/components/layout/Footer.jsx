@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+﻿import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 /* ── Icons ── */
@@ -11,18 +11,17 @@ const TikTokIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="c
 const FacebookIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
 
 const SOCIALS = [
-  { label: 'Instagram', href: 'https://www.instagram.com/jd_virtual/',                        icon: <InstagramIcon />, color: '#E1306C', bg: 'rgba(225,48,108,0.15)' },
-  { label: 'TikTok',    href: 'https://www.tiktok.com/@jd_virtual_store',                     icon: <TikTokIcon />,    color: '#ffffff', bg: 'rgba(255,255,255,0.1)'  },
-  { label: 'Facebook',  href: 'https://www.facebook.com/p/JD-Virtual-Store-100057624661917/', icon: <FacebookIcon />,  color: '#1877F2', bg: 'rgba(24,119,242,0.15)'  },
-  { label: 'WhatsApp',  href: 'https://wa.me/50688045100',                                    icon: <WaIcon />,        color: '#25D366', bg: 'rgba(37,211,102,0.15)'  },
+  { label: 'Instagram', href: 'https://www.instagram.com/becurlyfulcr',              icon: <InstagramIcon />, color: '#E1306C', bg: 'rgba(225,48,108,0.15)' },
+  { label: 'Facebook',  href: 'https://www.facebook.com/share/1BzCcTxMcy/',         icon: <FacebookIcon />,  color: '#1877F2', bg: 'rgba(24,119,242,0.15)'  },
+  { label: 'WhatsApp',  href: 'https://wa.me/50672125261',                           icon: <WaIcon />,        color: '#25D366', bg: 'rgba(37,211,102,0.15)'  },
 ];
 
 const CAT_LINKS = [
-  { label: 'Skin care',   cat: 'skincare'   },
-  { label: 'Maquillaje',  cat: 'maquillaje' },
-  { label: 'Accesorios',  cat: 'accesorios' },
-  { label: 'Perfumes',    cat: 'perfumes'   },
-  { label: 'Cabello',     cat: 'cabello'    },
+  { label: 'Rizos',       cat: 'rizos'       },
+  { label: 'Limpieza',    cat: 'limpieza'    },
+  { label: 'Tratamiento', cat: 'tratamiento' },
+  { label: 'Kids',        cat: 'kids'        },
+  { label: 'Kits',        cat: 'kits'        },
 ];
 
 const PAGE_LINKS = [
@@ -40,7 +39,7 @@ export default function Footer() {
 
   const handleCatClick = (cat) => {
     if (location.pathname === '/') {
-      window.dispatchEvent(new CustomEvent('jd:selectcat', { detail: cat }));
+      window.dispatchEvent(new CustomEvent('bcf:selectcat', { detail: cat }));
       document.getElementById('tienda')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
       navigate(`/?cat=${cat}`);
@@ -48,17 +47,15 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative bg-ink-900 text-white overflow-hidden">
+    <footer className="relative overflow-hidden" style={{ background: '#1C0A14', color: '#fff' }}>
 
       {/* ── Decorative orbs ── */}
-      <div className="pointer-events-none absolute -top-32 -left-20 w-96 h-96 rounded-full bg-rose-500/6 blur-3xl" />
-      <div className="pointer-events-none absolute top-16 right-0 w-80 h-80 rounded-full bg-rose-400/5 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#C9A875]/4 blur-3xl" />
+      <div className="pointer-events-none absolute -top-32 -left-20 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
+      <div className="pointer-events-none absolute top-16 right-0 w-80 h-80 rounded-full bg-white/8 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
 
-      {/* ── Gold gradient top line ── */}
-      <div className="h-px w-full" style={{
-        background: 'linear-gradient(90deg, transparent 0%, #C9A875 25%, #B85F72 50%, #C9A875 75%, transparent 100%)'
-      }} />
+      {/* ── Top white line ── */}
+      <div className="h-px w-full bg-white/20" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
 
@@ -67,27 +64,24 @@ export default function Footer() {
 
           {/* Brand column */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <div className="mb-1">
-              <span className="font-display text-2xl font-bold">
-                JD <span className="text-rose-400">Virtual</span>
-              </span>
+            <div className="mb-4">
+              <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-14 w-auto rounded-xl" />
             </div>
-            <p className="font-display italic text-rose-400/70 text-lg mb-4 leading-none tracking-wide">Beauty Store</p>
             <p className="text-white/50 text-sm leading-relaxed mb-6 max-w-xs">
-              Maquillaje y skincare de marcas auténticas. Envíos a todo Costa Rica desde El Roble, Puntarenas.
+              Productos para cabello rizado y cuidado capilar. Envíos a todo Costa Rica.
             </p>
             <motion.a
-              href="https://wa.me/50688045100"
+              href="https://wa.me/50672125261"
               target="_blank" rel="noopener noreferrer"
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               className="inline-flex items-center gap-2.5 bg-green-500 hover:bg-green-600 text-white font-semibold text-sm px-5 py-2.5 rounded-full transition-colors shadow-lg">
-              <WaIcon /> 8804-5100
+              <WaIcon /> 7212-5261
             </motion.a>
           </div>
 
           {/* Categories */}
           <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-rose-400 mb-5">Categorías</p>
+            <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-white/70 mb-5">Categorías</p>
             <ul className="space-y-2.5">
               {CAT_LINKS.map((l) => (
                 <li key={l.cat}>
@@ -106,7 +100,7 @@ export default function Footer() {
 
           {/* Pages */}
           <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-rose-400 mb-5">Tienda</p>
+            <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-white/70 mb-5">Tienda</p>
             <ul className="space-y-2.5">
               {PAGE_LINKS.map((item) => (
                 <li key={item.label}>
@@ -123,7 +117,7 @@ export default function Footer() {
 
           {/* Contact + socials */}
           <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-rose-400 mb-5">Contacto</p>
+            <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-white/70 mb-5">Contacto</p>
             <ul className="space-y-3 text-sm text-white/50 mb-6">
               <li className="flex items-center gap-3">
                 <span className="w-7 h-7 rounded-lg flex items-center justify-center text-green-400 flex-shrink-0"
@@ -132,20 +126,20 @@ export default function Footer() {
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                   </svg>
                 </span>
-                WhatsApp 8804-5100
+                WhatsApp 7212-5261
               </li>
               <li className="flex items-center gap-3">
                 <span className="w-7 h-7 rounded-lg flex items-center justify-center text-rose-300 flex-shrink-0"
-                  style={{ background: 'rgba(184,95,114,0.15)', border: '1px solid rgba(184,95,114,0.2)' }}>
+                  style={{ background: 'rgba(232,121,160,0.15)', border: '1px solid rgba(232,121,160,0.2)' }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                   </svg>
                 </span>
-                El Roble, Puntarenas
+                Costa Rica
               </li>
               <li className="flex items-center gap-3">
                 <span className="w-7 h-7 rounded-lg flex items-center justify-center text-rose-300 flex-shrink-0"
-                  style={{ background: 'rgba(184,95,114,0.15)', border: '1px solid rgba(184,95,114,0.2)' }}>
+                  style={{ background: 'rgba(232,121,160,0.15)', border: '1px solid rgba(232,121,160,0.2)' }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                   </svg>
@@ -176,10 +170,10 @@ export default function Footer() {
         {/* ── Bottom bar ── */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3"
           style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <p className="text-xs text-white/22 text-center sm:text-left">
-            © {new Date().getFullYear()} JD Virtual Store · Todos los derechos reservados · El Roble, Puntarenas, CR
+          <p className="text-xs text-white/60 text-center sm:text-left">
+            © {new Date().getFullYear()} Be Curly Full CR · Todos los derechos reservados · Costa Rica
           </p>
-          <Link to="/admin/login" className="text-white/18 hover:text-white/50 text-xs transition-colors">
+          <Link to="/admin/login" className="text-white/40 hover:text-white text-xs transition-colors">
             Acceso admin
           </Link>
         </div>

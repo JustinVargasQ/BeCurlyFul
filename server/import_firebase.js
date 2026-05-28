@@ -48,7 +48,7 @@ function parseProduct(doc) {
   const price    = parseFloat(getField(fields, 'price') || getField(fields, 'basePrice') || 0);
   const oldPrice = parseFloat(getField(fields, 'originalPrice') || getField(fields, 'compareAtPrice') || 0) || null;
   const desc     = getField(fields, 'description') || '';
-  const brand    = getField(fields, 'brand') || getField(fields, 'brandName') || 'JD Virtual';
+  const brand    = getField(fields, 'brand') || getField(fields, 'brandName') || 'Be Curly Full CR';
   const cat      = getField(fields, 'category') || getField(fields, 'categoryId') || '';
   const badge    = getField(fields, 'badge') || getField(fields, 'tag') || '';
   const stock    = parseInt(getField(fields, 'stock') || getField(fields, 'quantity') || 99);

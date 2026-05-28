@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+﻿import { useState, useCallback, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useCart from '../hooks/useCart';
@@ -132,7 +132,7 @@ function Section({ step, Icon, title, sub, children }) {
     <div className="bg-white rounded-2xl shadow-card border border-cream-100 overflow-hidden">
       <div className="px-6 py-5 border-b border-cream-100 flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-rose-500"
-          style={{ background: 'linear-gradient(135deg,rgba(184,95,114,.12),rgba(201,168,117,.08))', border:'1px solid rgba(184,95,114,.18)' }}>
+          style={{ background: 'linear-gradient(135deg,rgba(232,121,160,.12),rgba(244,114,182,.08))', border:'1px solid rgba(232,121,160,.18)' }}>
           {Icon ? <Icon /> : null}
         </div>
         <div>
@@ -446,7 +446,7 @@ export default function Checkout() {
                     value={form.phone}
                     onChange={handleChange('phone')}
                     onBlur={handleBlur('phone')}
-                    placeholder="8804-5100"
+                    placeholder="7212-5261"
                     inputMode="numeric"
                     maxLength={9}
                     className={inputCls(touched.phone, errors.phone)}
@@ -506,7 +506,7 @@ export default function Checkout() {
                     <label className="block text-xs font-bold text-ink-600 uppercase tracking-wide mb-2">Ubicación del local</label>
                     <div className="rounded-xl overflow-hidden border border-cream-200">
                       {MAPS_KEY
-                        ? <iframe title="JD Virtual Store" width="100%" height="220" style={{ border:0, display:'block' }} loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade"
+                        ? <iframe title="Be Curly Full CR" width="100%" height="220" style={{ border:0, display:'block' }} loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade"
                             src={`https://www.google.com/maps/embed/v1/place?key=${MAPS_KEY}&q=place_id:${PLACE_ID}&maptype=roadmap&zoom=17`} />
                         : <div className="h-32 bg-cream-100 flex items-center justify-center text-ink-400 text-sm">Mapa no disponible</div>
                       }
@@ -517,7 +517,7 @@ export default function Checkout() {
                           </svg>
                         </span>
                         <div>
-                          <p className="text-sm font-semibold text-ink-900">JD Virtual Store · El Roble, Puntarenas</p>
+                          <p className="text-sm font-semibold text-ink-900">Be Curly Full CR · Costa Rica</p>
                           <p className="text-xs text-ink-400 mt-0.5">Te confirmamos el punto exacto por WhatsApp</p>
                           <a href={`https://www.google.com/maps/search/?api=1&query=place_id:${PLACE_ID}`} target="_blank" rel="noopener noreferrer"
                             className="text-xs text-rose-500 font-semibold hover:underline mt-1 inline-block">

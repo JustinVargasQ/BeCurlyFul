@@ -15,7 +15,7 @@ const CATEGORIES = [
 ];
 
 const EMPTY = {
-  name: '', slug: '', brand: '', category: 'maquillaje',
+  name: '', slug: '', brand: '', category: 'rizos',
   price: '', oldPrice: '', description: '',
   features: [''], tags: [], images: [], stock: '',
   isActive: true, badge: '', badgeType: '', variants: [],
@@ -99,7 +99,7 @@ export default function ProductForm() {
   const notifyRestock = (req) => {
     const phone = req.phone.replace(/\D/g, '');
     const wa = phone.length === 8 ? '506' + phone : phone;
-    const msg = `Hola! Te escribimos de JD Virtual. El producto *${req.productName}* que tenias en lista de espera ya volvio a estar disponible. Podés verlo aquí: ${window.location.origin}/producto/${form.slug}`;
+    const msg = `Hola! Te escribimos de Be Curly Full CR. El producto *${req.productName}* que tenias en lista de espera ya volvio a estar disponible. Podés verlo aquí: ${window.location.origin}/producto/${form.slug}`;
     window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
     api.patch(`/restock/admin/${req._id}`)
       .then(() => setRestockReqs((prev) => prev.map((r) => r._id === req._id ? { ...r, notified: true } : r)))

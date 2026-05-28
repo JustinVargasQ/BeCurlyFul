@@ -39,10 +39,10 @@ export default function InstallBanner() {
           className="fixed bottom-20 left-4 right-4 z-40 sm:left-auto sm:right-5 sm:w-80">
           <div className="bg-white rounded-2xl shadow-modal border border-cream-100 p-4 flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0">
-              <img src="/icons/icon-192.png" alt="JD Virtual" className="w-full h-full object-cover" />
+              <img src="/icons/icon-192.png" alt="Be Curly Full CR" className="w-full h-full object-cover" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-ink-900">Instalar JD Virtual</p>
+              <p className="text-sm font-semibold text-ink-900">Instalar Be Curly Full CR</p>
               <p className="text-xs text-ink-400">Agregá la tienda a tu pantalla de inicio</p>
             </div>
             <div className="flex flex-col gap-1.5 flex-shrink-0">

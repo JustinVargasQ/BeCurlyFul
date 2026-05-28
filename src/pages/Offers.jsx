@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProducts } from '../hooks/useProducts';
@@ -75,7 +75,7 @@ export default function Offers() {
 
         {/* Gold gradient top line */}
         <div className="absolute inset-x-0 top-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent 0%, #C9A875 25%, #B85F72 50%, #C9A875 75%, transparent 100%)' }} />
+          style={{ background: 'linear-gradient(90deg, transparent 0%, #F472B6 25%, #E879A0 50%, #F472B6 75%, transparent 100%)' }} />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link to="/"
@@ -90,7 +90,7 @@ export default function Offers() {
               transition={{ duration: 0.6, ease: [0.3,1,0.3,1] }}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-rose-300"
-                  style={{ background: 'rgba(184,95,114,0.25)', border: '1px solid rgba(184,95,114,0.4)' }}>
+                  style={{ background: 'rgba(232,121,160,0.25)', border: '1px solid rgba(232,121,160,0.4)' }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
                   </svg>

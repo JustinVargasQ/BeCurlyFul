@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import api from '../../lib/api';
 import useToastStore from '../../store/toastStore';
 import { formatCRC } from '../../lib/currency';
@@ -6,12 +6,12 @@ import { formatCRC } from '../../lib/currency';
 const USE_API = import.meta.env.VITE_API_URL;
 
 const DEFAULTS = {
-  storeName: 'JD Virtual',
-  whatsapp: '50688045100',
+  storeName: 'Be Curly Full CR',
+  whatsapp: '50672125261',
   email: '',
   address: '',
   heroTitle: 'Belleza auténtica',
-  heroSub: 'Maquillaje y skincare de marcas originales.',
+  heroSub: 'Productos para cabello rizado y cuidado capilar.',
   heroStyle: 'grid',
   shippingCostCorreos: 2500,
   shippingCostExpress: 4500,
@@ -21,7 +21,7 @@ const DEFAULTS = {
   sinpeName: '',
   promoBanner: '',
   promoBannerActive: false,
-  promoBannerColor: '#B85F72',
+  promoBannerColor: '#E879A0',
   notificationEmail: '',
   autoConfirmOrders: true,
 };
@@ -229,7 +229,7 @@ export default function AdminConfig() {
           </div>
           <div>
             <label className={labelCls}>WhatsApp</label>
-            <input value={form.whatsapp} onChange={set('whatsapp')} className={inputCls} placeholder="50688045100" />
+            <input value={form.whatsapp} onChange={set('whatsapp')} className={inputCls} placeholder="50672125261" />
           </div>
         </div>
 

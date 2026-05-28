@@ -48,7 +48,7 @@ const upload = multer({
 function streamToCloudinary(buffer) {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder: 'jdvirtual', resource_type: 'image' },
+      { folder: 'becurlyfulcr', resource_type: 'image' },
       (err, result) => (err ? reject(err) : resolve(result))
     );
     stream.end(buffer);

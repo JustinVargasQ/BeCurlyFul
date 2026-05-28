@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+﻿import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SEO from '../components/ui/SEO';
 
@@ -23,7 +23,7 @@ export default function NotFound() {
               aria-hidden
               className="font-display font-black text-[110px] sm:text-[160px] leading-none tracking-tight"
               style={{
-                background: 'linear-gradient(135deg, #B85F72 0%, #D17D8D 50%, #C9A875 100%)',
+                background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -73,10 +73,10 @@ export default function NotFound() {
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {[
-                { label: 'Maquillaje', to: '/?cat=maquillaje' },
-                { label: 'Skincare',   to: '/?cat=skincare'   },
-                { label: 'Perfumes',   to: '/?cat=perfumes'   },
-                { label: 'Cabello',    to: '/?cat=cabello'    },
+                { label: 'Rizos',       to: '/?cat=rizos'       },
+                { label: 'Limpieza',    to: '/?cat=limpieza'    },
+                { label: 'Tratamiento', to: '/?cat=tratamiento' },
+                { label: 'Kids',        to: '/?cat=kids'        },
                 { label: 'Mis favoritos', to: '/favoritos'    },
                 { label: 'Rastrear pedido', to: '/pedido'     },
               ].map((c) => (

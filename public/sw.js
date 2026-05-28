@@ -1,4 +1,4 @@
-const CACHE = 'jd-virtual-v2';
+const CACHE = 'becurlyfulcr-v1';
 
 const STATIC = [
   '/',

@@ -10,14 +10,14 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   /* Admin routes use the admin token */
-  const adminToken = localStorage.getItem('jd-admin-token');
+  const adminToken = localStorage.getItem('bcf-admin-token');
   if (adminToken && config.url?.includes('/admin')) {
     config.headers.Authorization = `Bearer ${adminToken}`;
     return config;
   }
   /* Otherwise prefer user token if exists, fallback to admin */
   try {
-    const userPersist = JSON.parse(localStorage.getItem('jd-user') || 'null');
+    const userPersist = JSON.parse(localStorage.getItem('bcf-user') || 'null');
     const userToken = userPersist?.state?.token;
     if (userToken) {
       config.headers.Authorization = `Bearer ${userToken}`;

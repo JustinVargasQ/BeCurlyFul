@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import useToastStore from '../../store/toastStore';
@@ -62,7 +62,7 @@ const STATUS_LABELS = {
 };
 
 /* ── Stat card ── */
-function StatCard({ icon, label, value, sub, accent = '#B85F72', bg = '#FBF0F2' }) {
+function StatCard({ icon, label, value, sub, accent = '#E879A0', bg = '#FFF0F7' }) {
   return (
     <div className="bg-white rounded-2xl p-5 shadow-card border border-cream-100 flex items-start gap-4">
       <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -181,7 +181,7 @@ function SalesChart({ data }) {
                 rx="4" fill="#F3E8EC" />
               {/* this week bar */}
               <rect x={x} y={y} width={BAR_W} height={barH}
-                rx="4" fill="#B85F72" />
+                rx="4" fill="#E879A0" />
               <text x={x + BAR_W / 2} y={H + 14} textAnchor="middle"
                 fontSize="9" fill="#9CA3AF">{label}</text>
             </g>
@@ -256,7 +256,7 @@ function LowStock({ products }) {
 
 /* ── Guía de inicio ── */
 function GuiaInicio() {
-  const [dismissed, setDismissed] = useState(() => localStorage.getItem('jd_guia_ok') === '1');
+  const [dismissed, setDismissed] = useState(() => localStorage.getItem('bcf_guia_ok') === '1');
   if (dismissed) return null;
 
   const pasos = [
@@ -273,7 +273,7 @@ function GuiaInicio() {
           <h3 className="font-display text-base font-bold text-gray-900 mb-0.5">Guía rápida para cargar productos</h3>
           <p className="text-[12px] text-gray-500">Seguí estos 4 pasos para agregar un producto a la tienda.</p>
         </div>
-        <button onClick={() => { localStorage.setItem('jd_guia_ok', '1'); setDismissed(true); }}
+        <button onClick={() => { localStorage.setItem('bcf_guia_ok', '1'); setDismissed(true); }}
           className="text-gray-300 hover:text-gray-500 transition-colors flex-shrink-0 mt-0.5">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -296,7 +296,7 @@ function GuiaInicio() {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Cargar primer producto
         </Link>
-        <button onClick={() => { localStorage.setItem('jd_guia_ok', '1'); setDismissed(true); }}
+        <button onClick={() => { localStorage.setItem('bcf_guia_ok', '1'); setDismissed(true); }}
           className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
           Ya entendí, ocultar guía
         </button>
@@ -375,7 +375,7 @@ function DashboardHome({ adminName }) {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard icon={<BoxStatIcon />} label="Productos"     value={productCount}
-          sub={USE_API ? `${activeCount} activos` : 'En catálogo'} accent="#B85F72" bg="#FBF0F2" />
+          sub={USE_API ? `${activeCount} activos` : 'En catálogo'} accent="#E879A0" bg="#FFF0F7" />
         <StatCard icon={<ShopBagIcon />} label="Pedidos hoy"   value={stats ? stats.todayOrders : (USE_API ? '...' : '—')}
           sub={stats ? `${stats.totalOrders} en total` : (USE_API ? 'Cargando' : 'Requiere backend')} accent="#3B82F6" bg="#EFF6FF" />
         <StatCard icon={<WalletIcon />} label="Ventas 7 días" value={stats ? formatCRC(stats.weekRevenue) : (USE_API ? '...' : '—')}
@@ -425,7 +425,7 @@ function DashboardHome({ adminName }) {
         <div className="grid sm:grid-cols-3 gap-3">
           <QuickCard icon={<AddStatIcon />} label="Nuevo producto"  sub="Agregar al catálogo" to="/admin/productos/nuevo" bg="bg-rose-50"  hover="hover:bg-rose-100" />
           <QuickCard icon={<GlobeIcon />}    label="Ver tienda"       sub="Abrir sitio público"  href="/" bg="bg-cream-50" hover="hover:bg-cream-100" />
-          <QuickCard icon={<ChatStatIcon />} label="WhatsApp"         sub="Atender pedidos"       href="https://wa.me/50688045100" bg="bg-green-50" hover="hover:bg-green-100" />
+          <QuickCard icon={<ChatStatIcon />} label="WhatsApp"         sub="Atender pedidos"       href="https://wa.me/50672125261" bg="bg-green-50" hover="hover:bg-green-100" />
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useUserStore from '../store/userStore';
@@ -44,7 +44,7 @@ export default function MiCuenta() {
       <main className="min-h-screen pt-24 pb-20 bg-cream-50">
         <div className="max-w-md mx-auto px-4 text-center">
           <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-rose-500"
-            style={{ background: 'linear-gradient(135deg,rgba(184,95,114,.15),rgba(201,168,117,.1))', border: '1px solid rgba(184,95,114,.2)' }}>
+            style={{ background: 'linear-gradient(135deg,rgba(232,121,160,.15),rgba(244,114,182,.1))', border: '1px solid rgba(232,121,160,.2)' }}>
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>

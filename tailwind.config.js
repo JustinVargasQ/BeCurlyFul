@@ -4,29 +4,29 @@ export default {
   theme: {
     extend: {
       colors: {
-        // JD Brand — rose/cream
+        // Be Curlyful Brand — hot pink + white
         rose: {
-          50:  '#FBEEF0', 100: '#F6D9DF', 200: '#EDB7C1',
-          300: '#E39DAB', 400: '#D17D8D', 500: '#B85F72',
-          600: '#93485A', 700: '#723744',
+          50:  '#FFF0F7', 100: '#FCE4EC', 200: '#F8BBD0',
+          300: '#F48FB1', 400: '#F06292', 500: '#E879A0',
+          600: '#C9547E', 700: '#A63C62',
         },
         ink: {
           900: '#1A1414', 700: '#2E2626', 500: '#6B5F5F',
           400: '#8E8383', 300: '#B8AFAF', 200: '#D8D1D1', 100: '#EFEAEA',
         },
-        cream: { 50: '#FAF6F3', 100: '#F3ECE6', 200: '#E7DDD4' },
-        gold: '#C9A875',
+        cream: { 50: '#FFF8FC', 100: '#FFF0F7', 200: '#FFD6EC' },
+        gold: '#F472B6',
       },
       fontFamily: {
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-        body:    ['"Figtree"', '"DM Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Nunito"', 'system-ui', 'sans-serif'],
+        body:    ['"Poppins"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         card:    '0 2px 16px 0 rgba(26,20,20,0.07)',
         'card-hover': '0 8px 32px 0 rgba(26,20,20,0.14)',
         modal:   '0 8px 48px 0 rgba(26,20,20,0.18)',
-        btn:     '0 2px 8px 0 rgba(184,95,114,0.25)',
-        'btn-hover': '0 4px 16px 0 rgba(184,95,114,0.4)',
+        btn:     '0 2px 8px 0 rgba(236,72,153,0.25)',
+        'btn-hover': '0 4px 16px 0 rgba(236,72,153,0.4)',
       },
       borderRadius: { xl2: '1.25rem', xl3: '1.5rem' },
       keyframes: {

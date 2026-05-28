@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { formatCRC } from '../../lib/currency';
 import api, { assetUrl, optimizedImage } from '../../lib/api';
 import useToastStore from '../../store/toastStore';
@@ -85,7 +85,7 @@ async function printOrder(order) {
               ${order.customer?.address || ''}<br>
               <span style="color:#888">${order.customer?.province || ''}</span>
             </div>
-            <div style="font-size:11px;color:#B85F72;font-weight:600;border:1px solid #B85F72;border-radius:6px;padding:5px 8px;display:inline-block">
+            <div style="font-size:11px;color:#E879A0;font-weight:600;border:1px solid #E879A0;border-radius:6px;padding:5px 8px;display:inline-block">
               Escaneá el QR para ver la ubicación exacta en Google Maps
             </div>
           </div>
@@ -109,14 +109,14 @@ async function printOrder(order) {
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
       body{font-family:Arial,sans-serif;color:#111;padding:28px;font-size:14px}
-      .header{text-align:center;margin-bottom:24px;padding-bottom:18px;border-bottom:3px solid #B85F72}
-      .store-name{font-size:13px;font-weight:bold;color:#B85F72;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+      .header{text-align:center;margin-bottom:24px;padding-bottom:18px;border-bottom:3px solid #E879A0}
+      .store-name{font-size:13px;font-weight:bold;color:#E879A0;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
       .order-num{font-size:28px;font-weight:bold;color:#111;letter-spacing:1px}
       .date{color:#666;font-size:12px;margin-top:4px}
       .status-badge{display:inline-block;margin-top:8px;background:#f0f9ff;border:1px solid #bae6fd;color:#0369a1;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:bold}
       .section-title{font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:8px;margin-top:20px}
       .info-box{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:14px;line-height:1.7}
-      .qr-box{background:#fafafa;border:2px dashed #B85F72;border-radius:10px;padding:16px;display:flex;align-items:center;gap:20px}
+      .qr-box{background:#fafafa;border:2px dashed #E879A0;border-radius:10px;padding:16px;display:flex;align-items:center;gap:20px}
       .qr-info{flex:1}
       table{width:100%;border-collapse:collapse;margin-top:8px}
       th{background:#f5f0f0;padding:8px 4px;text-align:left;font-size:11px;text-transform:uppercase;color:#888}
@@ -126,12 +126,12 @@ async function printOrder(order) {
       .total-row{display:flex;justify-content:space-between;padding:4px 0;color:#666}
       .grand-total{font-size:18px;font-weight:bold;color:#111;border-top:1px solid #eee;margin-top:8px;padding-top:8px}
       .footer{text-align:center;color:#aaa;font-size:11px;margin-top:28px;padding-top:14px;border-top:1px solid #eee}
-      .print-btn{display:block;margin:20px auto 0;padding:10px 28px;background:#B85F72;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
+      .print-btn{display:block;margin:20px auto 0;padding:10px 28px;background:#E879A0;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
       @media print{.print-btn{display:none!important}body{padding:16px}}
     </style>
   </head><body>
     <div class="header">
-      <div class="store-name">JD Virtual Store</div>
+      <div class="store-name">Be Curly Full CR</div>
       <div class="order-num">${order.orderNumber}</div>
       <div class="date">${date}</div>
       <div class="status-badge">Estado: ${STATUS_CONFIG[order.status]?.label || order.status}</div>
@@ -165,7 +165,7 @@ async function printOrder(order) {
       <div class="total-row grand-total"><span>TOTAL</span><span>${fmt(order.total)}</span></div>
     </div>
 
-    <div class="footer">JD Virtual Store &nbsp;·&nbsp; Hoja del paquete &nbsp;·&nbsp; Impreso el ${new Date().toLocaleDateString('es-CR')}</div>
+    <div class="footer">Be Curly Full CR &nbsp;·&nbsp; Hoja del paquete &nbsp;·&nbsp; Impreso el ${new Date().toLocaleDateString('es-CR')}</div>
     <button class="print-btn" onclick="window.print()">Imprimir hoja del paquete</button>
   </body></html>`);
   w.document.close();
@@ -790,7 +790,7 @@ export default function AdminOrders() {
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <StatCard icon={<ClipboardIcon />} label="Total órdenes"   value={stats.totalOrders}              accent="#B85F72" bg="#FBF0F2" />
+          <StatCard icon={<ClipboardIcon />} label="Total órdenes"   value={stats.totalOrders}              accent="#E879A0" bg="#FFF0F7" />
           <StatCard icon={<ClockOrdIcon />}  label="Hoy"             value={stats.todayOrders}              accent="#3B82F6" bg="#EFF6FF" />
           <StatCard icon={<WalletOrdIcon />} label="Ingresos semana" value={formatCRC(stats.weekRevenue)}   accent="#16A34A" bg="#F0FDF4" />
           <StatCard icon={<HourglOrdIcon />} label="Pendientes"      value={stats.statusCounts?.pendiente || 0} accent="#D97706" bg="#FFFBEB" />

@@ -19,7 +19,7 @@ const orderItemSchema = new Schema(
 
 const orderSchema = new Schema(
   {
-    orderNumber: { type: String, unique: true },   // JD-2024-0001
+    orderNumber: { type: String, unique: true },   // BCF-2025-0001
     userId: { type: Schema.Types.ObjectId, ref: 'User', default: null, index: true },
     customer: {
       name:     { type: String, required: true },
@@ -77,7 +77,7 @@ orderSchema.pre('save', async function () {
   if (this.isNew) {
     const count = await this.constructor.countDocuments();
     const year  = new Date().getFullYear();
-    this.orderNumber = `JD-${year}-${String(count + 1).padStart(4, '0')}`;
+    this.orderNumber = `BCF-${year}-${String(count + 1).padStart(4, '0')}`;
   }
 });
 
