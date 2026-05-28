@@ -54,7 +54,8 @@ app.set('trust proxy', 1);
 const ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:4173',
-  'https://becurlyfulcr.vercel.app',  // dominio de producción hardcoded como fallback
+  'https://becurlyfulcr.vercel.app',
+  'https://becurly-full-cr.vercel.app',
   process.env.CLIENT_URL,
   process.env.CLIENT_URL2,
 ].filter(Boolean);
