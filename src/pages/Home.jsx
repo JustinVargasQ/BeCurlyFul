@@ -721,243 +721,91 @@ const FacebookIcon = () => (
   </svg>
 );
 
-/* ─── Location + social bar ─── */
-/* Exact coordinates from Google Maps place data */
-const GMAPS_KEY      = import.meta.env.VITE_GOOGLE_MAPS_KEY;
-const MAP_SRC        = '';
-const STREET_SRC     = '';
-const MAPS_SHARE_URL = 'https://maps.app.goo.gl/jTQyfaynGTQEfAQ96';
-const STREET_OPEN_URL = '';
-
+/* ─── Social bar — Instagram CTA ─── */
 function LocationSocialBar() {
-  const [view, setView] = useState('street');
-
-  const SOCIALS = [
-    { href: 'https://www.instagram.com/becurlyfulcr',             label: 'Instagram', icon: <InstagramIcon />, color: '#E1306C', bg: 'rgba(225,48,108,0.12)' },
-    { href: 'https://www.facebook.com/share/1BzCcTxMcy/',         label: 'Facebook',  icon: <FacebookIcon />,  color: '#1877F2', bg: 'rgba(24,119,242,0.12)' },
-    { href: 'https://wa.me/50672125261',                          label: 'WhatsApp',  icon: <WaIcon />,        color: '#25D366', bg: 'rgba(37,211,102,0.12)' },
-  ];
-
   return (
-    <section className="relative bg-ink-900 overflow-hidden">
-      {/* Ambient orbs */}
-      <div className="pointer-events-none absolute -top-24 -left-16 w-80 h-80 rounded-full bg-rose-500/8 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-16 right-0 w-64 h-64 rounded-full bg-rose-400/6 blur-3xl" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-
-        {/* Section header */}
+    <section className="relative bg-white py-16 overflow-hidden border-t border-rose-100">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mb-8 sm:mb-10">
-          <span className="text-xs font-bold tracking-[0.22em] uppercase text-rose-400 block mb-1">Encuéntranos</span>
-          <h2 className="font-display text-2xl sm:text-3xl font-semibold text-white leading-tight">
-            Encuéntranos en <span className="text-rose-400">Be Curly</span> Full CR
+          transition={{ duration: 0.6 }}>
+          <span className="text-5xl sm:text-6xl block mb-4">📱</span>
+          <h2 className="font-display font-extrabold text-4xl sm:text-5xl text-ink-900 mb-3">
+            @<span className="text-rose-500">becurlyfulcr</span>
           </h2>
+          <p className="text-ink-400 text-lg mb-8">
+            Seguinos en Instagram y Facebook para tips, novedades y promociones exclusivas.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <motion.a
+              href="https://www.instagram.com/becurlyfulcr" target="_blank" rel="noopener noreferrer"
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-2.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white font-bold px-7 py-3.5 rounded-2xl shadow-lg text-sm">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              Instagram
+            </motion.a>
+            <motion.a
+              href="https://www.facebook.com/share/1BzCcTxMcy/" target="_blank" rel="noopener noreferrer"
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-2.5 bg-[#1877F2] hover:bg-blue-700 text-white font-bold px-7 py-3.5 rounded-2xl shadow-lg text-sm">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              Facebook
+            </motion.a>
+            <motion.a
+              href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-2.5 bg-[#25D366] hover:bg-green-600 text-white font-bold px-7 py-3.5 rounded-2xl shadow-lg text-sm">
+              <WaIcon /> WhatsApp
+            </motion.a>
+          </div>
         </motion.div>
-
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch">
-
-          {/* ── Map card ── */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.3, 1, 0.3, 1] }}
-            className="flex-1 min-w-0 flex flex-col">
-
-            {/* Toggle tabs — pill style */}
-            <div className="flex gap-1.5 mb-4 p-1 rounded-full w-fit"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              {[
-                { id: 'street', label: 'Street View', icon: '🚶' },
-                { id: 'map',    label: 'Mapa',         icon: '🗺️' },
-              ].map((tab) => (
-                <motion.button
-                  key={tab.id}
-                  onClick={() => setView(tab.id)}
-                  layout
-                  className={`relative flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-full transition-colors duration-200 ${
-                    view === tab.id ? 'text-white' : 'text-white/40 hover:text-white/70'
-                  }`}>
-                  {view === tab.id && (
-                    <motion.span
-                      layoutId="tab-bg"
-                      className="absolute inset-0 rounded-full bg-rose-500"
-                      style={{ zIndex: -1 }}
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                  <span>{tab.icon}</span>
-                  {tab.label}
-                </motion.button>
-              ))}
-            </div>
-
-            {/* Viewer — iframes on desktop, tap-to-open on mobile */}
-            <div className="relative rounded-2xl overflow-hidden flex-1 min-h-[360px] sm:min-h-[400px] md:min-h-[280px]"
-              style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 24px 48px rgba(0,0,0,0.4)' }}>
-
-              {/* Map iframe — works on all sizes */}
-              <iframe
-                src={MAP_SRC}
-                width="100%" height="100%"
-                style={{
-                  border: 0, position: 'absolute', inset: 0,
-                  opacity: view === 'map' ? 1 : 0,
-                  pointerEvents: view === 'map' ? 'auto' : 'none',
-                  transition: 'opacity 0.35s ease',
-                }}
-                loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade"
-                title="Be Curly Full CR — mapa"
-              />
-
-              {/* Street View iframe — works on all devices with Embed API key, desktop-only with legacy URL */}
-              <iframe
-                src={STREET_SRC}
-                width="100%" height="100%"
-                style={{
-                  border: 0, position: 'absolute', inset: 0,
-                  opacity: view === 'street' ? 1 : 0,
-                  pointerEvents: view === 'street' ? 'auto' : 'none',
-                  transition: 'opacity 0.35s ease',
-                }}
-                loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade"
-                title="Be Curly Full CR — Street View"
-                className={GMAPS_KEY ? '' : 'hidden md:block'}
-              />
-
-              {/* Street View fallback — mobile only when no API key */}
-              {!GMAPS_KEY && (
-              <a href={STREET_OPEN_URL} target="_blank" rel="noopener noreferrer"
-                className="md:hidden absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center"
-                style={{
-                  opacity: view === 'street' ? 1 : 0,
-                  pointerEvents: view === 'street' ? 'auto' : 'none',
-                  transition: 'opacity 0.35s ease',
-                  background: 'linear-gradient(135deg, #1A1414 0%, #2E2626 50%, #1A1414 100%)',
-                }}>
-                <span className="pointer-events-none absolute -top-16 -right-12 w-56 h-56 rounded-full bg-rose-500/20 blur-3xl" />
-                <span className="pointer-events-none absolute -bottom-16 -left-12 w-56 h-56 rounded-full bg-rose-400/15 blur-3xl" />
-
-                <div className="relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
-                  style={{ background: 'rgba(232,121,160,0.15)', border: '1px solid rgba(232,121,160,0.3)' }}>
-                  🚶
-                </div>
-                <div className="relative z-10">
-                  <p className="font-display text-lg font-semibold text-white mb-1">Recorré la calle</p>
-                  <p className="text-white/50 text-sm leading-relaxed max-w-xs">
-                    Abrí Street View en Google Maps para ver la tienda desde la calle
-                  </p>
-                </div>
-                <span className="relative z-10 inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-btn transition-colors">
-                  Abrir Street View
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M7 17L17 7M17 7H8M17 7V16"/>
-                  </svg>
-                </span>
-              </a>
-              )}
-            </div>
-          </motion.div>
-
-          {/* ── Info card ── */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.3, 1, 0.3, 1], delay: 0.1 }}
-            className="lg:w-64 xl:w-72 flex flex-col gap-5">
-
-            {/* Location card */}
-            <div className="rounded-2xl p-5 flex-1"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-rose-400 mb-4">Ubicación</p>
-
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-rose-300"
-                  style={{ background: 'rgba(232,121,160,0.18)', border: '1px solid rgba(232,121,160,0.25)' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-white font-semibold text-sm leading-tight">Be Curly Full CR</p>
-                  <p className="text-white/35 text-xs mt-0.5">Costa Rica</p>
-                </div>
-              </div>
-
-              <div className="h-px bg-white/6 my-4" />
-
-              <a href={MAPS_SHARE_URL} target="_blank" rel="noopener noreferrer"
-                className="group flex items-center justify-between w-full text-xs font-semibold text-white/50 hover:text-rose-400 transition-colors duration-200">
-                <span>Abrir en Google Maps</span>
-                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-              </a>
-            </div>
-
-            {/* Socials card */}
-            <div className="rounded-2xl p-5"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-rose-400 mb-4">Seguinos en</p>
-
-              <div className="grid grid-cols-4 gap-2">
-                {SOCIALS.map((s) => (
-                  <motion.a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank" rel="noopener noreferrer"
-                    aria-label={s.label}
-                    whileHover={{ scale: 1.1, y: -3 }}
-                    whileTap={{ scale: 0.93 }}
-                    className="flex flex-col items-center gap-1.5 group">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:shadow-lg"
-                      style={{ background: s.bg, border: '1px solid rgba(255,255,255,0.08)', color: s.color }}>
-                      {s.icon}
-                    </div>
-                    <span className="text-[9px] text-white/30 group-hover:text-white/60 transition-colors font-medium">
-                      {s.label}
-                    </span>
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-
-          </motion.div>
-        </div>
       </div>
     </section>
   );
 }
 
-/* ─── Brand marquee — dual rows, opposite directions ─── */
+/* ─── Product image strip — two rows of product photos ─── */
+const STRIP_PHOTOS = [
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996541/becurlyfulcr/productos/activador-de-rizos.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996542/becurlyfulcr/productos/crema-gel-rizos.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996543/becurlyfulcr/productos/crema-hidratante-rizos.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996544/becurlyfulcr/productos/gel-alta-fijacion.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996545/becurlyfulcr/productos/gel-alta-fijacion-xl.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996546/becurlyfulcr/productos/shampoo-limpieza-diaria.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996547/becurlyfulcr/productos/shampoo-limpieza-profunda.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996548/becurlyfulcr/productos/acondicionador-revitalizante.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996550/becurlyfulcr/productos/mascarilla-hidronutritiva.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996551/becurlyfulcr/productos/travel-kit.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996552/becurlyfulcr/productos/shampoo-kids.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996554/becurlyfulcr/productos/acondicionador-kids.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996555/becurlyfulcr/productos/crema-peinar-kids.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996556/becurlyfulcr/productos/gel-liquido-kids.jpg',
+];
+
 function BrandMarquee() {
-  const doubled  = [...MARQUEE_BRANDS, ...MARQUEE_BRANDS];
-  const reversed = [...doubled].reverse();
+  const row1 = [...STRIP_PHOTOS, ...STRIP_PHOTOS];
+  const row2 = [...STRIP_PHOTOS].reverse().concat([...STRIP_PHOTOS].reverse());
   return (
-    <div className="group relative bg-ink-900 border-t border-white/5 py-4 overflow-hidden space-y-2.5">
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-20 z-10"
-        style={{ background: 'linear-gradient(to right, #1A1414, transparent)' }} />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-20 z-10"
-        style={{ background: 'linear-gradient(to left, #1A1414, transparent)' }} />
-      {/* Row 1 → left to right. Pausa al hover para que el usuario alcance a leer la marca. */}
-      <div className="flex animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
-        {doubled.map((b, i) => (
-          <span key={i} className="text-rose-400/70 text-[11px] font-bold uppercase tracking-[0.22em] mx-7 flex-shrink-0">
-            {b} <span className="text-rose-600/50 ml-7">✦</span>
-          </span>
-        ))}
-      </div>
-      {/* Row 2 → right to left */}
-      <div className="flex animate-marquee-reverse whitespace-nowrap group-hover:[animation-play-state:paused]">
-        {reversed.map((b, i) => (
-          <span key={i} className="text-white/22 text-[10px] font-medium uppercase tracking-[0.18em] mx-6 flex-shrink-0">
-            {b} <span className="text-white/12 ml-6">·</span>
-          </span>
-        ))}
+    <div className="relative bg-white py-8 overflow-hidden group">
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-gradient-to-r from-white to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-gradient-to-l from-white to-transparent" />
+      <div className="space-y-3">
+        <div className="flex gap-3 animate-marquee group-hover:[animation-play-state:paused]">
+          {row1.map((url, i) => (
+            <div key={i} className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
+              <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-3 animate-marquee-reverse group-hover:[animation-play-state:paused]">
+          {row2.map((url, i) => (
+            <div key={i} className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
+              <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -1196,47 +1044,24 @@ const GUARANTEES = [
 
 function GuaranteeSection() {
   return (
-    <section className="bg-white py-14 sm:py-20 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-10">
-          <span className="section-label">Nuestra promesa</span>
-          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-ink-900 leading-tight">
-            Comprás con total <em className="text-rose-500 not-italic">confianza</em>
-          </h2>
-        </motion.div>
-
-        <div className="grid sm:grid-cols-3 gap-5">
+    <section className="overflow-hidden" style={{ background: 'linear-gradient(135deg, #C9547E 0%, #E879A0 50%, #F472B6 100%)' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
           {GUARANTEES.map((g, i) => (
             <motion.div
               key={g.title}
-              initial={{ opacity: 0, y: 28 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-30px' }}
-              transition={{ delay: i * 0.1, duration: 0.55, ease: [0.3, 1, 0.3, 1] }}
-              whileHover={{ y: -4 }}
-              className="group relative bg-cream-50 hover:bg-white border border-cream-200 hover:border-rose-200 hover:shadow-card rounded-2xl p-7 transition-all duration-300 text-center">
-              {/* Top accent line */}
-              <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-t-2xl"
-                style={{ background: 'linear-gradient(90deg, #F472B6, #E879A0)' }} />
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5 text-rose-500 transition-transform duration-300 group-hover:scale-110"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(232,121,160,0.14) 0%, rgba(244,114,182,0.09) 100%)',
-                  border: '1px solid rgba(232,121,160,0.22)',
-                  boxShadow: '0 4px 16px rgba(232,121,160,0.13)',
-                }}
-              >
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              className="flex items-start gap-4 text-white">
+              <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/30">
                 <g.Icon />
               </div>
-              <h3 className="font-display text-lg font-semibold text-ink-900 mb-2 group-hover:text-rose-500 transition-colors duration-300">
-                {g.title}
-              </h3>
-              <p className="text-ink-500 text-sm leading-relaxed">{g.desc}</p>
+              <div>
+                <h3 className="font-display font-extrabold text-lg mb-1">{g.title}</h3>
+                <p className="text-white/75 text-sm leading-relaxed">{g.desc}</p>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -1672,34 +1497,67 @@ function TestimonialsSection() {
 /* ─── About ─── */
 function AboutSection() {
   return (
-    <section id="nosotras" className="bg-ink-900 text-white py-20 sm:py-28 overflow-hidden">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
-        {/* Ambient orbs */}
-        <div className="pointer-events-none absolute -top-20 -right-20 w-64 h-64 rounded-full bg-rose-500/10 blur-3xl animate-orb-pulse" />
-        <div className="pointer-events-none absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-rose-400/8 blur-3xl animate-orb-pulse" style={{ animationDelay: '3s' }} />
+    <section id="nosotras" className="bg-rose-50 py-20 sm:py-28 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1] }}>
-          <span className="text-xs font-bold tracking-[0.2em] uppercase text-rose-400 mb-4 block">Nosotras</span>
-          <h2 className="font-display text-4xl sm:text-5xl font-bold leading-tight mb-6">
-            Tu tienda de <em className="text-rose-400 not-italic">confianza</em> en CR
-          </h2>
-          <p className="text-white/65 leading-relaxed mb-4 max-w-2xl mx-auto">
-            Somos Be Curly Full CR, especializados en productos para cabello rizado y cuidado capilar al mejor precio.
-          </p>
-          <p className="text-white/65 leading-relaxed mb-8 max-w-2xl mx-auto">
-            Cada producto es cuidadosamente seleccionado. Atendemos por WhatsApp con respuesta rápida y enviamos a toda Costa Rica.
-          </p>
-          <motion.a
-            href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
-            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
-            className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-bold px-8 py-4 rounded-full transition-colors shadow-xl">
-            <WaIcon /> Escríbenos
-          </motion.a>
-        </motion.div>
+          {/* Logo / visual side */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1] }}
+            className="flex justify-center lg:justify-start">
+            <div className="relative">
+              <div className="w-72 h-72 sm:w-80 sm:h-80 rounded-[2.5rem] overflow-hidden shadow-[0_24px_64px_rgba(232,121,160,0.3)]">
+                <img src="/icons/logo.jpg" alt="Be Curlyful" className="w-full h-full object-cover" />
+              </div>
+              {/* Floating badge */}
+              <motion.div
+                animate={{ y: [-6, 6, -6] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute -bottom-4 -right-4 bg-white rounded-2xl shadow-[0_8px_24px_rgba(232,121,160,0.2)] px-4 py-3 flex items-center gap-2.5">
+                <span className="text-2xl">💕</span>
+                <div>
+                  <p className="font-display font-extrabold text-ink-900 text-sm">Be Curlyful</p>
+                  <p className="text-rose-500 text-xs font-semibold">Costa Rica</p>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* Text side */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1], delay: 0.1 }}>
+            <span className="section-label">Nuestra historia</span>
+            <h2 className="section-title mb-6">
+              Especialistas en <span className="text-rose-500">rizos</span> de Costa Rica
+            </h2>
+            <p className="text-ink-500 leading-relaxed mb-4">
+              Somos Be Curlyful, una marca costarricense dedicada al cuidado del cabello rizado. Cada producto de nuestra línea fue formulado pensando en los rizos de nuestra comunidad.
+            </p>
+            <p className="text-ink-500 leading-relaxed mb-8">
+              Enviamos a toda Costa Rica y respondemos rápido por WhatsApp. Felicidad en tus rizos, eso es lo que queremos darte.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <motion.a
+                href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+                className="btn-primary">
+                <WaIcon /> Escríbenos
+              </motion.a>
+              <motion.a
+                href="https://www.instagram.com/becurlyfulcr" target="_blank" rel="noopener noreferrer"
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+                className="btn-outline">
+                @becurlyfulcr
+              </motion.a>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -1730,62 +1588,54 @@ const HOW_STEPS = [
 ];
 
 function ShippingSection() {
+  const STEPS_VISUAL = [
+    { emoji: '🛍️', bg: 'bg-amber-50',  border: 'border-amber-200', title: 'Elegí tu producto', desc: 'Explorá el catálogo y encontrá exactamente lo que querés.' },
+    { emoji: '💬', bg: 'bg-green-50',  border: 'border-green-200', title: 'Escribinos por WA', desc: 'Confirmamos disponibilidad y te enviamos los datos de pago.' },
+    { emoji: '💸', bg: 'bg-sky-50',    border: 'border-sky-200',   title: 'Pagás con SINPE',   desc: 'Transferencia bancaria o SINPE Móvil. Rápido y seguro.' },
+    { emoji: '📦', bg: 'bg-rose-50',   border: 'border-rose-200',  title: 'Recibís en casa',   desc: 'Correos de CR a todo el país o retiro sin costo.' },
+  ];
   return (
-    <section id="envios" className="bg-cream-50 py-16 sm:py-24 overflow-hidden">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-14 sm:mb-20">
-          <span className="section-label">Así de fácil</span>
-          <h2 className="section-title">¿Cómo comprar en Be Curly Full CR?</h2>
-        </motion.div>
+    <section id="envios" className="bg-white py-16 sm:py-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <span className="section-label">Simple y rápido</span>
+          <h2 className="section-title">Tu pedido en 4 pasos</h2>
+        </div>
 
-        {/* Steps */}
-        <div className="relative grid sm:grid-cols-3 gap-10 sm:gap-6">
-          {/* Dashed connector line (desktop only) */}
-          <div className="hidden sm:block absolute top-10 left-[calc(16.67%+2.5rem)] right-[calc(16.67%+2.5rem)] h-px"
-            style={{ background: 'repeating-linear-gradient(90deg,#FBCFE8 0,#FBCFE8 8px,transparent 8px,transparent 18px)' }} />
-
-          {HOW_STEPS.map((s, i) => (
-            <motion.div key={s.num}
-              initial={{ opacity: 0, y: 32 }}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {STEPS_VISUAL.map((s, i) => (
+            <motion.div key={s.title}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.15, duration: 0.6, ease: [0.3, 1, 0.3, 1] }}
-              className="group relative flex flex-col items-center text-center">
-
-              {/* Icon circle */}
-              <motion.div
-                whileHover={{ scale: 1.06 }}
-                transition={{ duration: 0.4 }}
-                className="relative z-10 w-20 h-20 rounded-full border-2 border-rose-200 group-hover:border-rose-400 bg-white flex flex-col items-center justify-center mb-6 shadow-card group-hover:shadow-btn transition-all duration-300 text-rose-500">
-                <s.Icon />
-                <span className="text-[9px] font-bold text-rose-400 tracking-[0.18em] mt-0.5">{s.num}</span>
-              </motion.div>
-
-              <h3 className="font-display text-lg sm:text-xl font-semibold text-ink-900 mb-2 group-hover:text-rose-500 transition-colors duration-300">{s.title}</h3>
-              <p className="text-ink-500 text-sm leading-relaxed max-w-[220px] mx-auto">{s.desc}</p>
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              className={`${s.bg} border ${s.border} rounded-3xl p-6 relative overflow-hidden`}>
+              <span className="text-4xl block mb-4">{s.emoji}</span>
+              <span className="text-[11px] font-bold text-ink-300 tracking-widest uppercase">Paso {i + 1}</span>
+              <h3 className="font-display font-extrabold text-ink-900 text-lg mt-1 mb-2">{s.title}</h3>
+              <p className="text-ink-500 text-sm leading-relaxed">{s.desc}</p>
+              <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/60 flex items-center justify-center">
+                <span className="font-display font-extrabold text-rose-400 text-sm">{i + 1}</span>
+              </div>
             </motion.div>
           ))}
         </div>
 
-        {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4">
+          className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <motion.a
             href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
             whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-            className="inline-flex items-center gap-2 bg-ink-900 hover:bg-rose-500 text-white font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-btn hover:shadow-btn-hover">
+            className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg">
             <WaIcon /> Empezar a comprar
           </motion.a>
-          <p className="text-ink-400 text-sm">o explorá el catálogo de <Link to="/?cat=todos" className="text-rose-500 font-semibold hover:underline">todos los productos</Link></p>
+          <Link to="/?cat=todos" className="text-rose-500 font-semibold text-sm hover:underline">
+            Ver todos los productos →
+          </Link>
         </motion.div>
       </div>
     </section>
@@ -1853,30 +1703,55 @@ const FAQ_ITEMS = [
 function FaqSection() {
   const [open, setOpen] = useState(null);
   return (
-    <section className="py-16 sm:py-24 bg-white">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <span className="section-label">FAQ</span>
-          <h2 className="section-title">Preguntas frecuentes</h2>
-        </div>
-        <div className="space-y-3">
-          {FAQ_ITEMS.map((item, i) => (
-            <div key={i} className="border border-cream-200 rounded-2xl overflow-hidden">
-              <button onClick={() => setOpen(open === i ? null : i)}
-                className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-cream-50 transition-colors">
-                <span className="font-semibold text-ink-900 text-sm">{item.q}</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                  className={`flex-shrink-0 text-rose-400 transition-transform ${open === i ? 'rotate-180' : ''}`}>
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
-              </button>
-              {open === i && (
-                <div className="px-5 pb-4 text-sm text-ink-500 leading-relaxed border-t border-cream-100 pt-3">
-                  {item.a}
-                </div>
-              )}
-            </div>
-          ))}
+    <section className="py-16 sm:py-24 bg-rose-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-[1fr_2fr] gap-12 items-start">
+
+          {/* Left: header + CTA */}
+          <div className="lg:sticky lg:top-24">
+            <span className="section-label">FAQ</span>
+            <h2 className="section-title mb-4">Preguntas frecuentes</h2>
+            <p className="text-ink-500 text-sm leading-relaxed mb-6">
+              ¿No encontrás lo que buscás? Escribinos y te respondemos al instante.
+            </p>
+            <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white font-bold px-5 py-3 rounded-2xl transition-colors text-sm">
+              <WaIcon /> Preguntar por WA
+            </a>
+          </div>
+
+          {/* Right: accordion */}
+          <div className="space-y-2">
+            {FAQ_ITEMS.map((item, i) => (
+              <motion.div key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="bg-white rounded-2xl overflow-hidden shadow-sm">
+                <button onClick={() => setOpen(open === i ? null : i)}
+                  className={`w-full flex items-center justify-between gap-4 px-5 py-4 text-left transition-colors ${open === i ? 'bg-rose-500 text-white' : 'hover:bg-rose-50'}`}>
+                  <span className={`font-bold text-sm ${open === i ? 'text-white' : 'text-ink-900'}`}>{item.q}</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke={open === i ? 'white' : 'currentColor'}
+                    strokeWidth="2.5" className={`flex-shrink-0 transition-transform ${open === i ? 'rotate-180' : 'text-rose-400'}`}>
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </button>
+                <AnimatePresence>
+                  {open === i && (
+                    <motion.div
+                      initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
+                      className="overflow-hidden">
+                      <p className="px-5 py-4 text-sm text-ink-500 leading-relaxed border-t border-rose-100">
+                        {item.a}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
