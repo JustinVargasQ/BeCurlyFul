@@ -223,18 +223,19 @@ export default function Navbar() {
 
       {/* ── Main nav — flat sticky bar ── */}
       <header className={`sticky top-0 z-40 bg-white transition-shadow duration-200 ${scrolled ? 'shadow-[0_2px_16px_rgba(232,121,160,0.15)]' : ''} border-b border-rose-100`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center gap-2 sm:gap-3">
 
           {/* Mobile: hamburger */}
           <button onClick={() => setMenuOpen(true)}
             aria-label="Abrir menú"
-            className="lg:hidden p-2 -ml-2 text-ink-700 hover:text-rose-500 transition-colors flex-shrink-0">
+            className="lg:hidden p-2 -ml-1 text-ink-700 hover:text-rose-500 transition-colors flex-shrink-0">
             <MenuIcon />
           </button>
 
-          {/* Logo */}
-          <Link to="/" aria-label="Be Curly Full CR" className="flex-shrink-0">
-            <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-9 w-auto rounded-lg" />
+          {/* Logo — centered on mobile via flex-1 trick */}
+          <Link to="/" aria-label="Be Curly Full CR"
+            className="flex-shrink-0 lg:flex-none absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0">
+            <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-8 sm:h-9 w-auto rounded-lg" />
           </Link>
 
           {/* Desktop: categories centered */}
@@ -242,8 +243,11 @@ export default function Navbar() {
             {CATEGORIES.map((c) => <NavCatLink key={c.label} cat={c} />)}
           </nav>
 
+          {/* Spacer mobile to push icons right */}
+          <div className="flex-1 lg:hidden" />
+
           {/* Right icons */}
-          <div className="flex items-center gap-0.5 ml-auto lg:ml-0">
+          <div className="flex items-center gap-0.5 lg:ml-0">
 
             {/* Desktop search */}
             <div ref={desktopRef} className="hidden lg:block relative mr-1">
@@ -352,7 +356,7 @@ export default function Navbar() {
             <motion.aside key="drawer"
               initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-              className="fixed left-0 top-0 h-full w-72 z-50 bg-white shadow-modal flex flex-col">
+              className="fixed left-0 top-0 h-full z-50 bg-white shadow-modal flex flex-col" style={{ width: 'min(18rem, 85vw)' }}>
               <div className="flex items-center justify-between px-6 py-5 border-b border-cream-200">
                 <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-9 w-auto rounded-lg" />
                 <button onClick={() => setMenuOpen(false)} aria-label="Cerrar menú" className="p-2 text-ink-400 hover:text-ink-900 transition-colors">

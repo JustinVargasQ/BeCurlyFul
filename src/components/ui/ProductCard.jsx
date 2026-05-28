@@ -249,31 +249,31 @@ export default function ProductCard({ product, index = 0 }) {
           </div>
 
           {/* ── Info ── */}
-          <div className="px-4 pt-3 pb-4 flex-1 flex flex-col">
+          <div className="px-3 sm:px-4 pt-3 pb-3 sm:pb-4 flex-1 flex flex-col">
             {/* Brand pill */}
-            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-rose-500 bg-rose-50 px-2.5 py-0.5 rounded-full w-fit mb-2">
+            <span className="inline-block text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-rose-500 bg-rose-50 px-2 sm:px-2.5 py-0.5 rounded-full w-fit mb-1.5 sm:mb-2 truncate max-w-full">
               {product.brand || 'Be Curlyful'}
             </span>
 
             {/* Product name */}
-            <h3 className="font-display font-extrabold text-ink-900 text-[15px] leading-tight line-clamp-2 mb-auto group-hover:text-rose-500 transition-colors duration-200">
+            <h3 className="font-display font-extrabold text-ink-900 text-[13px] sm:text-[15px] leading-tight line-clamp-2 mb-auto group-hover:text-rose-500 transition-colors duration-200">
               {product.name}
             </h3>
 
             {/* Low stock alert */}
             {product.stock !== undefined && product.stock > 0 && product.stock <= 5 && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 mt-1.5">
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-600 mt-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                Solo {product.stock} disponibles
+                Solo {product.stock}
               </span>
             )}
 
             {/* Price row */}
-            <div className="mt-3 flex items-center justify-between gap-2">
-              <div className="flex items-baseline gap-2">
-                <span className="font-extrabold text-rose-500 text-lg leading-none">{formatCRC(product.price)}</span>
+            <div className="mt-2 sm:mt-3 flex items-center justify-between gap-1">
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-extrabold text-rose-500 text-base sm:text-lg leading-none">{formatCRC(product.price)}</span>
                 {product.oldPrice && product.oldPrice > product.price && (
-                  <span className="text-xs text-ink-300 line-through">{formatCRC(product.oldPrice)}</span>
+                  <span className="text-[10px] sm:text-xs text-ink-300 line-through hidden sm:inline">{formatCRC(product.oldPrice)}</span>
                 )}
               </div>
               {product.oldPrice && product.oldPrice > product.price && (

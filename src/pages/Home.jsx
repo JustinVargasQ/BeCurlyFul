@@ -355,7 +355,7 @@ function HeroGridLayout({ onCatSelect }) {
       <div className="absolute top-0 right-0 w-[55%] h-full bg-gradient-to-bl from-rose-50 via-rose-50/60 to-transparent pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[88vh] py-14 sm:py-16">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[70vh] sm:min-h-[80vh] lg:min-h-[88vh] py-10 sm:py-14 lg:py-16">
 
           {/* Left: headline + CTAs */}
           <motion.div
@@ -364,7 +364,7 @@ function HeroGridLayout({ onCatSelect }) {
             transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1] }}>
             <span className="section-label">Felicidad en tus rizos ✨</span>
             <h1 className="font-display font-extrabold text-ink-900 leading-[1.05] mb-6"
-              style={{ fontSize: 'clamp(2.8rem, 5.5vw, 5rem)' }}>
+              style={{ fontSize: 'clamp(2.2rem, 5.5vw, 5rem)' }}>
               Amá tus<br />
               <span className="text-rose-500">rizos</span> hoy
             </h1>
@@ -386,8 +386,20 @@ function HeroGridLayout({ onCatSelect }) {
               </motion.button>
             </div>
 
+            {/* Mobile-only hero image */}
+            <div className="lg:hidden mt-8 mx-auto max-w-[260px] sm:max-w-xs">
+              <div className="rounded-3xl overflow-hidden aspect-square shadow-[0_16px_48px_rgba(232,121,160,0.25)]">
+                <img
+                  src="https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996541/becurlyfulcr/productos/activador-de-rizos.jpg"
+                  alt="Be Curlyful"
+                  loading="eager"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
             {/* Trust mini-strip */}
-            <div className="mt-12 grid grid-cols-2 gap-4">
+            <div className="mt-8 sm:mt-12 grid grid-cols-2 gap-3 sm:gap-4">
               {TRUST.map((t, i) => (
                 <motion.div key={i}
                   initial={{ opacity: 0, y: 10 }}
@@ -1082,45 +1094,76 @@ const CATEGORY_CHIPS = [
 function CategoryChips({ cat: activeCat, onCat }) {
   const cards = CATEGORY_CHIPS.filter(c => c.cat !== 'todos');
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-      {cards.map((s, i) => {
-        const isActive = activeCat === s.cat;
-        return (
-          <motion.button
-            key={s.cat}
-            onClick={() => onCat(isActive ? 'todos' : s.cat)}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.06, duration: 0.45, ease: [0.3, 1, 0.3, 1] }}
-            whileHover={{ y: -4 }}
-            whileTap={{ scale: 0.97 }}
-            className={`group relative overflow-hidden rounded-3xl aspect-[3/4] sm:aspect-square flex flex-col items-center justify-end pb-4 transition-all duration-300 ${
-              isActive ? 'ring-4 ring-rose-500 ring-offset-2 shadow-[0_8px_32px_rgba(232,121,160,0.4)]' : 'shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_28px_rgba(232,121,160,0.25)]'
-            }`}>
-            {/* Background image */}
-            <img src={s.img} alt={s.label} loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-            {/* Gradient overlay */}
-            <div className={`absolute inset-0 transition-opacity duration-300 ${isActive ? 'opacity-80' : 'opacity-60 group-hover:opacity-70'}`}
-              style={{ background: 'linear-gradient(to top, rgba(10,5,8,0.85) 0%, rgba(10,5,8,0.2) 60%, transparent 100%)' }} />
-            {/* Text */}
-            <div className="relative z-10 text-center text-white px-2">
-              <p className="font-display font-extrabold text-base sm:text-lg leading-tight">{s.label}</p>
-              {s.desc && <p className="text-white/70 text-[11px] mt-0.5">{s.desc}</p>}
-            </div>
-            {/* Active indicator */}
-            {isActive && (
-              <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
+    <>
+      {/* Mobile: horizontal scroll con cards cuadradas */}
+      <div className="sm:hidden flex gap-3 overflow-x-auto pb-3 -mx-4 px-4 chips-scroll">
+        {cards.map((s, i) => {
+          const isActive = activeCat === s.cat;
+          return (
+            <motion.button
+              key={s.cat}
+              onClick={() => onCat(isActive ? 'todos' : s.cat)}
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`flex-shrink-0 w-28 h-28 relative overflow-hidden rounded-2xl flex flex-col items-center justify-end pb-3 transition-all ${
+                isActive ? 'ring-3 ring-rose-500 ring-offset-1 shadow-[0_4px_16px_rgba(232,121,160,0.4)]' : 'shadow-md'
+              }`}>
+              <img src={s.img} alt={s.label} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,5,8,0.8) 0%, transparent 60%)' }} />
+              <div className="relative z-10 text-center text-white">
+                <p className="font-display font-extrabold text-sm leading-tight">{s.label}</p>
               </div>
-            )}
-          </motion.button>
-        );
-      })}
-    </div>
+              {isActive && (
+                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {/* Desktop: grid */}
+      <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        {cards.map((s, i) => {
+          const isActive = activeCat === s.cat;
+          return (
+            <motion.button
+              key={s.cat}
+              onClick={() => onCat(isActive ? 'todos' : s.cat)}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.06, duration: 0.45 }}
+              whileHover={{ y: -4 }}
+              whileTap={{ scale: 0.97 }}
+              className={`group relative overflow-hidden rounded-3xl aspect-square flex flex-col items-center justify-end pb-4 transition-all duration-300 ${
+                isActive ? 'ring-4 ring-rose-500 ring-offset-2 shadow-[0_8px_32px_rgba(232,121,160,0.4)]' : 'shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_28px_rgba(232,121,160,0.25)]'
+              }`}>
+              <img src={s.img} alt={s.label} loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <div className={`absolute inset-0 transition-opacity duration-300 ${isActive ? 'opacity-80' : 'opacity-60 group-hover:opacity-70'}`}
+                style={{ background: 'linear-gradient(to top, rgba(10,5,8,0.85) 0%, rgba(10,5,8,0.2) 60%, transparent 100%)' }} />
+              <div className="relative z-10 text-center text-white px-2">
+                <p className="font-display font-extrabold text-lg leading-tight">{s.label}</p>
+                {s.desc && <p className="text-white/70 text-[11px] mt-0.5">{s.desc}</p>}
+              </div>
+              {isActive && (
+                <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+    </>
   );
 }
 
@@ -1225,10 +1268,10 @@ function Catalog({ externalCat, catalogRef }) {
           )}
         </div>
 
-        {/* Categorías — tarjetas grandes */}
-        <div className="mt-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-extrabold text-2xl text-ink-900">Categorías</h2>
+        {/* Categorías */}
+        <div className="mt-4 mb-6">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h2 className="font-display font-extrabold text-xl sm:text-2xl text-ink-900">Categorías</h2>
             {cat !== 'todos' && (
               <button onClick={() => handleCat('todos')}
                 className="text-xs font-semibold text-rose-500 hover:text-rose-600 transition-colors">
@@ -1240,7 +1283,7 @@ function Catalog({ externalCat, catalogRef }) {
         </div>
 
         {/* Filtros */}
-        <div className="mb-6 bg-white border border-rose-100 rounded-2xl p-3 sm:p-4 shadow-sm">
+        <div className="mb-5 bg-white border border-rose-100 rounded-2xl p-3 shadow-sm">
           <FilterBar brand={brand} minPrice={minPrice} maxPrice={maxPrice} sort={sort} onBrand={handleBrand} onPrice={handlePrice} onSort={handleSort} />
         </div>
 
@@ -1491,14 +1534,14 @@ function AboutSection() {
             transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1] }}
             className="flex justify-center lg:justify-start">
             <div className="relative">
-              <div className="w-72 h-72 sm:w-80 sm:h-80 rounded-[2.5rem] overflow-hidden shadow-[0_24px_64px_rgba(232,121,160,0.3)]">
+              <div className="w-56 h-56 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_16px_40px_rgba(232,121,160,0.25)] sm:shadow-[0_24px_64px_rgba(232,121,160,0.3)]">
                 <img src="/icons/logo.jpg" alt="Be Curlyful" className="w-full h-full object-cover" />
               </div>
               {/* Floating badge */}
               <motion.div
                 animate={{ y: [-6, 6, -6] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -bottom-4 -right-4 bg-white rounded-2xl shadow-[0_8px_24px_rgba(232,121,160,0.2)] px-4 py-3 flex items-center gap-2.5">
+                className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 bg-white rounded-xl sm:rounded-2xl shadow-[0_8px_24px_rgba(232,121,160,0.2)] px-3 py-2 sm:px-4 sm:py-3 flex items-center gap-2">
                 <span className="text-2xl">💕</span>
                 <div>
                   <p className="font-display font-extrabold text-ink-900 text-sm">Be Curlyful</p>
