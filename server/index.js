@@ -216,8 +216,10 @@ mongoose
       const Settings = require('./models/Settings');
       const bcrypt   = require('bcryptjs');
 
+      const Product        = require('./models/Product');
       const adminExists    = await Admin.exists({});
       const settingsExists = await Settings.exists({});
+      const productsExist  = await Product.exists({});
 
       if (!adminExists) {
         const hash = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'BeCurly2025!', 12);
@@ -232,6 +234,12 @@ mongoose
       if (!settingsExists) {
         await Settings.create({ key: 'main' });
         console.log('✅ Settings iniciales creados');
+      }
+
+      if (!productsExist) {
+        const { PRODUCTS } = require('./seed-products');
+        await Product.insertMany(PRODUCTS);
+        console.log(`✅ ${PRODUCTS.length} productos insertados`);
       }
     } catch (e) {
       console.warn('⚠️  Auto-seed falló (no crítico):', e.message);

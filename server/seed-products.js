@@ -1,10 +1,3 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const bcrypt   = require('bcryptjs');
-const Product  = require('./models/Product');
-const Admin    = require('./models/Admin');
-const Settings = require('./models/Settings');
-
 const PRODUCTS = [
   {
     name: 'Activador de Rizos', slug: 'activador-de-rizos',
@@ -21,7 +14,7 @@ const PRODUCTS = [
     price: 9500, oldPrice: null, rating: 4.8, reviewCount: 0,
     badge: '', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996542/becurlyfulcr/productos/crema-gel-rizos.jpg'],
-    description: 'Crema gel de fijación suave que define, da volumen y brillo a tus rizos sin dejarlos pegajosos. Propiedades naturales que nutren el cabello en cada uso.',
+    description: 'Crema gel de fijación suave que define, da volumen y brillo a tus rizos sin dejarlos pegajosos.',
     features: ['Hidratación + brillo', 'Define y da volumen', 'Suavidad sin frizz', 'Cream Gel for Curls'],
   },
   {
@@ -30,7 +23,7 @@ const PRODUCTS = [
     price: 9500, oldPrice: null, rating: 4.8, reviewCount: 0,
     badge: '', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996543/becurlyfulcr/productos/crema-hidratante-rizos.jpg'],
-    description: 'Crema de hidratación profunda que suaviza, nutre y controla el frizz. Ideal para rizos secos que necesitan humedad y definición durante todo el día.',
+    description: 'Crema de hidratación profunda que suaviza, nutre y controla el frizz.',
     features: ['Hidratación profunda', 'Controla el frizz', 'Suavidad y definición', 'Moisturizing Curl Cream'],
   },
   {
@@ -39,7 +32,7 @@ const PRODUCTS = [
     price: 8500, oldPrice: null, rating: 4.7, reviewCount: 0,
     badge: '', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996544/becurlyfulcr/productos/gel-alta-fijacion.jpg'],
-    description: 'Gel de fijación fuerte que mantiene tus rizos definidos y brillantes todo el día. Fórmula Strong Hold que no endurece ni produce costra.',
+    description: 'Gel de fijación fuerte que mantiene tus rizos definidos y brillantes todo el día.',
     features: ['Fijación intensa y duradera', 'Definición + brillo', 'Sin costra', 'Strong Hold Gel'],
   },
   {
@@ -48,7 +41,7 @@ const PRODUCTS = [
     price: 12000, oldPrice: null, rating: 4.7, reviewCount: 0,
     badge: 'Más rendimiento', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996545/becurlyfulcr/productos/gel-alta-fijacion-xl.jpg'],
-    description: 'La versión XL del gel favorito de la comunidad rizada. Misma fórmula Strong Hold con el doble de rendimiento para quien vive de rizos perfectos.',
+    description: 'La versión XL del gel favorito de la comunidad rizada.',
     features: ['Mayor rendimiento', 'Fijación fuerte todo el día', 'Definición sin costra', 'Strong Hold Gel XL'],
   },
   {
@@ -57,7 +50,7 @@ const PRODUCTS = [
     price: 8500, oldPrice: null, rating: 4.8, reviewCount: 0,
     badge: '', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996546/becurlyfulcr/productos/shampoo-limpieza-diaria.jpg'],
-    description: 'Shampoo suave para uso diario que limpia sin resecar tus rizos. Con avena y aloe vera para mantener la suavidad, el brillo y la fuerza capilar.',
+    description: 'Shampoo suave para uso diario que limpia sin resecar tus rizos.',
     features: ['Limpieza sin resecar', 'Con avena y aloe vera', 'Brillo y suavidad', 'Daily Cleansing Shampoo'],
   },
   {
@@ -66,7 +59,7 @@ const PRODUCTS = [
     price: 8500, oldPrice: null, rating: 4.9, reviewCount: 0,
     badge: 'Favorito', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996547/becurlyfulcr/productos/shampoo-limpieza-profunda.jpg'],
-    description: 'Shampoo de limpieza profunda para revitalizar el cuero cabelludo. Con menta, pepino y ácido hialurónico. Purificante, refrescante y restaurador.',
+    description: 'Shampoo de limpieza profunda con menta, pepino y ácido hialurónico.',
     features: ['Cuero cabelludo revitalizado', 'Con menta y pepino', 'Ácido hialurónico', '300ml · Deep Cleansing Shampoo'],
   },
   {
@@ -75,7 +68,7 @@ const PRODUCTS = [
     price: 9000, oldPrice: null, rating: 4.8, reviewCount: 0,
     badge: '', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996548/becurlyfulcr/productos/acondicionador-revitalizante.jpg'],
-    description: 'Acondicionador que transforma el cabello rizado con brillo, suavidad y vitalidad. Repara el daño y renueva cada hebra para rizos más saludables.',
+    description: 'Acondicionador que transforma el cabello rizado con brillo, suavidad y vitalidad.',
     features: ['Brillo y suavidad inmediata', 'Vitalidad + renovación', 'Reparación del daño', 'Revitalizing Conditioner'],
   },
   {
@@ -84,7 +77,7 @@ const PRODUCTS = [
     price: 11000, oldPrice: null, rating: 4.9, reviewCount: 0,
     badge: 'Top ventas', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996550/becurlyfulcr/productos/mascarilla-hidronutritiva.jpg'],
-    description: 'Mascarilla intensiva con extracto de arándano, aloe y proteína de seda hidrolizada. Nutrición, vitalidad, suavidad y brillo para rizos profundamente hidratados.',
+    description: 'Mascarilla intensiva con extracto de arándano, aloe y proteína de seda hidrolizada.',
     features: ['Extracto de arándano', 'Aloe + proteína de seda', 'Hidratación intensa', '485ml · Hydro-Nourishing Mask'],
   },
   {
@@ -93,7 +86,7 @@ const PRODUCTS = [
     price: 18500, oldPrice: 22000, rating: 5.0, reviewCount: 0,
     badge: 'Kit completo', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996551/becurlyfulcr/productos/travel-kit.jpg'],
-    description: 'El kit perfecto para viajes: 8 productos en formato travel-size para mantener tus rizos perfectos a donde vayas.',
+    description: 'El kit perfecto para viajes: 8 productos en formato travel-size.',
     features: ['8 productos travel-size', 'Rutina completa', 'Ideal para viajes y avión', 'Todos los esenciales'],
   },
   {
@@ -102,7 +95,7 @@ const PRODUCTS = [
     price: 8000, oldPrice: null, rating: 4.9, reviewCount: 0,
     badge: 'Niñas y niños', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996552/becurlyfulcr/productos/shampoo-kids.jpg'],
-    description: 'Shampoo delicado para el cabello rizado de los peques. Fórmula no lágrimas con aloe y aceite de coco.',
+    description: 'Shampoo delicado no lágrimas con aloe y aceite de coco para cabello rizado infantil.',
     features: ['Fórmula no lágrimas', 'Con aloe y aceite de coco', 'Delicado e infantil', '300ml · Kids Shampoo'],
   },
   {
@@ -111,7 +104,7 @@ const PRODUCTS = [
     price: 8000, oldPrice: null, rating: 4.8, reviewCount: 0,
     badge: '', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996554/becurlyfulcr/productos/acondicionador-kids.jpg'],
-    description: 'Acondicionador infantil que desenreda y suaviza el cabello rizado de los niños sin tirones.',
+    description: 'Acondicionador infantil que desenreda y suaviza el cabello rizado sin tirones.',
     features: ['Desenredante suave', 'Sin tirones', 'Fórmula infantil', 'Kids Conditioner'],
   },
   {
@@ -129,34 +122,9 @@ const PRODUCTS = [
     price: 7500, oldPrice: null, rating: 4.7, reviewCount: 0,
     badge: '', badgeType: '', isActive: true,
     images: ['https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996556/becurlyfulcr/productos/gel-liquido-kids.jpg'],
-    description: 'Gel líquido suave y ligero para definir los rizos de los más pequeños.',
+    description: 'Gel líquido suave para definir los rizos de los más pequeños.',
     features: ['Sin pegajosidad', 'Fijación suave y natural', 'Para cabello fino', 'Kids Liquid Gel'],
   },
 ];
 
-async function seed() {
-  await mongoose.connect(process.env.MONGO_URI);
-  console.log('✅ MongoDB conectado');
-
-  await Product.deleteMany({});
-  await Product.insertMany(PRODUCTS);
-  console.log(`✅ ${PRODUCTS.length} productos insertados`);
-
-  await Admin.deleteMany({});
-  const hash = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'BeCurly2025!', 12);
-  await Admin.create({
-    name: 'Admin BCF',
-    email: process.env.ADMIN_EMAIL || 'admin@becurlyful.cr',
-    passwordHash: hash,
-  });
-  console.log('✅ Admin creado:', process.env.ADMIN_EMAIL || 'admin@becurlyful.cr');
-
-  await Settings.deleteMany({});
-  await Settings.create({ key: 'main' });
-  console.log('✅ Settings creados');
-
-  await mongoose.disconnect();
-  console.log('🎉 Seed completado');
-}
-
-seed().catch((e) => { console.error(e); process.exit(1); });
+module.exports = { PRODUCTS };
