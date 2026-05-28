@@ -351,102 +351,174 @@ function HeroGridLayout({ onCatSelect }) {
 
   return (
     <section className="relative overflow-hidden bg-white">
-      {/* Pink blob behind right column */}
-      <div className="absolute top-0 right-0 w-[55%] h-full bg-gradient-to-bl from-rose-50 via-rose-50/60 to-transparent pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[70vh] sm:min-h-[80vh] lg:min-h-[88vh] py-10 sm:py-14 lg:py-16">
+      {/* ══════ MOBILE HERO — imagen arriba, card de texto deslizándose ══════ */}
+      <div className="lg:hidden">
 
-          {/* Left: headline + CTAs */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1] }}>
-            <span className="section-label">Felicidad en tus rizos ✨</span>
-            <h1 className="font-display font-extrabold text-ink-900 leading-[1.05] mb-6"
-              style={{ fontSize: 'clamp(2.2rem, 5.5vw, 5rem)' }}>
-              Amá tus<br />
-              <span className="text-rose-500">rizos</span> hoy
-            </h1>
-            <p className="text-ink-400 text-lg leading-relaxed mb-10 max-w-md">
-              Productos Be Curlyful para cabello rizado. Envíos a todo Costa Rica desde ₡2,000.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <motion.button
-                onClick={() => onCatSelect(null)}
-                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                className="btn-primary text-base px-8 py-4">
-                Ver catálogo
-              </motion.button>
-              <motion.button
-                onClick={() => onCatSelect('kids')}
-                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                className="btn-outline text-base px-8 py-4">
-                Línea Kids
-              </motion.button>
-            </div>
+        {/* Foto collage 2×2 sobre fondo rosa */}
+        <div className="relative pb-16"
+          style={{ background: 'linear-gradient(160deg, #FFF0F7 0%, #FFD6EC 60%, #F9A8D4 100%)' }}>
 
-            {/* Mobile-only hero image */}
-            <div className="lg:hidden mt-8 mx-auto max-w-[260px] sm:max-w-xs">
-              <div className="rounded-3xl overflow-hidden aspect-square shadow-[0_16px_48px_rgba(232,121,160,0.25)]">
-                <img
-                  src="https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996541/becurlyfulcr/productos/activador-de-rizos.jpg"
-                  alt="Be Curlyful"
-                  loading="eager"
-                  className="w-full h-full object-cover"
-                />
+          {/* Logo badge top-left */}
+          <div className="absolute top-4 left-4 z-10">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-sm flex items-center gap-2">
+              <img src="/icons/logo.jpg" alt="Be Curlyful" className="h-7 rounded-lg" />
+              <div>
+                <p className="font-display font-extrabold text-ink-900 text-xs leading-none">Be Curlyful</p>
+                <p className="text-rose-500 text-[10px] font-semibold">Costa Rica 🇨🇷</p>
               </div>
             </div>
+          </div>
 
-            {/* Trust mini-strip */}
-            <div className="mt-8 sm:mt-12 grid grid-cols-2 gap-3 sm:gap-4">
-              {TRUST.map((t, i) => (
-                <motion.div key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + i * 0.08, duration: 0.4 }}
-                  className="flex items-center gap-2.5">
-                  <span className="w-9 h-9 rounded-2xl flex items-center justify-center text-rose-500 bg-rose-50 flex-shrink-0">
-                    <t.Icon />
-                  </span>
-                  <div>
-                    <p className="text-xs font-bold text-ink-900">{t.title}</p>
-                    <p className="text-[10px] text-ink-400">{t.sub}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Right: staggered product photo grid */}
-          <div className="hidden lg:grid grid-cols-2 gap-5 relative">
+          {/* 2×2 product collage */}
+          <div className="grid grid-cols-2 gap-3 px-5 pt-20 max-w-sm mx-auto">
             {HERO_PRODUCTS.map((p, i) => (
               <motion.div
                 key={p.slug}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 + i * 0.12, ease: [0.3, 1, 0.3, 1] }}
-                className={i % 2 === 1 ? 'mt-8' : ''}>
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.1, duration: 0.5, ease: [0.3, 1, 0.3, 1] }}
+                className={i % 2 === 1 ? 'mt-6' : ''}>
                 <Link to={`/producto/${p.slug}`}
-                  className="block rounded-3xl overflow-hidden aspect-square shadow-[0_8px_32px_rgba(232,121,160,0.18)] hover:shadow-[0_12px_40px_rgba(232,121,160,0.28)] hover:scale-[1.03] transition-all duration-400 group">
-                  <img src={p.img} alt="" loading="eager"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  className="block rounded-2xl overflow-hidden aspect-square shadow-[0_8px_24px_rgba(232,121,160,0.3)]">
+                  <img src={p.img} alt="" loading="eager" className="w-full h-full object-cover" />
                 </Link>
               </motion.div>
             ))}
-            {/* Decorative curly blob */}
-            <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-rose-100/60 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-4 left-4 w-24 h-24 rounded-full bg-rose-200/40 blur-2xl pointer-events-none" />
           </div>
+        </div>
+
+        {/* Text card — se desliza sobre la imagen */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: [0.3, 1, 0.3, 1] }}
+          className="-mt-12 relative z-10 bg-white rounded-t-[2rem] px-6 pt-8 pb-6 shadow-[0_-8px_32px_rgba(0,0,0,0.06)]">
+
+          {/* Handle bar */}
+          <div className="w-10 h-1 bg-rose-200 rounded-full mx-auto mb-6" />
+
+          <span className="section-label">Felicidad en tus rizos ✨</span>
+          <h1 className="font-display font-extrabold text-ink-900 leading-tight mt-1 mb-3"
+            style={{ fontSize: 'clamp(2rem, 8vw, 2.8rem)' }}>
+            Amá tus <span className="text-rose-500">rizos</span> hoy
+          </h1>
+          <p className="text-ink-400 text-sm leading-relaxed mb-6">
+            Productos Be Curlyful para cabello rizado. Envíos a todo Costa Rica desde ₡2,000.
+          </p>
+
+          <div className="flex gap-3">
+            <motion.button
+              onClick={() => onCatSelect(null)}
+              whileTap={{ scale: 0.97 }}
+              className="btn-primary flex-1 py-3.5 text-sm justify-center">
+              Ver catálogo
+            </motion.button>
+            <motion.button
+              onClick={() => onCatSelect('kids')}
+              whileTap={{ scale: 0.97 }}
+              className="btn-outline flex-1 py-3.5 text-sm justify-center">
+              Kids
+            </motion.button>
+          </div>
+
+          {/* Trust mini-strip compacto */}
+          <div className="mt-6 pt-5 border-t border-rose-50 grid grid-cols-2 gap-3">
+            {TRUST.map((t, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl flex items-center justify-center text-rose-500 bg-rose-50 flex-shrink-0 text-xs">
+                  <t.Icon />
+                </span>
+                <p className="text-[11px] font-semibold text-ink-700 leading-tight">{t.title}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ══════ DESKTOP HERO — split layout ══════ */}
+      <div className="hidden lg:block">
+        <div className="absolute top-0 right-0 w-[55%] h-full bg-gradient-to-bl from-rose-50 via-rose-50/60 to-transparent pointer-events-none" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[88vh] py-16">
+
+            {/* Left: text */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1] }}>
+              <span className="section-label">Felicidad en tus rizos ✨</span>
+              <h1 className="font-display font-extrabold text-ink-900 leading-[1.05] mb-6"
+                style={{ fontSize: 'clamp(2.8rem, 5vw, 5rem)' }}>
+                Amá tus<br />
+                <span className="text-rose-500">rizos</span> hoy
+              </h1>
+              <p className="text-ink-400 text-lg leading-relaxed mb-10 max-w-md">
+                Productos Be Curlyful para cabello rizado. Envíos a todo Costa Rica desde ₡2,000.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <motion.button
+                  onClick={() => onCatSelect(null)}
+                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                  className="btn-primary text-base px-8 py-4">
+                  Ver catálogo
+                </motion.button>
+                <motion.button
+                  onClick={() => onCatSelect('kids')}
+                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                  className="btn-outline text-base px-8 py-4">
+                  Línea Kids
+                </motion.button>
+              </div>
+              {/* Trust strip desktop */}
+              <div className="mt-12 grid grid-cols-2 gap-4">
+                {TRUST.map((t, i) => (
+                  <motion.div key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + i * 0.08, duration: 0.4 }}
+                    className="flex items-center gap-2.5">
+                    <span className="w-9 h-9 rounded-2xl flex items-center justify-center text-rose-500 bg-rose-50 flex-shrink-0">
+                      <t.Icon />
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold text-ink-900">{t.title}</p>
+                      <p className="text-[10px] text-ink-400">{t.sub}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right: staggered photos */}
+            <div className="grid grid-cols-2 gap-5 relative">
+              {HERO_PRODUCTS.map((p, i) => (
+                <motion.div key={p.slug}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 + i * 0.12, ease: [0.3, 1, 0.3, 1] }}
+                  className={i % 2 === 1 ? 'mt-8' : ''}>
+                  <Link to={`/producto/${p.slug}`}
+                    className="block rounded-3xl overflow-hidden aspect-square shadow-[0_8px_32px_rgba(232,121,160,0.18)] hover:shadow-[0_12px_40px_rgba(232,121,160,0.28)] hover:scale-[1.03] transition-all duration-400 group">
+                    <img src={p.img} alt="" loading="eager"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  </Link>
+                </motion.div>
+              ))}
+              <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-rose-100/60 blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-4 left-4 w-24 h-24 rounded-full bg-rose-200/40 blur-2xl pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* Wave bottom desktop only */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+          <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full">
+            <path d="M0 60 L0 30 Q180 0 360 30 Q540 60 720 30 Q900 0 1080 30 Q1260 60 1440 30 L1440 60 Z" fill="white" />
+          </svg>
         </div>
       </div>
 
-      {/* Wave bottom */}
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-        <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full">
-          <path d="M0 60 L0 30 Q180 0 360 30 Q540 60 720 30 Q900 0 1080 30 Q1260 60 1440 30 L1440 60 Z" fill="white" />
-        </svg>
-      </div>
     </section>
   );
 }
