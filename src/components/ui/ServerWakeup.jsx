@@ -45,7 +45,7 @@ export default function ServerWakeup() {
 
       /* Avisar a los hooks que ya pueden re-intentar fetch */
       if (success) {
-        try { window.dispatchEvent(new CustomEvent('jd:server-ready')); } catch {}
+        try { window.dispatchEvent(new CustomEvent('bcf:server-ready')); } catch {}
       }
 
       if (shown) {

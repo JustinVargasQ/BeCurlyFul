@@ -86,8 +86,8 @@ export function useProducts({ cat = 'todos', brand = '', q = '' } = {}) {
         return prev;
       });
     };
-    window.addEventListener('jd:server-ready', onReady);
-    return () => window.removeEventListener('jd:server-ready', onReady);
+    window.addEventListener('bcf:server-ready', onReady);
+    return () => window.removeEventListener('bcf:server-ready', onReady);
   }, []);
 
   return { products, loading, error, total: products.length };
@@ -177,8 +177,8 @@ export function useFeatured(limit = 4) {
         return prev;
       });
     };
-    window.addEventListener('jd:server-ready', onReady);
-    return () => window.removeEventListener('jd:server-ready', onReady);
+    window.addEventListener('bcf:server-ready', onReady);
+    return () => window.removeEventListener('bcf:server-ready', onReady);
   }, []);
 
   return products;
