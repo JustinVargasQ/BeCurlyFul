@@ -121,15 +121,8 @@ export default function Navbar() {
     return () => clearInterval(t);
   }, [annPaused]);
 
-  // Scroll: maneja la sombra y la expansion de la Dynamic Island.
-  // Threshold de 60px para colapsar (suficiente para no contraer por scroll
-  // mínimo del touchpad). Se re-expande automáticamente al volver arriba.
   useEffect(() => {
-    const fn = () => {
-      const y = window.scrollY;
-      setScrolled(y > 10);
-      setExpanded(y < 60);
-    };
+    const fn = () => setScrolled(window.scrollY > 10);
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
   }, []);
@@ -209,177 +202,144 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── Announcement bar — pausa al hover/touch para que se alcance a leer ── */}
+      {/* ── Announcement strip ── */}
       <div
-        className="text-rose-600 text-xs font-semibold h-8 flex items-center justify-center overflow-hidden relative z-50 cursor-default bg-rose-50 border-b border-rose-100"
+        className="bg-rose-500 text-white text-[11px] font-semibold h-8 flex items-center justify-center overflow-hidden relative z-50 cursor-default select-none"
         onMouseEnter={() => setAnnPaused(true)}
         onMouseLeave={() => setAnnPaused(false)}
         onTouchStart={() => setAnnPaused(true)}
         onTouchEnd={() => setAnnPaused(false)}>
         <AnimatePresence mode="wait">
           <motion.span key={ann}
-            initial={{ y: 12, opacity: 0 }}
+            initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0,  opacity: 1 }}
-            exit={{    y: -12, opacity: 0 }}
-            transition={{ duration: 0.4, ease: 'easeInOut' }}
-            className="absolute tracking-wide">
+            exit={{    y: -10, opacity: 0 }}
+            transition={{ duration: 0.35 }}
+            className="absolute tracking-widest uppercase">
             {ANNOUNCEMENTS[ann]}
           </motion.span>
         </AnimatePresence>
       </div>
 
-      {/* ── Main nav — Dynamic Island floating ── */}
-      <div className="sticky top-3 z-50 px-4 sm:px-6">
-        <header
-          className={`max-w-7xl mx-auto transition-all duration-300 ease-out ${
-            expanded ? 'rounded-[24px]' : 'rounded-2xl'
-          } ${
-            scrolled
-              ? 'bg-white shadow-[0_4px_24px_rgba(232,121,160,0.12)] border border-rose-100'
-              : 'bg-white/90 backdrop-blur-lg border border-rose-100/60 shadow-[0_2px_12px_rgba(232,121,160,0.08)]'
-          }`}
-          style={{ WebkitBackdropFilter: 'blur(18px)' }}>
+      {/* ── Main nav — flat sticky bar ── */}
+      <header className={`sticky top-0 z-40 bg-white transition-shadow duration-200 ${scrolled ? 'shadow-[0_2px_16px_rgba(232,121,160,0.15)]' : ''} border-b border-rose-100`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-3">
 
-          {/* Top row — logo + search (prominente) + icons */}
-          <div className="px-5 sm:px-7 h-[62px] flex items-center gap-4">
+          {/* Mobile: hamburger */}
+          <button onClick={() => setMenuOpen(true)}
+            aria-label="Abrir menú"
+            className="lg:hidden p-2 -ml-2 text-ink-700 hover:text-rose-500 transition-colors flex-shrink-0">
+            <MenuIcon />
+          </button>
 
-            {/* Mobile menu btn */}
-            <button onClick={() => setMenuOpen(true)}
-              aria-label="Abrir menú"
-              className="lg:hidden p-2 -ml-2 text-ink-700 hover:text-rose-500 transition-colors">
-              <MenuIcon />
-            </button>
+          {/* Logo */}
+          <Link to="/" aria-label="Be Curly Full CR" className="flex-shrink-0">
+            <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-9 w-auto rounded-lg" />
+          </Link>
 
-            {/* Logo */}
-            <Link to="/" className="flex-shrink-0" aria-label="Be Curly Full CR">
-              <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-10 w-auto rounded-lg" />
-            </Link>
+          {/* Desktop: categories centered */}
+          <nav className="hidden lg:flex items-center gap-0.5 flex-1 justify-center">
+            {CATEGORIES.map((c) => <NavCatLink key={c.label} cat={c} />)}
+          </nav>
 
-            {/* Search bar — desktop (ocupa el centro) */}
-            <div ref={desktopRef} className="hidden md:block relative flex-1 max-w-xl mx-auto">
-              <form onSubmit={handleSearch} className="flex items-center bg-white/70 border border-cream-200 rounded-full px-4 py-2 gap-2.5 hover:border-rose-300 focus-within:border-rose-400 focus-within:bg-white transition-colors">
+          {/* Right icons */}
+          <div className="flex items-center gap-0.5 ml-auto lg:ml-0">
+
+            {/* Desktop search */}
+            <div ref={desktopRef} className="hidden lg:block relative mr-1">
+              <form onSubmit={handleSearch}
+                className="flex items-center gap-2 border border-rose-200 rounded-full px-4 py-2 hover:border-rose-400 focus-within:border-rose-500 focus-within:shadow-[0_0_0_3px_rgba(232,121,160,0.15)] transition-all bg-white">
                 <SearchIcon />
                 <input
                   ref={searchRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onFocus={() => suggestions.length > 0 && setShowSugg(true)}
-                  placeholder="Buscar productos, marcas..."
-                  className="flex-1 bg-transparent text-sm text-ink-900 placeholder-ink-400 outline-none w-0"
+                  placeholder="Buscar..."
+                  className="w-36 xl:w-48 text-sm text-ink-900 placeholder-ink-300 outline-none bg-transparent"
                 />
                 {query && (
                   <button type="button" onClick={clearSearch}
-                    className="text-ink-300 hover:text-ink-600 transition-colors text-lg leading-none">×</button>
+                    className="text-ink-300 hover:text-ink-600 transition-colors text-base leading-none">×</button>
                 )}
               </form>
-
-              {/* Suggestions dropdown */}
               <AnimatePresence>
                 {showSugg && suggestions.length > 0 && (
                   <motion.div
-                    initial={{ opacity: 0, y: -8 }}
+                    initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.18 }}
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-modal border border-cream-200 overflow-hidden z-50">
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-modal border border-rose-100 overflow-hidden z-50 min-w-[300px]">
                     {suggestions.map((p) => (
                       <button key={p._id || p.id || p.slug} type="button"
                         onClick={() => pickSuggestion(p.slug)}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-cream-50 transition-colors text-left group">
-                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-cream-100 flex-shrink-0">
-                          {p.img
-                            ? <img src={p.img} alt={p.name} className="w-full h-full object-cover" />
-                            : <div className="w-full h-full bg-cream-200" />
-                          }
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-rose-50 transition-colors text-left group">
+                        <div className="w-11 h-11 rounded-xl overflow-hidden bg-rose-50 flex-shrink-0">
+                          {p.img ? <img src={p.img} alt={p.name} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-rose-100" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-ink-900 truncate group-hover:text-rose-500 transition-colors">{p.name}</p>
-                          <p className="text-xs text-ink-400">{p.brand || 'Be Curly Full CR'}</p>
+                          <p className="text-xs text-ink-400">{p.brand}</p>
                         </div>
-                        <span className="text-sm font-bold text-ink-900 flex-shrink-0">{formatCRC(p.price)}</span>
+                        <span className="text-sm font-bold text-rose-500 flex-shrink-0">{formatCRC(p.price)}</span>
                       </button>
                     ))}
                     <button type="button" onClick={handleSearch}
-                      className="w-full flex items-center justify-center gap-2 py-3 border-t border-cream-100 text-sm text-rose-500 hover:bg-rose-50 font-medium transition-colors">
-                      <SearchIcon /> Ver todos los resultados de "{query}"
+                      className="w-full flex items-center justify-center gap-2 py-3 border-t border-rose-50 text-sm text-rose-500 hover:bg-rose-50 font-semibold transition-colors">
+                      <SearchIcon /> Ver todos los resultados
                     </button>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
-            {/* Right icons */}
-            <div className="flex items-center gap-1 ml-auto lg:ml-0">
-              {/* Search mobile */}
-              <button onClick={() => setSearchOpen(true)}
-                aria-label="Buscar productos"
-                className="md:hidden p-2 text-ink-700 hover:text-rose-500 transition-colors">
-                <SearchIcon />
-              </button>
+            {/* Mobile search */}
+            <button onClick={() => setSearchOpen(true)}
+              aria-label="Buscar"
+              className="lg:hidden p-2 text-ink-600 hover:text-rose-500 transition-colors">
+              <SearchIcon />
+            </button>
 
-              {/* WhatsApp */}
-              <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
-                className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-green-600 hover:text-green-700 px-3 py-2 rounded-full hover:bg-green-50 transition-colors">
-                <WaIcon /> 7212-5261
-              </a>
+            {/* WA — desktop only */}
+            <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
+              className="hidden xl:flex items-center gap-1.5 text-[11px] font-bold text-white bg-green-500 hover:bg-green-600 px-3 py-1.5 rounded-full transition-colors ml-1">
+              <WaIcon /> 7212-5261
+            </a>
 
-              {/* User */}
-              <UserButton />
+            <UserButton />
 
-              {/* Wishlist */}
-              <Link to="/favoritos"
-                aria-label="Favoritos"
-                className="relative p-2 text-ink-700 hover:text-rose-500 transition-colors">
-                <HeartNavIcon />
-                <AnimatePresence>
-                  {favCount > 0 && (
-                    <motion.span key="fav-badge"
-                      initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">
-                      {favCount > 9 ? '9+' : favCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </Link>
+            <Link to="/favoritos" aria-label="Favoritos"
+              className="relative p-2 text-ink-600 hover:text-rose-500 transition-colors">
+              <HeartNavIcon />
+              <AnimatePresence>
+                {favCount > 0 && (
+                  <motion.span key="fav-badge"
+                    initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                    className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
+                    {favCount > 9 ? '9+' : favCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </Link>
 
-              {/* Cart */}
-              <button onClick={openCart}
-                aria-label={count > 0 ? `Abrir carrito (${count} productos)` : 'Abrir carrito'}
-                className="relative p-2 text-ink-700 hover:text-rose-500 transition-colors">
-                <CartIcon />
-                <AnimatePresence>
-                  {count > 0 && (
-                    <motion.span key="badge"
-                      initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">
-                      {count > 9 ? '9+' : count}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </button>
-            </div>
+            <button onClick={openCart}
+              aria-label="Carrito"
+              className="relative p-2 text-ink-600 hover:text-rose-500 transition-colors">
+              <CartIcon />
+              <AnimatePresence>
+                {count > 0 && (
+                  <motion.span key="badge"
+                    initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                    className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
+                    {count > 9 ? '9+' : count}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </button>
           </div>
-
-          {/* Expandable category panel — Dynamic Island effect, solo desktop */}
-          <AnimatePresence initial={false}>
-            {expanded && (
-              <motion.div
-                key="categories"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                className="hidden lg:block overflow-hidden">
-                <nav className="px-5 sm:px-7 pb-3 pt-1 flex items-center justify-center gap-1 flex-wrap">
-                  {CATEGORIES.map((c) => (
-                    <NavCatLink key={c.label} cat={c} />
-                  ))}
-                </nav>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </header>
-      </div>
+        </div>
+      </header>
 
       {/* ── Mobile drawer ── */}
       <AnimatePresence>

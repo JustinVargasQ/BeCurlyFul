@@ -340,131 +340,100 @@ function Hero({ onCatSelect }) {
   return <HeroGridLayout onCatSelect={onCatSelect} />;
 }
 
-/* ─── Hero GRID — editorial grid: big featured + 4 category cards ─── */
+/* ─── Hero SPLIT — two-column: text left, product collage right ─── */
 function HeroGridLayout({ onCatSelect }) {
-  const [current, setCurrent] = useState(0);
-  const [paused,  setPaused]  = useState(false);
-
-  const total = SLIDE_CONFIG.length;
-  const slide = SLIDE_CONFIG[current];
-
-  useEffect(() => {
-    if (paused) return;
-    const t = setInterval(() => setCurrent((c) => (c + 1) % total), 6000);
-    return () => clearInterval(t);
-  }, [paused, total]);
-
-  const ArrowRight = () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-    </svg>
-  );
+  const HERO_PRODUCTS = [
+    { slug: 'activador-de-rizos',    img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996541/becurlyfulcr/productos/activador-de-rizos.jpg' },
+    { slug: 'mascarilla-hidronutritiva', img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996550/becurlyfulcr/productos/mascarilla-hidronutritiva.jpg' },
+    { slug: 'shampoo-kids',          img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996552/becurlyfulcr/productos/shampoo-kids.jpg' },
+    { slug: 'travel-kit',            img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996551/becurlyfulcr/productos/travel-kit.jpg' },
+  ];
 
   return (
-    <section className="relative bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-2">
-        <div>
+    <section className="relative overflow-hidden bg-white">
+      {/* Pink blob behind right column */}
+      <div className="absolute top-0 right-0 w-[55%] h-full bg-gradient-to-bl from-rose-50 via-rose-50/60 to-transparent pointer-events-none" />
 
-          {/* ─── BIG FEATURED CARD — slide carousel (full width, sin las 4 cards de categorias que duplicaban el navbar) ─── */}
-          <div className="relative rounded-3xl overflow-hidden bg-cream-100 group"
-            style={{ minHeight: '440px', aspectRatio: '21/9' }}
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[88vh] py-14 sm:py-16">
 
-            {/* Image stack with crossfade — let the photo breathe */}
-            <AnimatePresence mode="sync">
-              <motion.img
-                key={`bg-${current}`}
-                src={slide.img}
-                onError={(e) => { if (slide.fallback && e.target.src !== window.location.origin + slide.fallback) e.target.src = slide.fallback; }}
-                alt=""
-                initial={{ opacity: 0, scale: 1.06 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.9, ease: [0.3, 1, 0.3, 1] }}
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ objectPosition: slide.objectPosition || 'center', filter: 'saturate(1.05) contrast(1.03)' }}
-              />
-            </AnimatePresence>
+          {/* Left: headline + CTAs */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1] }}>
+            <span className="section-label">Felicidad en tus rizos ✨</span>
+            <h1 className="font-display font-extrabold text-ink-900 leading-[1.05] mb-6"
+              style={{ fontSize: 'clamp(2.8rem, 5.5vw, 5rem)' }}>
+              Amá tus<br />
+              <span className="text-rose-500">rizos</span> hoy
+            </h1>
+            <p className="text-ink-400 text-lg leading-relaxed mb-10 max-w-md">
+              Productos Be Curlyful para cabello rizado. Envíos a todo Costa Rica desde ₡2,000.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <motion.button
+                onClick={() => onCatSelect(null)}
+                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                className="btn-primary text-base px-8 py-4">
+                Ver catálogo
+              </motion.button>
+              <motion.button
+                onClick={() => onCatSelect('kids')}
+                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                className="btn-outline text-base px-8 py-4">
+                Línea Kids
+              </motion.button>
+            </div>
 
-            {/* Subtle gradient ONLY at the bottom for text contrast — stronger so text is always visible */}
-            <div className="absolute inset-x-0 bottom-0 h-3/4 pointer-events-none"
-              style={{ background: 'linear-gradient(to top, rgba(15,9,11,0.78) 0%, rgba(15,9,11,0.35) 45%, transparent 100%)' }} />
-
-            {/* Content */}
-            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-9 lg:p-12 text-white">
-              <AnimatePresence mode="wait">
-                <motion.div key={current}
-                  initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.55, ease: [0.3, 1, 0.3, 1] }}>
-
-                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase mb-4 border border-white/30">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-300 animate-pulse" />
-                    {slide.eyebrow}
+            {/* Trust mini-strip */}
+            <div className="mt-12 grid grid-cols-2 gap-4">
+              {TRUST.map((t, i) => (
+                <motion.div key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 + i * 0.08, duration: 0.4 }}
+                  className="flex items-center gap-2.5">
+                  <span className="w-9 h-9 rounded-2xl flex items-center justify-center text-rose-500 bg-rose-50 flex-shrink-0">
+                    <t.Icon />
                   </span>
-
-                  <h1 className="font-display font-bold leading-[0.92] whitespace-pre-line mb-4 tracking-tight"
-                    style={{ fontSize: 'clamp(2.5rem, 5.5vw, 4.5rem)', textShadow: '0 4px 28px rgba(0,0,0,0.55)' }}>
-                    {slide.title}
-                  </h1>
-
-                  <p className="text-white text-sm sm:text-base leading-relaxed mb-6 max-w-md"
-                    style={{ textShadow: '0 2px 14px rgba(0,0,0,0.5)' }}>
-                    {slide.sub}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2.5 mb-5">
-                    <motion.button
-                      onClick={() => onCatSelect(slide.cat)}
-                      whileTap={{ scale: 0.97 }}
-                      whileHover={{ scale: 1.03 }}
-                      className="inline-flex items-center gap-2 bg-white text-ink-900 hover:bg-rose-500 hover:text-white font-bold px-7 py-3.5 rounded-full transition-all duration-300 text-sm shadow-lg">
-                      {slide.cta} <ArrowRight />
-                    </motion.button>
-                    <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-bold px-6 py-3.5 rounded-full transition-all duration-300 text-sm shadow-lg">
-                      <WaIcon /> WhatsApp
-                    </a>
-                  </div>
-
-                  {/* Slide dots */}
-                  <div className="flex gap-1.5">
-                    {SLIDE_CONFIG.map((_, i) => (
-                      <button key={i} onClick={() => { setPaused(true); setCurrent(i); }}
-                        className={`rounded-full transition-all duration-300 ${i === current ? 'w-8 h-2 bg-white' : 'w-2 h-2 bg-white/50 hover:bg-white/80'}`}
-                        aria-label={`Slide ${i + 1}`} />
-                    ))}
+                  <div>
+                    <p className="text-xs font-bold text-ink-900">{t.title}</p>
+                    <p className="text-[10px] text-ink-400">{t.sub}</p>
                   </div>
                 </motion.div>
-              </AnimatePresence>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
+          {/* Right: staggered product photo grid */}
+          <div className="hidden lg:grid grid-cols-2 gap-5 relative">
+            {HERO_PRODUCTS.map((p, i) => (
+              <motion.div
+                key={p.slug}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 + i * 0.12, ease: [0.3, 1, 0.3, 1] }}
+                className={i % 2 === 1 ? 'mt-8' : ''}>
+                <Link to={`/producto/${p.slug}`}
+                  className="block rounded-3xl overflow-hidden aspect-square shadow-[0_8px_32px_rgba(232,121,160,0.18)] hover:shadow-[0_12px_40px_rgba(232,121,160,0.28)] hover:scale-[1.03] transition-all duration-400 group">
+                  <img src={p.img} alt="" loading="eager"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </Link>
+              </motion.div>
+            ))}
+            {/* Decorative curly blob */}
+            <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-rose-100/60 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-4 left-4 w-24 h-24 rounded-full bg-rose-200/40 blur-2xl pointer-events-none" />
+          </div>
         </div>
       </div>
 
-      {/* ─ TRUST STRIP — minimal & premium ─ */}
-      <div className="relative mt-4 sm:mt-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white border border-cream-200 rounded-2xl shadow-sm grid grid-cols-2 md:grid-cols-4 divide-y divide-x divide-cream-200 md:divide-y-0">
-            {TRUST.map((t, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-30px' }}
-                transition={{ delay: i * 0.06, duration: 0.4 }}
-                className="flex items-center gap-3 px-4 sm:px-5 py-4 sm:py-5 first:border-l-0">
-                <span className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center flex-shrink-0 text-rose-500"
-                  style={{ background: 'linear-gradient(135deg, #FDF2F4 0%, #FBEAEE 100%)' }}>
-                  <t.Icon />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[12px] sm:text-sm font-bold text-ink-900 leading-tight">{t.title}</p>
-                  <p className="text-[10px] sm:text-[11px] text-ink-400 leading-tight mt-0.5 truncate">{t.sub}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+      {/* Wave bottom */}
+      <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+        <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full">
+          <path d="M0 60 L0 30 Q180 0 360 30 Q540 60 720 30 Q900 0 1080 30 Q1260 60 1440 30 L1440 60 Z" fill="white" />
+        </svg>
       </div>
     </section>
   );
@@ -1296,63 +1265,54 @@ function SkeletonCard() {
   );
 }
 
-/* ─── Category chips — pill row, lighter than the old StoriesRow (imagenes
- * grandes redundantes con el navbar). Sigue siendo el switch rapido de
- * categoria dentro del catalogo. ─── */
 const CATEGORY_CHIPS = [
-  { label: 'Todos',       cat: 'todos',       img: '/icons/logo.jpg', bg: 'linear-gradient(135deg,#E879A0,#C9547E)' },
-  { label: 'Rizos',       cat: 'rizos',       img: '/imgs/productos/Activador de Rizos.jpg'       },
-  { label: 'Limpieza',    cat: 'limpieza',    img: '/imgs/productos/Shampoo Limpieza Profunda.jpg' },
-  { label: 'Tratamiento', cat: 'tratamiento', img: '/imgs/productos/Mascarilla Hidronutritiva.jpg' },
-  { label: 'Kids',        cat: 'kids',        img: '/imgs/productos/Shampoo KIDS.jpg'              },
-  { label: 'Kits',        cat: 'kits',        img: '/imgs/productos/Travel KIT.jpg'               },
+  { label: 'Todos',       cat: 'todos',       img: '/icons/logo.jpg' },
+  { label: 'Rizos',       cat: 'rizos',       img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996541/becurlyfulcr/productos/activador-de-rizos.jpg',       desc: '5 productos'  },
+  { label: 'Limpieza',    cat: 'limpieza',    img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996547/becurlyfulcr/productos/shampoo-limpieza-profunda.jpg', desc: '2 productos'  },
+  { label: 'Tratamiento', cat: 'tratamiento', img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996550/becurlyfulcr/productos/mascarilla-hidronutritiva.jpg', desc: '2 productos'  },
+  { label: 'Kids',        cat: 'kids',        img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996552/becurlyfulcr/productos/shampoo-kids.jpg',              desc: '4 productos'  },
+  { label: 'Kits',        cat: 'kits',        img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996551/becurlyfulcr/productos/travel-kit.jpg',                desc: '1 kit'        },
 ];
 
-function CategoryChips({ cat, onCat }) {
+/* ─── Category Cards — large image cards replacing the old pill chips ─── */
+function CategoryChips({ cat: activeCat, onCat }) {
+  const cards = CATEGORY_CHIPS.filter(c => c.cat !== 'todos');
   return (
-    // overflow-x-auto + touch-pan-x para asegurar el swipe horizontal en mobile
-    // (sin touch-pan-x, algunos browsers atrapan el gesto como scroll vertical).
-    // snap-x da feedback de "pegado" al deslizar y scrollbar-thin lo hace
-    // visible en desktop sin invadir mobile.
-    <div
-      className="flex gap-2.5 overflow-x-auto overflow-y-hidden pb-2 -mx-4 sm:-mx-1 px-4 sm:px-1 snap-x snap-mandatory chips-scroll"
-      style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', scrollbarGutter: 'stable' }}>
-      {CATEGORY_CHIPS.map((s, i) => {
-        const isActive = cat === s.cat;
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+      {cards.map((s, i) => {
+        const isActive = activeCat === s.cat;
         return (
           <motion.button
             key={s.cat}
-            onClick={() => onCat(s.cat)}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              delay: i * 0.05,
-              duration: 0.35,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            whileTap={{ scale: 0.96 }}
-            className={`group relative overflow-hidden h-9 sm:h-12 flex items-center gap-2 sm:gap-2.5 pr-3 sm:pr-5 rounded-xl sm:rounded-2xl border whitespace-nowrap flex-shrink-0 snap-start text-[11px] sm:text-sm font-semibold transition-[background,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 ${
-              isActive
-                ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-300/40'
-                : 'bg-white text-ink-700 border-cream-200 hover:border-rose-300 hover:text-rose-500 shadow-sm hover:shadow-md'
+            onClick={() => onCat(isActive ? 'todos' : s.cat)}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.06, duration: 0.45, ease: [0.3, 1, 0.3, 1] }}
+            whileHover={{ y: -4 }}
+            whileTap={{ scale: 0.97 }}
+            className={`group relative overflow-hidden rounded-3xl aspect-[3/4] sm:aspect-square flex flex-col items-center justify-end pb-4 transition-all duration-300 ${
+              isActive ? 'ring-4 ring-rose-500 ring-offset-2 shadow-[0_8px_32px_rgba(232,121,160,0.4)]' : 'shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_28px_rgba(232,121,160,0.25)]'
             }`}>
-            {/* Foto a la izquierda, toma toda la altura del chip (estilo card) */}
-            <span className="relative h-full aspect-square overflow-hidden flex-shrink-0">
-              {s.img ? (
-                <img
-                  src={s.img}
-                  alt=""
-                  className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-                />
-              ) : (
-                <span className="w-full h-full block" style={{ background: s.bg }} />
-              )}
-              {/* Velo blanco sutil cuando esta activo, marca seleccion sin tapar la foto */}
-              {isActive && (
-                <span className="absolute inset-0 bg-white/15 ring-2 ring-inset ring-white/60" />
-              )}
-            </span>
-            <span className="pr-0.5">{s.label}</span>
+            {/* Background image */}
+            <img src={s.img} alt={s.label} loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+            {/* Gradient overlay */}
+            <div className={`absolute inset-0 transition-opacity duration-300 ${isActive ? 'opacity-80' : 'opacity-60 group-hover:opacity-70'}`}
+              style={{ background: 'linear-gradient(to top, rgba(10,5,8,0.85) 0%, rgba(10,5,8,0.2) 60%, transparent 100%)' }} />
+            {/* Text */}
+            <div className="relative z-10 text-center text-white px-2">
+              <p className="font-display font-extrabold text-base sm:text-lg leading-tight">{s.label}</p>
+              {s.desc && <p className="text-white/70 text-[11px] mt-0.5">{s.desc}</p>}
+            </div>
+            {/* Active indicator */}
+            {isActive && (
+              <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            )}
           </motion.button>
         );
       })}
@@ -1461,13 +1421,23 @@ function Catalog({ externalCat, catalogRef }) {
           )}
         </div>
 
-        {/* Panel de controles del catalogo — chips + filtros agrupados en un
-            container sutil con backdrop blur que los integra visualmente */}
-        <div className="mt-5 mb-6 bg-gradient-to-br from-white/80 to-cream-50/60 backdrop-blur-sm border border-cream-100 rounded-2xl p-3 sm:p-4 shadow-sm">
-          <CategoryChips cat={cat} onCat={handleCat} />
-          <div className="mt-3 pt-3 border-t border-cream-100/80">
-            <FilterBar brand={brand} minPrice={minPrice} maxPrice={maxPrice} sort={sort} onBrand={handleBrand} onPrice={handlePrice} onSort={handleSort} />
+        {/* Categorías — tarjetas grandes */}
+        <div className="mt-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display font-extrabold text-2xl text-ink-900">Categorías</h2>
+            {cat !== 'todos' && (
+              <button onClick={() => handleCat('todos')}
+                className="text-xs font-semibold text-rose-500 hover:text-rose-600 transition-colors">
+                Ver todos →
+              </button>
+            )}
           </div>
+          <CategoryChips cat={cat} onCat={handleCat} />
+        </div>
+
+        {/* Filtros */}
+        <div className="mb-6 bg-white border border-rose-100 rounded-2xl p-3 sm:p-4 shadow-sm">
+          <FilterBar brand={brand} minPrice={minPrice} maxPrice={maxPrice} sort={sort} onBrand={handleBrand} onPrice={handlePrice} onSort={handleSort} />
         </div>
 
         <AnimatePresence mode="wait">
