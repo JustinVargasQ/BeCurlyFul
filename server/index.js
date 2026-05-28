@@ -206,12 +206,38 @@ app.use(errorHandler);
 /* ─── DB + Server ─── */
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('✅ MongoDB conectado');
+
+    /* Auto-seed: si no existe admin ni settings, los crea en el primer arranque.
+     * Util en Render donde no hay shell de pago para correr seed.js manualmente. */
+    try {
+      const Admin    = require('./models/Admin');
+      const Settings = require('./models/Settings');
+      const bcrypt   = require('bcryptjs');
+
+      const adminExists    = await Admin.exists({});
+      const settingsExists = await Settings.exists({});
+
+      if (!adminExists) {
+        const hash = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'BeCurly2025!', 12);
+        await Admin.create({
+          name: 'Admin BCF',
+          email: process.env.ADMIN_EMAIL || 'admin@becurlyful.cr',
+          passwordHash: hash,
+        });
+        console.log('✅ Admin creado:', process.env.ADMIN_EMAIL || 'admin@becurlyful.cr');
+      }
+
+      if (!settingsExists) {
+        await Settings.create({ key: 'main' });
+        console.log('✅ Settings iniciales creados');
+      }
+    } catch (e) {
+      console.warn('⚠️  Auto-seed falló (no crítico):', e.message);
+    }
+
     app.listen(PORT, () => console.log(`🚀 Servidor en http://localhost:${PORT}`));
-    /* Cron de carritos abandonados — arranca solo despues de tener DB.
-     * El job mismo respeta SMTP/Brevo (si no estan configurados, sendWithProvider
-     * falla silencioso y no marca el cart como enviado, lo retomara la proxima). */
     startAbandonedCartJob();
   })
   .catch((err) => {
