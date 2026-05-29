@@ -6,12 +6,11 @@ import useToastStore from '../../store/toastStore';
 
 const USE_API = import.meta.env.VITE_API_URL;
 const CATEGORIES = [
-  { value: 'maquillaje', label: 'Maquillaje' },
-  { value: 'ojos',       label: 'Ojos'       },
-  { value: 'labios',     label: 'Labios'     },
-  { value: 'rostro',     label: 'Rostro'     },
-  { value: 'skincare',   label: 'Skincare'   },
-  { value: 'cabello',    label: 'Cabello'    },
+  { value: 'rizos',       label: 'Rizos'       },
+  { value: 'limpieza',    label: 'Limpieza'    },
+  { value: 'tratamiento', label: 'Tratamiento' },
+  { value: 'kids',        label: 'Kids'        },
+  { value: 'kits',        label: 'Kits'        },
 ];
 
 const EMPTY = {
@@ -25,12 +24,11 @@ const EMPTY = {
 // chip buttons under the tag input. Keep this list aligned with the chatbot's
 // PRODUCT_TYPE_KEYWORDS / ACCESSORY_KEYWORDS / BUNDLE_KEYWORDS.
 const TAG_SUGGESTIONS = {
-  maquillaje: ['base','labial','sombra','rubor','iluminador','corrector','primer','polvo','mascara','delineador'],
-  rostro:     ['base','rubor','iluminador','corrector','primer','polvo','bronzer'],
-  labios:     ['labial','gloss','tinta','balsamo','pintalabios'],
-  ojos:       ['sombra','mascara','delineador','pestañina'],
-  skincare:   ['serum','crema','limpiador','tonico','hidratante','protector','solar','exfoliante','mascarilla','contorno','retinol','niacinamida','vitamina-c'],
-  cabello:    ['shampoo','acondicionador','tratamiento','keratina'],
+  rizos:       ['activador','crema-gel','gel','definicion','fijacion','hidratacion','anti-frizz','rulos'],
+  limpieza:    ['shampoo','co-wash','limpieza-profunda','limpieza-diaria','sin-sulfatos','cuero-cabelludo'],
+  tratamiento: ['mascarilla','acondicionador','hidratacion','reparacion','keratina','proteina','nutricion'],
+  kids:        ['shampoo','acondicionador','crema-peinar','gel','sin-lagrimas','infantil'],
+  kits:        ['kit','set','travel','combo','rutina'],
 };
 const TAG_SPECIAL = ['accesorio','kit','set','combo','oferta','vegano','natural','nuevo'];
 

@@ -247,7 +247,7 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onUpdatePa
 
   const whatsappMessage = [
     `¡Hola ${order.customer?.name?.split(' ')[0] || ''}! 👋`,
-    `Te escribo de JD por tu pedido *${order.orderNumber}*:`,
+    `Te escribo de Be Curlyful por tu pedido *${order.orderNumber}*:`,
     '',
     itemsText,
     '',
@@ -650,8 +650,8 @@ export default function AdminOrders() {
 
   useEffect(() => {
     const handler = () => load();
-    window.addEventListener('jd:new-order', handler);
-    return () => window.removeEventListener('jd:new-order', handler);
+    window.addEventListener('bcf:new-order', handler);
+    return () => window.removeEventListener('bcf:new-order', handler);
   }, [load]);
 
   const toggleSelect = (id) => {

@@ -47,15 +47,15 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative overflow-hidden" style={{ background: '#1C0A14', color: '#fff' }}>
+    <footer className="relative overflow-hidden rounded-t-[2.5rem] sm:rounded-t-[3.5rem] mt-4"
+      style={{ background: 'linear-gradient(160deg, #2A181E 0%, #21121A 55%, #1A0E15 100%)', color: '#fff' }}>
 
-      {/* ── Decorative orbs ── */}
-      <div className="pointer-events-none absolute -top-32 -left-20 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
-      <div className="pointer-events-none absolute top-16 right-0 w-80 h-80 rounded-full bg-white/8 blur-3xl" />
+      {/* ── Decorative rose glows ── */}
+      <div className="pointer-events-none absolute -top-32 -left-20 w-96 h-96 rounded-full blur-3xl"
+        style={{ background: 'radial-gradient(circle, rgba(206,108,141,0.22) 0%, transparent 70%)' }} />
+      <div className="pointer-events-none absolute top-10 right-0 w-80 h-80 rounded-full blur-3xl"
+        style={{ background: 'radial-gradient(circle, rgba(224,168,120,0.14) 0%, transparent 70%)' }} />
       <div className="pointer-events-none absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
-
-      {/* ── Top white line ── */}
-      <div className="h-px w-full bg-white/20" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
 

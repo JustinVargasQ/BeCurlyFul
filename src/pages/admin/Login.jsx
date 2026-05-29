@@ -56,7 +56,7 @@ export default function AdminLogin() {
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
             <p className="font-display text-3xl font-semibold text-ink-900">
-              JD <span className="text-rose-500">Admin</span>
+              Be Curlyful <span className="text-rose-500">Admin</span>
             </p>
             <p className="text-ink-400 text-sm mt-1">Panel de administración</p>
           </div>

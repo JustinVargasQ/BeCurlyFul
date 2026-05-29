@@ -6,7 +6,7 @@ import FilterBar from '../components/ui/FilterBar';
 import { useProducts, useFeatured } from '../hooks/useProducts';
 import useGoogleReviews from '../hooks/useGoogleReviews';
 import SEO from '../components/ui/SEO';
-import api, { assetUrl } from '../lib/api';
+import api, { assetUrl, optimizedImage } from '../lib/api';
 import KitBuilder from '../components/ui/KitBuilder';
 import { formatCRC } from '../lib/currency';
 
@@ -350,138 +350,139 @@ function HeroGridLayout({ onCatSelect }) {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-white">
+    <section className="relative overflow-hidden bg-cream-50">
 
-      {/* ══════ MOBILE HERO — full screen inmersivo ══════ */}
-      <div className="lg:hidden relative" style={{ height: '100svh', minHeight: '600px' }}>
+      {/* ══════ MOBILE HERO — editorial aireado, fresco & natural ══════ */}
+      <div className="lg:hidden relative overflow-hidden">
+        {/* Lienzo cálido tipo lino + degradé suave hacia blush */}
+        <div className="absolute inset-0 -z-10"
+          style={{ background: 'linear-gradient(178deg, #FFFBF7 0%, #FDF6F0 45%, #F8E6EE 100%)' }} />
+        {/* Blobs orgánicos que evocan rizos */}
+        <div className="absolute -top-20 -right-24 w-72 h-72 rounded-blob bg-rose-200/55 blur-2xl animate-blob -z-10" />
+        <div className="absolute top-72 -left-24 w-72 h-72 rounded-blob2 blur-3xl animate-float-slow -z-10"
+          style={{ background: 'rgba(224,168,120,0.22)' }} />
 
-        {/* BG: 4 fotos llenando toda la pantalla, Ken Burns lento */}
-        <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
-          {HERO_PRODUCTS.map((p, i) => (
-            <motion.div key={p.slug}
-              className="relative overflow-hidden"
-              initial={{ scale: 1.1 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 10, ease: 'easeOut', delay: i * 0.15 }}>
-              <img src={p.img} alt="" loading="eager"
-                className="w-full h-full object-cover" />
-            </motion.div>
-          ))}
-        </div>
+        <div className="relative px-5 pt-10 pb-12">
+          {/* Eyebrow */}
+          <motion.span
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="section-label">
+            Felicidad en tus rizos
+          </motion.span>
 
-        {/* Gradiente oscuro de abajo: hace texto legible */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.93) 0%, rgba(0,0,0,0.55) 38%, rgba(0,0,0,0.15) 62%, transparent 100%)' }} />
+          {/* Titular gigante en Fraunces */}
+          <motion.h1
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.05, ease: [0.3, 1, 0.3, 1] }}
+            className="font-display font-semibold text-ink-900 leading-[0.92] tracking-[-0.02em]"
+            style={{ fontSize: 'clamp(3rem, 15.5vw, 4.6rem)' }}>
+            Amá tus<br />
+            <span className="italic text-accent">rizos</span> hoy
+          </motion.h1>
 
-        {/* Pink glow central */}
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="w-72 h-72 rounded-full"
-            style={{ background: 'radial-gradient(circle, rgba(232,121,160,0.4) 0%, transparent 70%)', filter: 'blur(32px)' }} />
-        </div>
+          {/* Subtítulo */}
+          <motion.p
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.18 }}
+            className="mt-4 text-ink-500 text-[15px] leading-relaxed max-w-xs text-pretty">
+            Productos Be Curlyful para cabello rizado. Envíos a todo Costa Rica desde&nbsp;₡2,000.
+          </motion.p>
 
-        {/* TOP BAR: logo + live badge */}
-        <div className="absolute top-0 left-0 right-0 px-5 pt-12 flex items-center justify-between z-20">
-          <motion.img
-            src="/icons/logo.jpg"
-            alt="Be Curlyful"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="h-11 w-11 rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.4)]" />
-
+          {/* CTAs */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-full"
-            style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)' }}>
-            <motion.span
-              animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
-              transition={{ duration: 1.8, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-rose-400 block" />
-            <span className="text-white text-[11px] font-bold tracking-wide">Be Curlyful CR</span>
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.28 }}
+            className="mt-7 flex gap-3">
+            <motion.button onClick={() => onCatSelect(null)} whileTap={{ scale: 0.97 }}
+              className="btn-primary flex-1 px-4 py-3.5 text-[15px]">
+              Ver catálogo
+            </motion.button>
+            <motion.button onClick={() => onCatSelect('kids')} whileTap={{ scale: 0.97 }}
+              className="btn-outline flex-1 px-4 py-3.5 text-[15px] bg-white/60">
+              Línea Kids
+            </motion.button>
           </motion.div>
-        </div>
 
-        {/* BOTTOM: texto grande + CTAs */}
-        <div className="absolute bottom-0 left-0 right-0 px-5 pb-10 z-20">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, delay: 0.5, ease: [0.3, 1, 0.3, 1] }}>
-
-            {/* Label */}
-            <div className="flex items-center gap-2 mb-3">
-              <div className="h-px flex-1 bg-rose-400/50" />
-              <span className="text-rose-400 text-[10px] font-bold tracking-[0.25em] uppercase">Felicidad en tus rizos</span>
-              <div className="h-px flex-1 bg-rose-400/50" />
-            </div>
-
-            {/* Título gigante */}
-            <h1 className="font-display font-extrabold text-white leading-[0.88] mb-5"
-              style={{ fontSize: 'clamp(3.2rem, 16vw, 5.5rem)' }}>
-              Amá<br />
-              tus <span style={{ color: '#F472B6' }}>rizos</span>
-            </h1>
-
-            {/* Subtítulo */}
-            <p className="text-white/55 text-[13px] font-medium mb-6 leading-relaxed">
-              Productos Be Curlyful · Envíos a todo CR desde ₡2,000
-            </p>
-
-            {/* CTAs */}
-            <div className="flex gap-3 mb-6">
-              <motion.button
-                onClick={() => onCatSelect(null)}
-                whileTap={{ scale: 0.96 }}
-                className="flex-1 bg-white text-ink-900 font-extrabold py-4 rounded-2xl text-sm shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
-                Ver catálogo
-              </motion.button>
-              <motion.button
-                onClick={() => onCatSelect('kids')}
-                whileTap={{ scale: 0.96 }}
-                className="flex-1 font-bold py-4 rounded-2xl text-sm text-white"
-                style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)' }}>
-                Línea Kids
-              </motion.button>
-            </div>
-
-            {/* Scroll indicator */}
+          {/* Showcase — fotos en marcos orgánicos */}
+          <div className="relative mt-12 h-[330px]">
+            {/* Foto principal — blob morfeante */}
             <motion.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-              className="flex items-center justify-center gap-2 opacity-40">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-              <span className="text-white text-[10px] uppercase tracking-[0.2em] font-bold">Deslizá</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: [0.3, 1, 0.3, 1] }}
+              className="absolute inset-x-0 top-0 h-[280px] rounded-blob overflow-hidden shadow-card-hover animate-blob">
+              <Link to={`/producto/${HERO_PRODUCTS[0].slug}`} className="block w-full h-full">
+                <img src={HERO_PRODUCTS[0].img} alt="" loading="eager" className="w-full h-full object-cover" />
+              </Link>
             </motion.div>
+
+            {/* Foto secundaria — colgando abajo-derecha */}
+            <motion.div
+              initial={{ opacity: 0, x: 24, rotate: 8 }}
+              animate={{ opacity: 1, x: 0, rotate: 4 }}
+              transition={{ duration: 0.7, delay: 0.5, ease: [0.3, 1, 0.3, 1] }}
+              className="absolute -bottom-2 right-1 w-32 h-40 rounded-[2rem] overflow-hidden border-[5px] border-cream-50 shadow-card">
+              <Link to={`/producto/${HERO_PRODUCTS[2].slug}`} className="block w-full h-full">
+                <img src={HERO_PRODUCTS[2].img} alt="" loading="eager" className="w-full h-full object-cover" />
+              </Link>
+            </motion.div>
+
+            {/* Chip flotante de prueba social */}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="absolute left-1 bottom-10 glass rounded-2xl pl-2.5 pr-3.5 py-2.5 shadow-card flex items-center gap-2.5 animate-float-slow">
+              <span className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </span>
+              <div className="leading-tight">
+                <p className="text-[13px] font-bold text-ink-900">+1.200 clientas</p>
+                <p className="text-[10px] text-ink-400">felices con sus rizos</p>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Trust row compacto */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="mt-6 grid grid-cols-3 gap-2.5">
+            {TRUST.slice(0, 3).map((t, i) => (
+              <div key={i} className="flex flex-col items-center text-center gap-1.5 bg-white/55 border border-cream-200 rounded-2xl px-2 py-3">
+                <span className="text-rose-500"><t.Icon /></span>
+                <span className="text-[10px] font-semibold text-ink-700 leading-tight">{t.title}</span>
+              </div>
+            ))}
           </motion.div>
         </div>
       </div>
 
-      {/* ══════ DESKTOP HERO — split layout ══════ */}
-      <div className="hidden lg:block">
-        <div className="absolute top-0 right-0 w-[55%] h-full bg-gradient-to-bl from-rose-50 via-rose-50/60 to-transparent pointer-events-none" />
+      {/* ══════ DESKTOP HERO — split editorial ══════ */}
+      <div className="hidden lg:block relative overflow-hidden"
+        style={{ background: 'linear-gradient(120deg, #FFFBF7 0%, #FDF6F0 50%, #FBEDF2 100%)' }}>
+        {/* Blobs orgánicos de fondo */}
+        <div className="absolute -top-24 right-[8%] w-[30rem] h-[30rem] rounded-blob bg-rose-200/40 blur-3xl pointer-events-none animate-blob" />
+        <div className="absolute bottom-[-6rem] right-[28%] w-80 h-80 rounded-blob2 blur-3xl pointer-events-none animate-float-slow"
+          style={{ background: 'rgba(224,168,120,0.18)' }} />
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[88vh] py-16">
+          <div className="grid lg:grid-cols-2 gap-14 items-center min-h-[88vh] py-16">
 
             {/* Left: text */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1] }}>
-              <span className="section-label">Felicidad en tus rizos ✨</span>
-              <h1 className="font-display font-extrabold text-ink-900 leading-[1.05] mb-6"
-                style={{ fontSize: 'clamp(2.8rem, 5vw, 5rem)' }}>
+              <span className="section-label">Felicidad en tus rizos</span>
+              <h1 className="font-display font-semibold text-ink-900 leading-[0.98] tracking-[-0.02em] mb-6"
+                style={{ fontSize: 'clamp(3rem, 5.2vw, 5.2rem)' }}>
                 Amá tus<br />
-                <span className="text-rose-500">rizos</span> hoy
+                <span className="italic text-accent">rizos</span> hoy
               </h1>
-              <p className="text-ink-400 text-lg leading-relaxed mb-10 max-w-md">
-                Productos Be Curlyful para cabello rizado. Envíos a todo Costa Rica desde ₡2,000.
+              <p className="text-ink-500 text-lg leading-relaxed mb-9 max-w-md text-pretty">
+                Productos Be Curlyful para cabello rizado, formulados en Costa Rica. Envíos a todo el país desde ₡2,000.
               </p>
               <div className="flex flex-wrap gap-4">
                 <motion.button
@@ -493,56 +494,84 @@ function HeroGridLayout({ onCatSelect }) {
                 <motion.button
                   onClick={() => onCatSelect('kids')}
                   whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  className="btn-outline text-base px-8 py-4">
+                  className="btn-outline text-base px-8 py-4 bg-white/60">
                   Línea Kids
                 </motion.button>
               </div>
               {/* Trust strip desktop */}
-              <div className="mt-12 grid grid-cols-2 gap-4">
+              <div className="mt-12 grid grid-cols-2 gap-x-6 gap-y-4 max-w-md">
                 {TRUST.map((t, i) => (
                   <motion.div key={i}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 + i * 0.08, duration: 0.4 }}
-                    className="flex items-center gap-2.5">
-                    <span className="w-9 h-9 rounded-2xl flex items-center justify-center text-rose-500 bg-rose-50 flex-shrink-0">
+                    className="flex items-center gap-3">
+                    <span className="w-10 h-10 rounded-2xl flex items-center justify-center text-rose-500 bg-white shadow-soft flex-shrink-0">
                       <t.Icon />
                     </span>
                     <div>
-                      <p className="text-xs font-bold text-ink-900">{t.title}</p>
-                      <p className="text-[10px] text-ink-400">{t.sub}</p>
+                      <p className="text-[13px] font-bold text-ink-900">{t.title}</p>
+                      <p className="text-[11px] text-ink-400">{t.sub}</p>
                     </div>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
 
-            {/* Right: staggered photos */}
-            <div className="grid grid-cols-2 gap-5 relative">
-              {HERO_PRODUCTS.map((p, i) => (
-                <motion.div key={p.slug}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1 + i * 0.12, ease: [0.3, 1, 0.3, 1] }}
-                  className={i % 2 === 1 ? 'mt-8' : ''}>
-                  <Link to={`/producto/${p.slug}`}
-                    className="block rounded-3xl overflow-hidden aspect-square shadow-[0_8px_32px_rgba(232,121,160,0.18)] hover:shadow-[0_12px_40px_rgba(232,121,160,0.28)] hover:scale-[1.03] transition-all duration-400 group">
-                    <img src={p.img} alt="" loading="eager"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  </Link>
-                </motion.div>
-              ))}
-              <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-rose-100/60 blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-4 left-4 w-24 h-24 rounded-full bg-rose-200/40 blur-2xl pointer-events-none" />
+            {/* Right: editorial collage en marcos orgánicos */}
+            <div className="relative h-[560px]">
+              {/* Principal — blob morfeante */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.15, ease: [0.3, 1, 0.3, 1] }}
+                className="absolute left-0 top-8 w-[60%] h-[78%] rounded-blob overflow-hidden shadow-card-hover animate-blob">
+                <Link to={`/producto/${HERO_PRODUCTS[0].slug}`} className="block w-full h-full group">
+                  <img src={HERO_PRODUCTS[0].img} alt="" loading="eager"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                </Link>
+              </motion.div>
+
+              {/* Superior derecha */}
+              <motion.div
+                initial={{ opacity: 0, y: -24, rotate: 6 }}
+                animate={{ opacity: 1, y: 0, rotate: 3 }}
+                transition={{ duration: 0.7, delay: 0.3, ease: [0.3, 1, 0.3, 1] }}
+                className="absolute right-0 top-0 w-[44%] h-[42%] rounded-[2.5rem] overflow-hidden border-[6px] border-cream-50 shadow-card">
+                <Link to={`/producto/${HERO_PRODUCTS[1].slug}`} className="block w-full h-full group">
+                  <img src={HERO_PRODUCTS[1].img} alt="" loading="eager"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                </Link>
+              </motion.div>
+
+              {/* Inferior derecha */}
+              <motion.div
+                initial={{ opacity: 0, y: 24, rotate: -6 }}
+                animate={{ opacity: 1, y: 0, rotate: -3 }}
+                transition={{ duration: 0.7, delay: 0.45, ease: [0.3, 1, 0.3, 1] }}
+                className="absolute right-4 bottom-2 w-[46%] h-[44%] rounded-[2.5rem] overflow-hidden border-[6px] border-cream-50 shadow-card">
+                <Link to={`/producto/${HERO_PRODUCTS[3].slug}`} className="block w-full h-full group">
+                  <img src={HERO_PRODUCTS[3].img} alt="" loading="eager"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                </Link>
+              </motion.div>
+
+              {/* Chip flotante de prueba social */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="absolute left-2 bottom-6 glass rounded-2xl pl-2.5 pr-4 py-3 shadow-card flex items-center gap-3 animate-float-slow">
+                <span className="w-9 h-9 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </span>
+                <div className="leading-tight">
+                  <p className="text-sm font-bold text-ink-900">+1.200 clientas</p>
+                  <p className="text-[11px] text-ink-400">felices con sus rizos</p>
+                </div>
+              </motion.div>
             </div>
           </div>
-        </div>
-
-        {/* Wave bottom desktop only */}
-        <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-          <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full">
-            <path d="M0 60 L0 30 Q180 0 360 30 Q540 60 720 30 Q900 0 1080 30 Q1260 60 1440 30 L1440 60 Z" fill="white" />
-          </svg>
         </div>
       </div>
 
@@ -832,45 +861,172 @@ const FacebookIcon = () => (
   </svg>
 );
 
-/* ─── Social bar — Instagram CTA ─── */
+/* ─── Comunidad — feed de Instagram shoppable ─── */
+const CLD = 'https://res.cloudinary.com/dq4eqkzyn/image/upload';
+const IG_STORIES = [
+  { label: 'Rizos',       cat: 'rizos',       img: `${CLD}/v1779996541/becurlyfulcr/productos/activador-de-rizos.jpg` },
+  { label: 'Limpieza',    cat: 'limpieza',    img: `${CLD}/v1779996547/becurlyfulcr/productos/shampoo-limpieza-profunda.jpg` },
+  { label: 'Tratamiento', cat: 'tratamiento', img: `${CLD}/v1779996550/becurlyfulcr/productos/mascarilla-hidronutritiva.jpg` },
+  { label: 'Kids',        cat: 'kids',        img: `${CLD}/v1779996552/becurlyfulcr/productos/shampoo-kids.jpg` },
+  { label: 'Kits',        cat: 'kits',        img: `${CLD}/v1779996551/becurlyfulcr/productos/travel-kit.jpg` },
+];
+const IG_FEED = [
+  { slug: 'activador-de-rizos',        img: `${CLD}/v1779996541/becurlyfulcr/productos/activador-de-rizos.jpg`,        likes: 312, caption: 'Rizos definidos sin frizz con el Activador 💧' },
+  { slug: 'mascarilla-hidronutritiva', img: `${CLD}/v1779996550/becurlyfulcr/productos/mascarilla-hidronutritiva.jpg`, likes: 287, caption: 'Mascarilla 1× semana = rizos renovados', carousel: true },
+  { slug: 'crema-gel-rizos',           img: `${CLD}/v1779996542/becurlyfulcr/productos/crema-gel-rizos.jpg`,           likes: 198, caption: 'Crema gel: hidratación + definición' },
+  { slug: 'shampoo-limpieza-profunda', img: `${CLD}/v1779996547/becurlyfulcr/productos/shampoo-limpieza-profunda.jpg`, likes: 241, caption: 'Detox al cuero cabelludo ✨' },
+  { slug: 'gel-alta-fijacion',         img: `${CLD}/v1779996544/becurlyfulcr/productos/gel-alta-fijacion.jpg`,         likes: 356, caption: 'Fijación que dura todo el día', carousel: true },
+  { slug: 'crema-hidratante-rizos',    img: `${CLD}/v1779996543/becurlyfulcr/productos/crema-hidratante-rizos.jpg`,    likes: 174, caption: 'Bomba de hidratación para tus rizos' },
+  { slug: 'travel-kit',                img: `${CLD}/v1779996551/becurlyfulcr/productos/travel-kit.jpg`,                likes: 263, caption: 'Travel Kit: tu rutina a donde vayas' },
+  { slug: 'shampoo-kids',              img: `${CLD}/v1779996552/becurlyfulcr/productos/shampoo-kids.jpg`,              likes: 219, caption: 'Be Curlyful Kids 🧒 sin lágrimas' },
+  { slug: 'acondicionador-revitalizante', img: `${CLD}/v1779996548/becurlyfulcr/productos/acondicionador-revitalizante.jpg`, likes: 205, caption: 'Suavidad y brillo en cada lavado' },
+];
+
+const HeartFillIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+);
+
 function LocationSocialBar() {
+  const goToCat = (cat) => {
+    window.dispatchEvent(new CustomEvent('bcf:selectcat', { detail: cat }));
+    setTimeout(() => document.getElementById('tienda')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  };
+
   return (
-    <section className="relative bg-white py-16 overflow-hidden border-t border-rose-100">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+    <section className="relative py-16 sm:py-24 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFBF7 0%, #FCF4F7 100%)' }}>
+      {/* Blobs decorativos */}
+      <div className="pointer-events-none absolute -top-20 left-1/4 w-72 h-72 rounded-blob bg-rose-200/30 blur-3xl animate-blob" />
+      <div className="pointer-events-none absolute -bottom-24 right-1/4 w-72 h-72 rounded-blob2 blur-3xl" style={{ background: 'rgba(224,168,120,0.14)' }} />
+
+      <div className="relative max-w-2xl mx-auto px-4 sm:px-6">
+        <div className="text-center flex flex-col items-center mb-8">
+          <span className="section-label">Nuestra comunidad</span>
+          <h2 className="section-title">Sumate a la <span className="italic text-accent">familia rizada</span></h2>
+          <p className="text-ink-500 mt-3 max-w-md text-pretty">Tocá una foto para comprar el producto, o una historia para ver la categoría.</p>
+        </div>
+
+        {/* ── Tarjeta perfil estilo Instagram ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}>
-          <span className="text-5xl sm:text-6xl block mb-4">📱</span>
-          <h2 className="font-display font-extrabold text-4xl sm:text-5xl text-ink-900 mb-3">
-            @<span className="text-rose-500">becurlyfulcr</span>
-          </h2>
-          <p className="text-ink-400 text-lg mb-8">
-            Seguinos en Instagram y Facebook para tips, novedades y promociones exclusivas.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <motion.a
-              href="https://www.instagram.com/becurlyfulcr" target="_blank" rel="noopener noreferrer"
-              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white font-bold px-7 py-3.5 rounded-2xl shadow-lg text-sm">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-              Instagram
-            </motion.a>
-            <motion.a
-              href="https://www.facebook.com/share/1BzCcTxMcy/" target="_blank" rel="noopener noreferrer"
-              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2.5 bg-[#1877F2] hover:bg-blue-700 text-white font-bold px-7 py-3.5 rounded-2xl shadow-lg text-sm">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-              Facebook
-            </motion.a>
-            <motion.a
-              href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
-              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2.5 bg-[#25D366] hover:bg-green-600 text-white font-bold px-7 py-3.5 rounded-2xl shadow-lg text-sm">
-              <WaIcon /> WhatsApp
-            </motion.a>
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.6, ease: [0.3, 1, 0.3, 1] }}
+          className="bg-white rounded-[2rem] border border-cream-200 shadow-card overflow-hidden">
+
+          {/* Header del perfil */}
+          <div className="px-5 sm:px-7 pt-6 pb-5">
+            <div className="flex items-center gap-5">
+              {/* Avatar con anillo IG */}
+              <a href="https://www.instagram.com/becurlyfulcr" target="_blank" rel="noopener noreferrer"
+                className="relative flex-shrink-0 p-[3px] rounded-full"
+                style={{ background: 'linear-gradient(45deg, #F09433, #E6683C 25%, #DC2743 50%, #CC2366 75%, #BC1888)' }}>
+                <span className="block p-[2px] bg-white rounded-full">
+                  <img src="/icons/logo.jpg" alt="Be Curlyful" className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full object-cover" />
+                </span>
+              </a>
+              {/* Stats */}
+              <div className="flex-1 grid grid-cols-3 gap-1 text-center">
+                {[['+50', 'posts'], ['1.2k', 'seguidores'], ['+1.2k', 'rizos felices']].map(([n, l]) => (
+                  <div key={l}>
+                    <p className="font-display font-semibold text-ink-900 text-lg sm:text-xl leading-none">{n}</p>
+                    <p className="text-[11px] text-ink-400 mt-1 leading-tight">{l}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Nombre + bio */}
+            <div className="mt-4">
+              <div className="flex items-center gap-1.5">
+                <p className="font-semibold text-ink-900 text-[15px]">Be Curlyful CR</p>
+                <span className="w-4 h-4 rounded-full bg-rose-500 text-white flex items-center justify-center" title="Verificado">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+              </div>
+              <p className="text-[13px] text-rose-500 font-medium">@becurlyfulcr</p>
+              <p className="text-[13px] text-ink-600 mt-1.5 leading-relaxed">
+                Productos para cabello rizado, hechos en Costa Rica 🇨🇷<br />
+                Felicidad en tus rizos · Envíos a todo el país
+              </p>
+            </div>
+
+            {/* Botones */}
+            <div className="mt-4 flex items-center gap-2">
+              <a href="https://www.instagram.com/becurlyfulcr" target="_blank" rel="noopener noreferrer"
+                className="flex-1 inline-flex items-center justify-center gap-2 text-white font-semibold text-sm py-2.5 rounded-xl shadow-sm transition-transform active:scale-95"
+                style={{ background: 'linear-gradient(45deg, #F09433, #DC2743 50%, #BC1888)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                Seguir
+              </a>
+              <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
+                aria-label="WhatsApp"
+                className="inline-flex items-center justify-center gap-2 bg-cream-100 hover:bg-cream-200 text-ink-800 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors">
+                <WaIcon /> Mensaje
+              </a>
+              <a href="https://www.facebook.com/share/1BzCcTxMcy/" target="_blank" rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="w-10 h-10 flex-shrink-0 inline-flex items-center justify-center bg-cream-100 hover:bg-cream-200 text-[#1877F2] rounded-xl transition-colors">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              </a>
+            </div>
+
+            {/* Historias (categorías) */}
+            <div className="mt-5 flex gap-4 overflow-x-auto scrollbar-hide -mx-1 px-1">
+              {IG_STORIES.map((s) => (
+                <button key={s.cat} onClick={() => goToCat(s.cat)} className="flex flex-col items-center gap-1.5 flex-shrink-0 group">
+                  <span className="p-[2.5px] rounded-full" style={{ background: 'linear-gradient(45deg, #F09433, #DC2743 50%, #BC1888)' }}>
+                    <span className="block p-[2px] bg-white rounded-full">
+                      <img src={s.img} alt={s.label} loading="lazy" className="w-14 h-14 rounded-full object-cover group-active:scale-95 transition-transform" />
+                    </span>
+                  </span>
+                  <span className="text-[11px] text-ink-600 font-medium">{s.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Grid del feed — shoppable */}
+          <div className="grid grid-cols-3 gap-1 sm:gap-1.5 border-t border-cream-200 pt-1 sm:pt-1.5">
+            {IG_FEED.map((post, i) => (
+              <motion.div key={post.slug}
+                initial={{ opacity: 0, scale: 0.94 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ delay: (i % 3) * 0.06, duration: 0.4 }}>
+                <Link to={`/producto/${post.slug}`} className="group relative block aspect-square overflow-hidden">
+                  <img src={optimizedImage(post.img, 400)} alt={post.caption} loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  {/* Indicador carrusel/reel */}
+                  {post.carousel && (
+                    <span className="absolute top-1.5 right-1.5 text-white drop-shadow">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+                    </span>
+                  )}
+                  {/* Overlay shoppable */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-ink-900/0 group-hover:bg-ink-900/55 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <span className="flex items-center gap-1.5 text-white font-semibold text-sm">
+                      <HeartFillIcon size={15} /> {post.likes}
+                    </span>
+                    <span className="flex items-center gap-1 text-white/95 text-[11px] font-semibold bg-white/15 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/30">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                      Ver producto
+                    </span>
+                  </div>
+                  {/* Tag shoppable persistente (mobile) */}
+                  <span className="sm:hidden absolute bottom-1.5 left-1.5 w-6 h-6 rounded-full bg-white/85 backdrop-blur-sm text-rose-500 flex items-center justify-center shadow-sm">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                  </span>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Footer CTA */}
+          <a href="https://www.instagram.com/becurlyfulcr" target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 py-4 border-t border-cream-200 text-rose-600 font-semibold text-sm hover:bg-cream-50 transition-colors">
+            Ver más en Instagram
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
         </motion.div>
       </div>
     </section>
@@ -899,20 +1055,20 @@ function BrandMarquee() {
   const row1 = [...STRIP_PHOTOS, ...STRIP_PHOTOS];
   const row2 = [...STRIP_PHOTOS].reverse().concat([...STRIP_PHOTOS].reverse());
   return (
-    <div className="relative bg-white py-8 overflow-hidden group">
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-gradient-to-r from-white to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-gradient-to-l from-white to-transparent" />
-      <div className="space-y-3">
-        <div className="flex gap-3 animate-marquee group-hover:[animation-play-state:paused]">
+    <div className="relative bg-cream-50 py-10 overflow-hidden group">
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-gradient-to-r from-cream-50 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-gradient-to-l from-cream-50 to-transparent" />
+      <div className="space-y-3.5">
+        <div className="flex gap-3.5 animate-marquee group-hover:[animation-play-state:paused]">
           {row1.map((url, i) => (
-            <div key={i} className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
+            <div key={i} className="w-20 h-20 sm:w-24 sm:h-24 rounded-[1.5rem] overflow-hidden flex-shrink-0 shadow-soft border border-cream-200">
               <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
             </div>
           ))}
         </div>
-        <div className="flex gap-3 animate-marquee-reverse group-hover:[animation-play-state:paused]">
+        <div className="flex gap-3.5 animate-marquee-reverse group-hover:[animation-play-state:paused]">
           {row2.map((url, i) => (
-            <div key={i} className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
+            <div key={i} className="w-20 h-20 sm:w-24 sm:h-24 rounded-[1.5rem] overflow-hidden flex-shrink-0 shadow-soft border border-cream-200">
               <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
             </div>
           ))}
@@ -952,25 +1108,30 @@ const STATS = [
 ];
 
 const RUTINA_STEPS = [
-  { step: 1, emoji: '🚿', label: 'Limpieza', desc: 'Shampoo para rizos', color: 'bg-sky-50 border-sky-100', slug: 'shampoo-limpieza-profunda',
+  { step: 1, label: 'Limpieza',    desc: 'Shampoo para rizos',        slug: 'shampoo-limpieza-profunda',
     img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996547/becurlyfulcr/productos/shampoo-limpieza-profunda.jpg' },
-  { step: 2, emoji: '💧', label: 'Hidratación', desc: 'Acondicionador revitalizante', color: 'bg-teal-50 border-teal-100', slug: 'acondicionador-revitalizante',
+  { step: 2, label: 'Hidratación', desc: 'Acondicionador revitalizante', slug: 'acondicionador-revitalizante',
     img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996548/becurlyfulcr/productos/acondicionador-revitalizante.jpg' },
-  { step: 3, emoji: '💜', label: 'Tratamiento', desc: 'Mascarilla 1× semana', color: 'bg-violet-50 border-violet-100', slug: 'mascarilla-hidronutritiva',
+  { step: 3, label: 'Tratamiento', desc: 'Mascarilla 1× semana',       slug: 'mascarilla-hidronutritiva',
     img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996550/becurlyfulcr/productos/mascarilla-hidronutritiva.jpg' },
-  { step: 4, emoji: '✨', label: 'Estilizado', desc: 'Activador de rizos', color: 'bg-amber-50 border-amber-100', slug: 'activador-de-rizos',
+  { step: 4, label: 'Estilizado',  desc: 'Activador de rizos',          slug: 'activador-de-rizos',
     img: 'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996541/becurlyfulcr/productos/activador-de-rizos.jpg' },
 ];
 
 function StatsStrip() {
   return (
-    <section className="py-14 sm:py-20 bg-white border-t border-rose-50">
+    <section className="py-16 sm:py-24 bg-cream-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
+        <div className="text-center mb-12 flex flex-col items-center">
           <span className="section-label">La clave de los rizos perfectos</span>
-          <h2 className="section-title">Tu rutina Be Curlyful</h2>
+          <h2 className="section-title">Tu rutina <span className="italic text-accent">Be&nbsp;Curlyful</span></h2>
+          <p className="text-ink-500 mt-3 max-w-md text-pretty">Cuatro pasos simples para rizos definidos, hidratados y sin frizz.</p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+          {/* Línea conectora (desktop) */}
+          <div className="hidden lg:block absolute top-[4.5rem] left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-rose-200 to-transparent" />
+
           {RUTINA_STEPS.map((r, i) => (
             <motion.div key={r.step}
               initial={{ opacity: 0, y: 24 }}
@@ -978,16 +1139,18 @@ function StatsStrip() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.5 }}>
               <Link to={`/producto/${r.slug}`}
-                className={`group block ${r.color} border rounded-3xl p-5 hover:shadow-[0_8px_24px_rgba(232,121,160,0.15)] transition-all duration-300 hover:-translate-y-1`}>
-                <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden mb-4 shadow-sm group-hover:shadow-md transition-shadow">
-                  <img src={r.img} alt={r.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                className="group relative block bg-white border border-cream-200 rounded-[1.75rem] p-6 text-center shadow-soft hover:shadow-card-hover hover:-translate-y-1.5 transition-all duration-400">
+                <div className="relative w-24 h-24 mx-auto mb-5">
+                  <div className="w-full h-full rounded-full overflow-hidden ring-1 ring-cream-200 group-hover:ring-rose-200 transition-all">
+                    <img src={r.img} alt={r.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  </div>
+                  <span className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-rose-500 text-white font-display font-semibold text-sm flex items-center justify-center shadow-btn">
+                    {r.step}
+                  </span>
                 </div>
-                <div className="text-center">
-                  <span className="text-[11px] font-bold text-ink-300 tracking-widest uppercase">Paso {r.step}</span>
-                  <h3 className="font-display font-extrabold text-ink-900 text-lg mt-0.5">{r.label}</h3>
-                  <p className="text-rose-500 text-sm font-semibold mt-1">{r.desc}</p>
-                  <span className="text-xl mt-2 block">{r.emoji}</span>
-                </div>
+                <span className="text-[10px] font-bold text-rose-400 tracking-[0.2em] uppercase">Paso {r.step}</span>
+                <h3 className="font-display font-semibold text-ink-900 text-xl mt-1">{r.label}</h3>
+                <p className="text-ink-500 text-sm mt-1.5">{r.desc}</p>
               </Link>
             </motion.div>
           ))}
@@ -1003,15 +1166,17 @@ function FeaturedSection() {
   if (!products.length) return null;
 
   return (
-    <section className="py-12 sm:py-16 bg-rose-50 overflow-hidden">
+    <section className="py-14 sm:py-20 overflow-hidden"
+      style={{ background: 'linear-gradient(180deg, #FCF4F7 0%, #FFFBF7 100%)' }}>
       <div className="max-w-7xl mx-auto">
-        <div className="px-4 sm:px-6 lg:px-8 flex items-end justify-between mb-7">
-          <div>
+        <div className="px-4 sm:px-6 lg:px-8 flex items-end justify-between mb-8">
+          <div className="flex flex-col">
             <span className="section-label">Top productos</span>
-            <h2 className="section-title">Lo más pedido</h2>
+            <h2 className="section-title">Lo más <span className="italic text-accent">pedido</span></h2>
           </div>
-          <Link to="/" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-bold text-rose-500 hover:text-rose-600 transition-colors">
-            Ver todo <span className="text-base">→</span>
+          <Link to="/" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-rose-600 hover:gap-2.5 transition-all">
+            Ver todo
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </Link>
         </div>
 
@@ -1043,49 +1208,50 @@ const KIDS_IMGS = [
 
 function PromoBanner() {
   return (
-    <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-6 sm:py-8">
+    <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-8 sm:py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="relative overflow-hidden rounded-3xl"
-        style={{ background: 'linear-gradient(135deg, #FFFDE7 0%, #FFF9C4 40%, #FFF0F7 100%)' }}>
+        className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] border border-cream-200"
+        style={{ background: 'linear-gradient(125deg, #FFFBF7 0%, #FCF4F7 50%, #F8E6EE 100%)' }}>
 
-        <div className="grid lg:grid-cols-2 gap-8 items-center px-8 sm:px-12 py-10 sm:py-14">
+        {/* Blobs decorativos */}
+        <div className="pointer-events-none absolute -top-16 -right-10 w-64 h-64 rounded-blob bg-rose-200/40 blur-2xl animate-blob" />
+        <div className="pointer-events-none absolute -bottom-16 left-1/4 w-56 h-56 rounded-blob2 blur-3xl" style={{ background: 'rgba(224,168,120,0.18)' }} />
+
+        <div className="relative grid lg:grid-cols-2 gap-8 items-center px-7 sm:px-12 py-10 sm:py-14">
           {/* Text */}
           <div>
-            <span className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] uppercase text-amber-600 bg-amber-100 px-3 py-1 rounded-full mb-5">
-              ✨ Línea infantil
-            </span>
-            <h3 className="font-display font-extrabold text-ink-900 leading-tight mb-4"
-              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)' }}>
-              Be Curlyful <span className="text-rose-500">Kids</span>
+            <span className="section-label">Línea infantil</span>
+            <h3 className="font-display font-semibold text-ink-900 leading-[1.02] tracking-[-0.01em] mb-4"
+              style={{ fontSize: 'clamp(2rem, 3.6vw, 3.2rem)' }}>
+              Be Curlyful <span className="italic text-accent">Kids</span>
             </h3>
-            <p className="text-ink-500 leading-relaxed mb-6 max-w-sm">
+            <p className="text-ink-500 leading-relaxed mb-7 max-w-sm text-pretty">
               Cuidado capilar delicado para los rizos de tus pequeños. Fórmulas suaves, sin lágrimas y con ingredientes naturales.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link to="/?cat=kids"
-                className="btn-primary text-sm px-6 py-3">
-                Ver línea Kids →
+              <Link to="/?cat=kids" className="btn-primary text-sm px-6 py-3.5">
+                Ver línea Kids
               </Link>
               <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-white border border-rose-200 text-ink-900 font-bold px-6 py-3 rounded-2xl text-sm hover:border-rose-400 transition-colors">
+                className="inline-flex items-center gap-2 bg-white border border-cream-200 text-ink-900 font-semibold px-6 py-3.5 rounded-full text-sm hover:border-rose-300 transition-colors">
                 <WaIcon /> Consultar
               </a>
             </div>
           </div>
 
           {/* Product photos grid */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3.5">
             {KIDS_IMGS.map((url, i) => (
               <motion.div key={i}
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08, duration: 0.4 }}
-                className={`rounded-2xl overflow-hidden aspect-square shadow-md ${i % 2 === 1 ? 'mt-4' : ''}`}>
+                className={`overflow-hidden aspect-square shadow-card border-4 border-cream-50 ${i % 2 === 1 ? 'mt-5 rounded-blob2' : 'rounded-[1.75rem]'}`}>
                 <img src={url} alt="Kids" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
               </motion.div>
             ))}
@@ -1134,7 +1300,7 @@ const GUARANTEES = [
 
 function GuaranteeSection() {
   return (
-    <section className="overflow-hidden" style={{ background: 'linear-gradient(135deg, #C9547E 0%, #E879A0 50%, #F472B6 100%)' }}>
+    <section className="overflow-hidden" style={{ background: 'linear-gradient(125deg, #8C3F5C 0%, #B25577 45%, #CE6C8D 100%)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
           {GUARANTEES.map((g, i) => (
@@ -1206,11 +1372,11 @@ function CategoryChips({ cat: activeCat, onCat }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`flex-shrink-0 w-28 h-28 relative overflow-hidden rounded-2xl flex flex-col items-center justify-end pb-3 transition-all ${
-                isActive ? 'ring-3 ring-rose-500 ring-offset-1 shadow-[0_4px_16px_rgba(232,121,160,0.4)]' : 'shadow-md'
+              className={`flex-shrink-0 w-28 h-28 relative overflow-hidden rounded-[1.5rem] flex flex-col items-center justify-end pb-3 transition-all ${
+                isActive ? 'ring-2 ring-rose-400 ring-offset-2 ring-offset-cream-50 shadow-card' : 'shadow-soft'
               }`}>
               <img src={s.img} alt={s.label} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,5,8,0.8) 0%, transparent 60%)' }} />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(35,26,27,0.82) 0%, transparent 62%)' }} />
               <div className="relative z-10 text-center text-white">
                 <p className="font-display font-extrabold text-sm leading-tight">{s.label}</p>
               </div>
@@ -1240,13 +1406,13 @@ function CategoryChips({ cat: activeCat, onCat }) {
               transition={{ delay: i * 0.06, duration: 0.45 }}
               whileHover={{ y: -4 }}
               whileTap={{ scale: 0.97 }}
-              className={`group relative overflow-hidden rounded-3xl aspect-square flex flex-col items-center justify-end pb-4 transition-all duration-300 ${
-                isActive ? 'ring-4 ring-rose-500 ring-offset-2 shadow-[0_8px_32px_rgba(232,121,160,0.4)]' : 'shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_28px_rgba(232,121,160,0.25)]'
+              className={`group relative overflow-hidden rounded-[1.75rem] aspect-square flex flex-col items-center justify-end pb-4 transition-all duration-300 ${
+                isActive ? 'ring-2 ring-rose-400 ring-offset-2 ring-offset-cream-50 shadow-card-hover' : 'shadow-soft hover:shadow-card'
               }`}>
               <img src={s.img} alt={s.label} loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-              <div className={`absolute inset-0 transition-opacity duration-300 ${isActive ? 'opacity-80' : 'opacity-60 group-hover:opacity-70'}`}
-                style={{ background: 'linear-gradient(to top, rgba(10,5,8,0.85) 0%, rgba(10,5,8,0.2) 60%, transparent 100%)' }} />
+              <div className={`absolute inset-0 transition-opacity duration-300 ${isActive ? 'opacity-85' : 'opacity-65 group-hover:opacity-75'}`}
+                style={{ background: 'linear-gradient(to top, rgba(35,26,27,0.85) 0%, rgba(35,26,27,0.2) 60%, transparent 100%)' }} />
               <div className="relative z-10 text-center text-white px-2">
                 <p className="font-display font-extrabold text-lg leading-tight">{s.label}</p>
                 {s.desc && <p className="text-white/70 text-[11px] mt-0.5">{s.desc}</p>}
@@ -1329,7 +1495,7 @@ function Catalog({ externalCat, catalogRef }) {
   const hasMore = visibleCount < products.length;
 
   return (
-    <section ref={catalogRef} id="tienda" className="bg-white py-20 scroll-mt-24">
+    <section ref={catalogRef} id="tienda" className="bg-cream-50 py-16 sm:py-20 scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
@@ -1382,7 +1548,7 @@ function Catalog({ externalCat, catalogRef }) {
         </div>
 
         {/* Filtros */}
-        <div className="mb-5 bg-white border border-rose-100 rounded-2xl p-3 shadow-sm">
+        <div className="mb-6 bg-white border border-cream-200 rounded-2xl p-3 shadow-soft">
           <FilterBar brand={brand} minPrice={minPrice} maxPrice={maxPrice} sort={sort} onBrand={handleBrand} onPrice={handlePrice} onSort={handleSort} />
         </div>
 
@@ -1416,7 +1582,7 @@ function Catalog({ externalCat, catalogRef }) {
                     initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
                     whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
                     onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-                    className="inline-flex items-center gap-2 border-2 border-rose-400 text-rose-500 hover:bg-rose-500 hover:text-white font-semibold px-8 py-3 rounded-full transition-all duration-300">
+                    className="btn-outline px-8 py-3.5 bg-white">
                     Ver más productos
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                   </motion.button>
@@ -1454,13 +1620,13 @@ function TestimonialCard({ t }) {
   const hasText = Boolean(t.quote && t.quote.trim());
 
   return (
-    <div className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(232,121,160,0.1)] border border-rose-50 mb-4 group hover:shadow-[0_8px_32px_rgba(232,121,160,0.18)] transition-all duration-300">
+    <div className="bg-white rounded-3xl p-5 shadow-soft border border-cream-200 mb-4 group hover:shadow-card-hover transition-all duration-300">
       {/* Stars */}
       <div className="flex gap-0.5 mb-3">
         {[1,2,3,4,5].map(s => (
           <svg key={s} width="14" height="14" viewBox="0 0 24 24"
-            fill={s <= rounded ? '#E879A0' : 'none'}
-            stroke={s <= rounded ? '#E879A0' : '#F9A8D4'}
+            fill={s <= rounded ? '#CE6C8D' : 'none'}
+            stroke={s <= rounded ? '#CE6C8D' : '#E5A8C2'}
             strokeWidth="1.5">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
@@ -1481,8 +1647,8 @@ function TestimonialCard({ t }) {
           <img src={t.avatar} alt={t.name} referrerPolicy="no-referrer"
             className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
         ) : (
-          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-display font-extrabold flex-shrink-0 text-white"
-            style={{ background: 'linear-gradient(135deg, #E879A0, #F472B6)' }}>
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-display font-semibold flex-shrink-0 text-white"
+            style={{ background: 'linear-gradient(135deg, #CE6C8D, #D886A4)' }}>
             {t.name?.charAt(0) || '?'}
           </div>
         )}
@@ -1548,20 +1714,20 @@ function TestimonialsSection() {
   const col3 = distribute(2);
 
   return (
-    <section className="bg-white py-16 sm:py-24 overflow-hidden">
+    <section className="bg-cream-50 py-16 sm:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.55 }}
-          className="text-center mb-12">
-          <span className="section-label">Comunidad Be Curlyful</span>
+          className="text-center mb-12 flex flex-col items-center">
+          <span className="section-label">Lo que dicen nuestras clientas</span>
           <h2 className="section-title">
             {hasReal ? (
-              <>Reseñas <span className="text-rose-500">verificadas</span></>
+              <>Reseñas <span className="italic text-accent">verificadas</span></>
             ) : (
-              <>Lo que dicen <span className="text-rose-500">nuestras clientas</span></>
+              <>Felicidad en <span className="italic text-accent">sus rizos</span></>
             )}
           </h2>
 
@@ -1621,7 +1787,8 @@ function TestimonialsSection() {
 /* ─── About ─── */
 function AboutSection() {
   return (
-    <section id="nosotras" className="bg-rose-50 py-20 sm:py-28 overflow-hidden">
+    <section id="nosotras" className="py-20 sm:py-28 overflow-hidden"
+      style={{ background: 'linear-gradient(160deg, #FCF4F7 0%, #FFFBF7 60%)' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
@@ -1633,18 +1800,22 @@ function AboutSection() {
             transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1] }}
             className="flex justify-center lg:justify-start">
             <div className="relative">
-              <div className="w-56 h-56 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_16px_40px_rgba(232,121,160,0.25)] sm:shadow-[0_24px_64px_rgba(232,121,160,0.3)]">
+              {/* Blob detrás */}
+              <div className="absolute -inset-6 rounded-blob bg-rose-200/40 blur-2xl animate-blob" />
+              <div className="relative w-56 h-56 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-blob overflow-hidden shadow-card-hover animate-blob ring-1 ring-white/60">
                 <img src="/icons/logo.jpg" alt="Be Curlyful" className="w-full h-full object-cover" />
               </div>
               {/* Floating badge */}
               <motion.div
                 animate={{ y: [-6, 6, -6] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 bg-white rounded-xl sm:rounded-2xl shadow-[0_8px_24px_rgba(232,121,160,0.2)] px-3 py-2 sm:px-4 sm:py-3 flex items-center gap-2">
-                <span className="text-2xl">💕</span>
+                className="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 glass rounded-2xl shadow-card px-3.5 py-2.5 sm:px-4 sm:py-3 flex items-center gap-2.5">
+                <span className="w-9 h-9 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </span>
                 <div>
-                  <p className="font-display font-extrabold text-ink-900 text-sm">Be Curlyful</p>
-                  <p className="text-rose-500 text-xs font-semibold">Costa Rica</p>
+                  <p className="font-display font-semibold text-ink-900 text-sm">Be Curlyful</p>
+                  <p className="text-rose-500 text-xs font-semibold">Hecho en Costa Rica</p>
                 </div>
               </motion.div>
             </div>
@@ -1658,12 +1829,12 @@ function AboutSection() {
             transition={{ duration: 0.7, ease: [0.3, 1, 0.3, 1], delay: 0.1 }}>
             <span className="section-label">Nuestra historia</span>
             <h2 className="section-title mb-6">
-              Especialistas en <span className="text-rose-500">rizos</span> de Costa Rica
+              Especialistas en <span className="italic text-accent">rizos</span> de Costa Rica
             </h2>
-            <p className="text-ink-500 leading-relaxed mb-4">
+            <p className="text-ink-500 leading-relaxed mb-4 text-pretty">
               Somos Be Curlyful, una marca costarricense dedicada al cuidado del cabello rizado. Cada producto de nuestra línea fue formulado pensando en los rizos de nuestra comunidad.
             </p>
-            <p className="text-ink-500 leading-relaxed mb-8">
+            <p className="text-ink-500 leading-relaxed mb-8 text-pretty">
               Enviamos a toda Costa Rica y respondemos rápido por WhatsApp. Felicidad en tus rizos, eso es lo que queremos darte.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -1712,35 +1883,41 @@ const HOW_STEPS = [
 ];
 
 function ShippingSection() {
+  const StepShop = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>;
+  const StepChat = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
+  const StepPay  = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>;
+  const StepBox2 = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>;
+
   const STEPS_VISUAL = [
-    { emoji: '🛍️', bg: 'bg-amber-50',  border: 'border-amber-200', title: 'Elegí tu producto', desc: 'Explorá el catálogo y encontrá exactamente lo que querés.' },
-    { emoji: '💬', bg: 'bg-green-50',  border: 'border-green-200', title: 'Escribinos por WA', desc: 'Confirmamos disponibilidad y te enviamos los datos de pago.' },
-    { emoji: '💸', bg: 'bg-sky-50',    border: 'border-sky-200',   title: 'Pagás con SINPE',   desc: 'Transferencia bancaria o SINPE Móvil. Rápido y seguro.' },
-    { emoji: '📦', bg: 'bg-rose-50',   border: 'border-rose-200',  title: 'Recibís en casa',   desc: 'Correos de CR a todo el país o retiro sin costo.' },
+    { Icon: StepShop, title: 'Elegí tu producto', desc: 'Explorá el catálogo y encontrá exactamente lo que querés.' },
+    { Icon: StepChat, title: 'Escribinos por WA', desc: 'Confirmamos disponibilidad y te enviamos los datos de pago.' },
+    { Icon: StepPay,  title: 'Pagás con SINPE',   desc: 'Transferencia bancaria o SINPE Móvil. Rápido y seguro.' },
+    { Icon: StepBox2, title: 'Recibís en casa',   desc: 'Correos de CR a todo el país o retiro sin costo.' },
   ];
   return (
-    <section id="envios" className="bg-white py-16 sm:py-24">
+    <section id="envios" className="bg-cream-50 py-16 sm:py-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 flex flex-col items-center">
           <span className="section-label">Simple y rápido</span>
-          <h2 className="section-title">Tu pedido en 4 pasos</h2>
+          <h2 className="section-title">Tu pedido en <span className="italic text-accent">4 pasos</span></h2>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {STEPS_VISUAL.map((s, i) => (
             <motion.div key={s.title}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
-              className={`${s.bg} border ${s.border} rounded-3xl p-6 relative overflow-hidden`}>
-              <span className="text-4xl block mb-4">{s.emoji}</span>
-              <span className="text-[11px] font-bold text-ink-300 tracking-widest uppercase">Paso {i + 1}</span>
-              <h3 className="font-display font-extrabold text-ink-900 text-lg mt-1 mb-2">{s.title}</h3>
-              <p className="text-ink-500 text-sm leading-relaxed">{s.desc}</p>
-              <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/60 flex items-center justify-center">
-                <span className="font-display font-extrabold text-rose-400 text-sm">{i + 1}</span>
+              className="group bg-white border border-cream-200 rounded-[1.75rem] p-6 relative shadow-soft hover:shadow-card-hover hover:-translate-y-1 transition-all duration-400">
+              <div className="flex items-center justify-between mb-5">
+                <span className="w-12 h-12 rounded-2xl flex items-center justify-center text-rose-500 bg-rose-50 group-hover:bg-rose-500 group-hover:text-white transition-colors">
+                  <s.Icon />
+                </span>
+                <span className="font-display font-semibold text-cream-300 text-3xl leading-none">{`0${i + 1}`}</span>
               </div>
+              <h3 className="font-display font-semibold text-ink-900 text-lg mb-2">{s.title}</h3>
+              <p className="text-ink-500 text-sm leading-relaxed">{s.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -1750,15 +1927,16 @@ function ShippingSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
           <motion.a
             href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
             whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-            className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg">
+            className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-semibold px-8 py-4 rounded-full transition-all shadow-card">
             <WaIcon /> Empezar a comprar
           </motion.a>
-          <Link to="/?cat=todos" className="text-rose-500 font-semibold text-sm hover:underline">
-            Ver todos los productos →
+          <Link to="/?cat=todos" className="inline-flex items-center gap-1.5 text-rose-600 font-semibold text-sm hover:gap-2.5 transition-all">
+            Ver todos los productos
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </Link>
         </motion.div>
       </div>
@@ -1827,47 +2005,47 @@ const FAQ_ITEMS = [
 function FaqSection() {
   const [open, setOpen] = useState(null);
   return (
-    <section className="py-16 sm:py-24 bg-rose-50">
+    <section className="py-16 sm:py-24" style={{ background: 'linear-gradient(180deg, #FFFBF7 0%, #FCF4F7 100%)' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-[1fr_2fr] gap-12 items-start">
 
           {/* Left: header + CTA */}
-          <div className="lg:sticky lg:top-24">
-            <span className="section-label">FAQ</span>
-            <h2 className="section-title mb-4">Preguntas frecuentes</h2>
-            <p className="text-ink-500 text-sm leading-relaxed mb-6">
+          <div className="lg:sticky lg:top-28">
+            <span className="section-label">Preguntas frecuentes</span>
+            <h2 className="section-title mb-4">¿Tenés <span className="italic text-accent">dudas?</span></h2>
+            <p className="text-ink-500 text-sm leading-relaxed mb-6 text-pretty">
               ¿No encontrás lo que buscás? Escribinos y te respondemos al instante.
             </p>
             <a href="https://wa.me/50672125261" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white font-bold px-5 py-3 rounded-2xl transition-colors text-sm">
+              className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold px-6 py-3.5 rounded-full transition-colors text-sm shadow-btn">
               <WaIcon /> Preguntar por WA
             </a>
           </div>
 
           {/* Right: accordion */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {FAQ_ITEMS.map((item, i) => (
               <motion.div key={i}
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm">
+                className={`bg-white rounded-2xl overflow-hidden border transition-colors duration-300 ${open === i ? 'border-rose-200 shadow-card' : 'border-cream-200 shadow-soft'}`}>
                 <button onClick={() => setOpen(open === i ? null : i)}
-                  className={`w-full flex items-center justify-between gap-4 px-5 py-4 text-left transition-colors ${open === i ? 'bg-rose-500 text-white' : 'hover:bg-rose-50'}`}>
-                  <span className={`font-bold text-sm ${open === i ? 'text-white' : 'text-ink-900'}`}>{item.q}</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke={open === i ? 'white' : 'currentColor'}
-                    strokeWidth="2.5" className={`flex-shrink-0 transition-transform ${open === i ? 'rotate-180' : 'text-rose-400'}`}>
-                    <polyline points="6 9 12 15 18 9"/>
-                  </svg>
+                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-cream-50 transition-colors">
+                  <span className={`font-semibold text-[15px] transition-colors ${open === i ? 'text-rose-600' : 'text-ink-900'}`}>{item.q}</span>
+                  <span className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ${open === i ? 'bg-rose-500 text-white rotate-180' : 'bg-rose-50 text-rose-500'}`}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </span>
                 </button>
                 <AnimatePresence>
                   {open === i && (
                     <motion.div
                       initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
                       className="overflow-hidden">
-                      <p className="px-5 py-4 text-sm text-ink-500 leading-relaxed border-t border-rose-100">
+                      <p className="px-5 py-4 text-sm text-ink-500 leading-relaxed border-t border-cream-200">
                         {item.a}
                       </p>
                     </motion.div>
@@ -1905,8 +2083,10 @@ export default function Home() {
       <SEO />
       <Hero onCatSelect={handleCatSelect} />
       <FeaturedSection />
+      <StatsStrip />
       <KitBuilder />
       <Catalog externalCat={selectedCat} catalogRef={catalogRef} />
+      <PromoBanner />
       <LocationSocialBar />
       <BrandMarquee />
       <TestimonialsSection />

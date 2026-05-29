@@ -6,11 +6,35 @@ import { formatCRC } from '../../lib/currency';
 import useCart from '../../hooks/useCart';
 import useToastStore from '../../store/toastStore';
 
+const IconRizos = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 20c-3 0-5-2-5-5s2-4 4-4 3 1 3 3-1 2.5-2.5 2.5S8 15 8 14" />
+    <path d="M12 14c0-4 2-7 5-7s4 2 4 4-1.5 3-3 3-2.5-1-2.5-2.5" />
+  </svg>
+);
+const IconLimpieza = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2.5C8 8 6 11 6 14a6 6 0 0 0 12 0c0-3-2-6-6-11.5z" />
+  </svg>
+);
+const IconTratamiento = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 3v3M12 18v3M5 12H2M22 12h-3M19 5l-2 2M7 17l-2 2M19 19l-2-2M7 7 5 5" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+const IconKids = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9 10h.01M15 10h.01M8.5 15a4 4 0 0 0 7 0" />
+  </svg>
+);
+
 const CATEGORIES = [
-  { key: 'maquillaje', label: 'Maquillaje', emoji: '💄' },
-  { key: 'skincare',   label: 'Skincare',   emoji: '🧴' },
-  { key: 'cabello',    label: 'Cabello',    emoji: '💇' },
-  { key: 'mix',        label: 'Variado',    emoji: '✨' },
+  { key: 'rizos',       label: 'Rizos',       Icon: IconRizos },
+  { key: 'limpieza',    label: 'Limpieza',    Icon: IconLimpieza },
+  { key: 'tratamiento', label: 'Tratamiento', Icon: IconTratamiento },
+  { key: 'kids',        label: 'Kids',        Icon: IconKids },
 ];
 
 const PRESET_BUDGETS = [5000, 10000, 15000, 20000, 30000];
@@ -29,7 +53,7 @@ export default function KitBuilder() {
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState(null);
 
-  /* picks: { 'maquillaje:base': [product1, product2], 'skincare:hidratante': [product3] }
+  /* picks: { 'rizos:activador': [product1, product2], 'tratamiento:mascarilla': [product3] }
    * Cada slot es un ARRAY de productos, asi una clienta puede llevarse 2 bases,
    * 3 labiales, etc. Persistido en localStorage para sobrevivir navegacion. */
   const [picks, setPicks] = useState(() => {
@@ -180,12 +204,16 @@ export default function KitBuilder() {
             className="relative bg-white rounded-3xl border border-cream-200 p-5 sm:p-7 shadow-card flex flex-col sm:flex-row items-center gap-4 sm:gap-6 overflow-hidden group hover:shadow-card-hover hover:border-rose-200 transition-all">
             {/* Orb decorativo detrás del emoji */}
             <div aria-hidden className="absolute -left-8 -top-8 w-40 h-40 rounded-full bg-rose-200/30 blur-2xl group-hover:bg-rose-300/40 transition-colors" />
-            <div className="relative text-5xl sm:text-6xl flex-shrink-0 select-none">
+            <div className="relative flex-shrink-0 select-none">
               <motion.span
-                animate={{ rotate: [0, -8, 8, -4, 0], scale: [1, 1.05, 1] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
-                className="inline-block">
-                🎁
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="flex items-center justify-center w-16 h-16 sm:w-[4.5rem] sm:h-[4.5rem] rounded-blob text-white shadow-btn animate-blob"
+                style={{ background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 100%)' }}>
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="8" width="18" height="13" rx="1.5" /><path d="M3 12h18M12 8v13" />
+                  <path d="M12 8S10 3 7.5 3.5 6 8 12 8zM12 8s2-5 4.5-4.5S18 8 12 8z" />
+                </svg>
               </motion.span>
             </div>
             <div className="relative flex-1 text-center sm:text-left min-w-0">
@@ -193,15 +221,15 @@ export default function KitBuilder() {
               <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink-900 leading-tight">
                 Armá tu kit{' '}
                 <span className="italic" style={{
-                  background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)',
+                  background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 100%)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                 }}>
                   perfecto
                 </span>
               </h2>
               <p className="text-sm text-ink-500 mt-1 leading-relaxed">
-                Decinos tu presupuesto y armá un set de esenciales con una barra que se llena
-                en tiempo real 💕
+                Decinos tu presupuesto y armá un set de esenciales para tus rizos con una barra
+                que se llena en tiempo real.
               </p>
               {allPicks.length > 0 && (
                 <motion.p
@@ -216,7 +244,7 @@ export default function KitBuilder() {
               onClick={() => setIsOpen(true)}
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               className="relative flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-sm font-bold text-white shadow-btn hover:shadow-btn-hover transition-shadow flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }}>
+              style={{ background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 100%)' }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
@@ -231,11 +259,11 @@ export default function KitBuilder() {
         {/* Header con boton cerrar */}
         <div className="flex items-start justify-between gap-3 mb-6">
           <div className="flex-1 min-w-0">
-            <span className="section-label">🎁 Kit Builder</span>
+            <span className="section-label">Kit Builder</span>
             <h2 className="font-display text-3xl sm:text-4xl font-bold text-ink-900 leading-tight">
               Armá tu kit{' '}
               <span className="italic" style={{
-                background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)',
+                background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>
                 perfecto
@@ -243,7 +271,7 @@ export default function KitBuilder() {
             </h2>
             <p className="text-ink-500 mt-2 text-sm sm:text-base">
               Tocá un producto y se suma al kit (y al carrito). Cambiá de categoría sin
-              perder lo que ya elegiste 💕
+              perder lo que ya elegiste.
             </p>
           </div>
           <button
@@ -299,9 +327,9 @@ export default function KitBuilder() {
                   {CATEGORIES.map((c) => (
                     <button key={c.key} onClick={() => setCategory(c.key)}
                       className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-semibold transition-all ${
-                        category === c.key ? 'bg-ink-900 text-white shadow-md' : 'bg-cream-100 text-ink-700 hover:bg-cream-200'
+                        category === c.key ? 'bg-rose-500 text-white shadow-btn' : 'bg-white border border-cream-200 text-ink-700 hover:border-rose-300'
                       }`}>
-                      <span>{c.emoji}</span>
+                      <c.Icon />
                       <span>{c.label}</span>
                     </button>
                   ))}
@@ -329,7 +357,7 @@ export default function KitBuilder() {
               </div>
             ) : data?.subtypes?.length === 0 ? (
               <div className="bg-white rounded-2xl border border-cream-200 p-10 text-center">
-                <p className="text-ink-400">No hay opciones para ese presupuesto y categoría 🥺</p>
+                <p className="text-ink-400">No hay opciones para ese presupuesto y categoría.</p>
                 <p className="text-xs text-ink-400 mt-2">Probá con otra categoría o subiendo el presupuesto.</p>
               </div>
             ) : (
@@ -720,7 +748,7 @@ function KitProductModal({ product, subKey, subLabel, isSelected, onClose, onCon
                 isSelected ? 'bg-ink-900 text-white hover:bg-ink-700' : 'text-white'
               }`}
               style={!isSelected && canConfirm
-                ? { background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }
+                ? { background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 100%)' }
                 : undefined}>
               {outOfStock ? (
                 'Agotado'
@@ -761,9 +789,7 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
             <div aria-hidden className="absolute -top-12 -right-8 w-32 h-32 rounded-full bg-rose-100/40 blur-2xl pointer-events-none" />
             <div aria-hidden className="absolute -bottom-8 -left-4 w-24 h-24 rounded-full bg-gold/20 blur-2xl pointer-events-none" />
             <div className="relative">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-rose-500 mb-1 flex items-center gap-1.5">
-                <span>🎁</span> Tu kit
-              </p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-rose-500 mb-1">Tu kit</p>
               <p className="font-display text-2xl font-bold text-ink-900 leading-tight">
                 {formatCRC(total)}
                 <span className="text-sm text-ink-400 font-normal"> de {formatCRC(budget)}</span>
@@ -784,7 +810,9 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
           <div className="px-5 py-3 max-h-[40vh] overflow-y-auto">
             {count === 0 ? (
               <div className="text-center py-7">
-                <div className="text-3xl mb-2 opacity-60">🛍️</div>
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-rose-50 text-rose-400 flex items-center justify-center">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                </div>
                 <p className="text-sm font-semibold text-ink-700 mb-1">Tu kit está vacío</p>
                 <p className="text-xs text-ink-400 leading-relaxed max-w-[200px] mx-auto">
                   Tocá cualquier producto a la izquierda para verlo en detalle y agregarlo
@@ -836,7 +864,7 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
               onClick={onOpenCart}
               disabled={count === 0}
               className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-btn hover:shadow-btn-hover"
-              style={{ background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }}>
+              style={{ background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 100%)' }}>
               Ver carrito · {count} producto{count === 1 ? '' : 's'}
             </button>
           </div>
@@ -864,7 +892,7 @@ function KitSummaryPanel({ picks, total, budget, remaining, overBudget, progress
             <button
               onClick={onOpenCart}
               className="px-4 py-2 rounded-full text-xs font-bold text-white shadow-md"
-              style={{ background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }}>
+              style={{ background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 100%)' }}>
               Ver · {count}
             </button>
           </div>

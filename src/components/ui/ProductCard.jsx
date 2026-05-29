@@ -1,23 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 import useCart from '../../hooks/useCart';
 import useWishlist from '../../hooks/useWishlist';
 import { formatCRC } from '../../lib/currency';
 import { optimizedImage } from '../../lib/api';
 
-const StarIcon = ({ filled }) => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" className={filled ? 'text-amber-400' : 'text-ink-200'}>
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-  </svg>
-);
 const CartPlusIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
   </svg>
 );
 const HeartIcon = ({ filled }) => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
   </svg>
 );
@@ -28,8 +23,6 @@ const WaIcon = () => (
 );
 
 const BADGE_STYLES = {
-  // NEW: gold del sistema (premium, cálido). SALE: rose-600 (brand).
-  // Default: ink-900 para badges custom que el admin escriba.
   new:  'bg-gold text-ink-900',
   sale: 'bg-rose-600 text-white',
   '':   'bg-ink-900 text-white',
@@ -43,13 +36,6 @@ export default function ProductCard({ product, index = 0 }) {
   const [imgIdx, setImgIdx]   = useState(0);
   const [imgError, setImgError] = useState(false);
   const intervalRef           = useRef(null);
-  const cardRef               = useRef(null);
-
-  /* ── 3D tilt ── */
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-  const springX = useSpring(rotateX, { stiffness: 150, damping: 18 });
-  const springY = useSpring(rotateY, { stiffness: 150, damping: 18 });
 
   const allImages = product.images?.length > 0 ? product.images : (product.img ? [product.img] : []);
   const currentImg = allImages[imgIdx] || '';
@@ -58,7 +44,6 @@ export default function ProductCard({ product, index = 0 }) {
   const isFav      = has(product);
   const outOfStock = product.stock !== undefined && product.stock !== null && product.stock === 0;
 
-  /* cleanup interval on unmount */
   useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
 
   const handleMouseEnter = () => {
@@ -70,19 +55,8 @@ export default function ProductCard({ product, index = 0 }) {
 
   const handleMouseLeave = () => {
     setHovered(false);
-    rotateX.set(0);
-    rotateY.set(0);
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
     setImgIdx(0);
-  };
-
-  const handleMouseMove = (e) => {
-    const rect = cardRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    rotateX.set(-y * 7);
-    rotateY.set(x * 7);
   };
 
   const handleAdd = (e) => {
@@ -102,190 +76,170 @@ export default function ProductCard({ product, index = 0 }) {
   };
 
   return (
-    /* perspective wrapper — needed for 3D tilt to look correct.
-     * h-full + flex chain hace que todos los cards de un grid tengan la
-     * misma altura, sin importar si tienen rating, urgency o savings chip. */
-    <div style={{ perspective: '900px' }} className="h-full">
-      <motion.div
-        ref={cardRef}
-        style={{ rotateX: springX, rotateY: springY, transformStyle: 'preserve-3d' }}
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-40px' }}
-        transition={{ duration: 0.5, ease: [0.3, 1, 0.3, 1], delay: (index % 4) * 0.07 }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onMouseMove={handleMouseMove}
-        className="h-full"
-      >
-        <Link to={`/producto/${product.slug}`}
-          className="group flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-rose-100 hover:border-rose-300 transition-all duration-500"
-          style={{ boxShadow: '0 2px 12px rgba(232,121,160,0.08)' }}>
+    <motion.div
+      initial={{ opacity: 0, y: 26 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.55, ease: [0.3, 1, 0.3, 1], delay: (index % 4) * 0.07 }}
+      whileHover={{ y: -6 }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="h-full"
+    >
+      <Link to={`/producto/${product.slug}`}
+        className="group flex flex-col h-full bg-white rounded-[1.75rem] overflow-hidden border border-cream-200 hover:border-rose-200 shadow-soft hover:shadow-card-hover transition-[box-shadow,border-color] duration-500">
 
-          {/* ── Image ── */}
-          <div className="relative overflow-hidden bg-cream-50" style={{ aspectRatio: '1' }}>
-            {currentImg && !imgError ? (
+        {/* ── Image ── */}
+        <div className="relative overflow-hidden bg-cream-100" style={{ aspectRatio: '1' }}>
+          {currentImg && !imgError ? (
+            <>
+              <motion.img
+                key={imgIdx}
+                src={optimizedImage(currentImg, 600)}
+                alt={product.name}
+                width={600}
+                height={600}
+                loading="lazy"
+                decoding="async"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.25 }}
+                className="w-full h-full object-cover transition-transform duration-[800ms] ease-smooth group-hover:scale-[1.06]"
+                onError={() => setImgError(true)}
+              />
+              {allImages.length > 1 && (
+                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1 z-10 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+                  {allImages.map((_, i) => (
+                    <span key={i}
+                      className={`rounded-full bg-white transition-all duration-300 shadow-sm ${
+                        i === imgIdx ? 'w-4 h-1.5' : 'w-1.5 h-1.5 opacity-60'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-cream-300">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+              </svg>
+            </div>
+          )}
+
+          {/* Wishlist heart */}
+          <motion.button
+            onClick={handleFav}
+            aria-label={isFav ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+            whileTap={{ scale: 0.82 }}
+            animate={isFav ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+            transition={{ duration: 0.38, ease: [0.3, 1, 0.3, 1] }}
+            className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full backdrop-blur-md transition-colors duration-200 z-10 ${
+              isFav
+                ? 'bg-rose-500 text-white shadow-btn'
+                : 'bg-white/70 text-ink-500 hover:text-rose-500 hover:bg-white shadow-soft'
+            }`}>
+            <HeartIcon filled={isFav} />
+          </motion.button>
+
+          {/* Badges */}
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+            {outOfStock ? (
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-ink-500 text-white">
+                Agotado
+              </span>
+            ) : (
               <>
-                <motion.img
-                  key={imgIdx}
-                  src={optimizedImage(currentImg, 600)}
-                  alt={product.name}
-                  /* width/height fijan la aspect-ratio de la imagen ANTES de
-                     que descargue el bitmap — sin esto, hasta que llega la
-                     foto el navegador reserva 0px y al cargar empuja el
-                     contenido (CLS). 600x600 matchea el optimizedImage(...600). */
-                  width={600}
-                  height={600}
-                  loading="lazy"
-                  decoding="async"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.25 }}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-snappy group-hover:scale-105"
-                  onError={() => setImgError(true)}
-                />
-                {/* Image index dots — siempre visibles en mobile (no hay hover) */}
-                {allImages.length > 1 && (
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
-                    {allImages.map((_, i) => (
-                      <span key={i}
-                        className={`rounded-full bg-white transition-all duration-300 shadow-sm ${
-                          i === imgIdx ? 'w-3.5 h-1.5' : 'w-1.5 h-1.5 opacity-60'
-                        }`}
-                      />
-                    ))}
-                  </div>
+                {product.badge && (
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${BADGE_STYLES[product.badgeType] || BADGE_STYLES['']}`}>
+                    {product.badge}
+                  </span>
+                )}
+                {discount > 0 && (
+                  <span className="text-[10px] font-bold text-white px-2.5 py-1 rounded-full bg-rose-600">
+                    -{discount}%
+                  </span>
                 )}
               </>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-ink-200">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
-                </svg>
-              </div>
             )}
+          </div>
 
-            {/* Wishlist heart */}
-            <motion.button
-              onClick={handleFav}
-              aria-label={isFav ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-              whileTap={{ scale: 0.82 }}
-              animate={isFav ? { scale: [1, 1.3, 1] } : { scale: 1 }}
-              transition={{ duration: 0.38, ease: [0.3, 1, 0.3, 1] }}
-              className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full backdrop-blur-md shadow-md transition-colors duration-200 z-10 ${
-                isFav
-                  ? 'bg-rose-500 text-white hover:bg-rose-600'
-                  : 'bg-white/80 text-ink-600 hover:text-rose-500 hover:bg-white'
-              }`}>
-              <HeartIcon filled={isFav} />
-            </motion.button>
-
-            {/* Badges */}
-            <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-              {outOfStock ? (
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-ink-500 text-white">
-                  Agotado
-                </span>
-              ) : (
-                <>
-                  {product.badge && (
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${BADGE_STYLES[product.badgeType] || BADGE_STYLES['']}`}>
-                      {product.badge}
-                    </span>
-                  )}
-                  {discount > 0 && (
-                    <motion.span
-                      className="text-[10px] font-bold text-white px-2.5 py-1 rounded-full shadow-sm"
-                      style={{ background: 'linear-gradient(135deg, #ef4444 0%, #f43f5e 100%)' }}
-                      animate={{ scale: [1, 1.07, 1] }}
-                      transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}>
-                      -{discount}%
-                    </motion.span>
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Action buttons — desktop: reveal on hover. Mobile: pill compacto
-                siempre visible en la esquina (hover doesn't exist on touch). */}
-            {/* Desktop: full overlay con hover */}
-            <motion.div
-              initial={false}
-              animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 10 }}
-              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="hidden sm:flex absolute bottom-0 inset-x-0 p-3 gap-2">
-              <button onClick={handleAdd} disabled={outOfStock}
-                aria-label={outOfStock ? 'Agotado' : 'Agregar al carrito'}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-lg ${
-                  outOfStock ? 'bg-ink-200 text-ink-400 cursor-not-allowed' :
-                  added ? 'bg-green-500 text-white scale-95' : 'bg-white text-ink-900 hover:bg-ink-900 hover:text-white'
-                }`}>
-                <CartPlusIcon />
-                {outOfStock ? 'Agotado' : added ? '¡Agregado!' : 'Al carrito'}
-              </button>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  window.open(`https://wa.me/50672125261?text=${encodeURIComponent(`Hola! Me interesa: ${product.name} a ${formatCRC(product.price)}`)}`, '_blank', 'noopener');
-                }}
-                aria-label={`Consultar ${product.name} por WhatsApp`}
-                className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white rounded-xl shadow-lg transition-colors">
-                <WaIcon />
-              </button>
-            </motion.div>
-
-            {/* Mobile: solo boton circular de cart en esquina inferior derecha, siempre visible */}
+          {/* Desktop: hover action bar */}
+          <motion.div
+            initial={false}
+            animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 12 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="hidden sm:flex absolute bottom-0 inset-x-0 p-3 gap-2">
             <button onClick={handleAdd} disabled={outOfStock}
               aria-label={outOfStock ? 'Agotado' : 'Agregar al carrito'}
-              className={`sm:hidden absolute bottom-2.5 right-2.5 w-10 h-10 flex items-center justify-center rounded-full shadow-md transition-colors z-10 ${
-                outOfStock ? 'bg-ink-200 text-ink-400' :
-                added ? 'bg-green-500 text-white scale-95' : 'bg-white text-rose-500 active:bg-rose-500 active:text-white'
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 shadow-card ${
+                outOfStock ? 'bg-cream-200 text-ink-400 cursor-not-allowed' :
+                added ? 'bg-green-500 text-white' : 'bg-white text-ink-900 hover:bg-ink-900 hover:text-white'
               }`}>
-              {added
-                ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                : <CartPlusIcon />}
+              <CartPlusIcon />
+              {outOfStock ? 'Agotado' : added ? '¡Agregado!' : 'Al carrito'}
             </button>
-          </div>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(`https://wa.me/50672125261?text=${encodeURIComponent(`Hola! Me interesa: ${product.name} a ${formatCRC(product.price)}`)}`, '_blank', 'noopener');
+              }}
+              aria-label={`Consultar ${product.name} por WhatsApp`}
+              className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white rounded-full shadow-card transition-colors">
+              <WaIcon />
+            </button>
+          </motion.div>
 
-          {/* ── Info ── */}
-          <div className="px-3 sm:px-4 pt-3 pb-3 sm:pb-4 flex-1 flex flex-col">
-            {/* Brand pill */}
-            <span className="inline-block text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-rose-500 bg-rose-50 px-2 sm:px-2.5 py-0.5 rounded-full w-fit mb-1.5 sm:mb-2 truncate max-w-full">
-              {product.brand || 'Be Curlyful'}
+          {/* Mobile: circular add button */}
+          <button onClick={handleAdd} disabled={outOfStock}
+            aria-label={outOfStock ? 'Agotado' : 'Agregar al carrito'}
+            className={`sm:hidden absolute bottom-2.5 right-2.5 w-10 h-10 flex items-center justify-center rounded-full shadow-card transition-colors z-10 ${
+              outOfStock ? 'bg-cream-200 text-ink-400' :
+              added ? 'bg-green-500 text-white' : 'bg-white text-rose-500 active:bg-rose-500 active:text-white'
+            }`}>
+            {added
+              ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              : <CartPlusIcon />}
+          </button>
+        </div>
+
+        {/* ── Info ── */}
+        <div className="px-3.5 sm:px-4 pt-3 pb-3.5 sm:pb-4 flex-1 flex flex-col">
+          {/* Brand kicker */}
+          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.18em] text-rose-500/90 mb-1.5 truncate">
+            {product.brand || 'Be Curlyful'}
+          </span>
+
+          {/* Product name */}
+          <h3 className="font-body font-semibold text-ink-900 text-[13px] sm:text-[15px] leading-snug line-clamp-2 mb-auto group-hover:text-rose-600 transition-colors duration-200">
+            {product.name}
+          </h3>
+
+          {/* Low stock alert */}
+          {product.stock !== undefined && product.stock > 0 && product.stock <= 5 && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-600 mt-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              Solo {product.stock}
             </span>
+          )}
 
-            {/* Product name */}
-            <h3 className="font-display font-extrabold text-ink-900 text-[13px] sm:text-[15px] leading-tight line-clamp-2 mb-auto group-hover:text-rose-500 transition-colors duration-200">
-              {product.name}
-            </h3>
-
-            {/* Low stock alert */}
-            {product.stock !== undefined && product.stock > 0 && product.stock <= 5 && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-600 mt-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                Solo {product.stock}
-              </span>
-            )}
-
-            {/* Price row */}
-            <div className="mt-2 sm:mt-3 flex items-center justify-between gap-1">
-              <div className="flex items-baseline gap-1.5">
-                <span className="font-extrabold text-rose-500 text-base sm:text-lg leading-none">{formatCRC(product.price)}</span>
-                {product.oldPrice && product.oldPrice > product.price && (
-                  <span className="text-[10px] sm:text-xs text-ink-300 line-through hidden sm:inline">{formatCRC(product.oldPrice)}</span>
-                )}
-              </div>
+          {/* Price row */}
+          <div className="mt-2.5 sm:mt-3 flex items-center justify-between gap-1">
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-display font-semibold text-ink-900 text-lg sm:text-xl leading-none tabular-nums">{formatCRC(product.price)}</span>
               {product.oldPrice && product.oldPrice > product.price && (
-                <span className="text-[10px] font-bold text-white px-2 py-0.5 rounded-full flex-shrink-0"
-                  style={{ background: 'linear-gradient(135deg,#E879A0,#F472B6)' }}>
-                  -{Math.round((1 - product.price / product.oldPrice) * 100)}%
-                </span>
+                <span className="text-[10px] sm:text-xs text-ink-300 line-through hidden sm:inline">{formatCRC(product.oldPrice)}</span>
               )}
             </div>
+            {product.oldPrice && product.oldPrice > product.price && (
+              <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full flex-shrink-0">
+                -{Math.round((1 - product.price / product.oldPrice) * 100)}%
+              </span>
+            )}
           </div>
-        </Link>
-      </motion.div>
-    </div>
+        </div>
+      </Link>
+    </motion.div>
   );
 }

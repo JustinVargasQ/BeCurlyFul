@@ -53,7 +53,7 @@ export default function Offers() {
     <main className="min-h-screen bg-white">
       <SEO
         title="Ofertas y descuentos"
-        description="Encontrá las mejores ofertas en maquillaje y skincare originales en Costa Rica. Descuentos reales en marcas auténticas con envíos a todo el país."
+        description="Encontrá las mejores ofertas en productos para cabello rizado en Costa Rica. Descuentos reales en la línea Be Curlyful con envíos a todo el país."
         url="/ofertas"
       />
 

@@ -9,10 +9,10 @@ import useChatStore, { stripSugMarker, WELCOME } from '../../store/chatStore';
 import useWishlistStore from '../../store/wishlistStore';
 
 const QUICK_PROMPTS = [
-  '¿Qué base recomendás para piel grasa?',
-  'Buscame un labial rojo mate',
-  'Ofertas en skincare',
-  'Perfume femenino floral',
+  '¿Qué uso para definir mis rizos?',
+  'Necesito hidratación profunda',
+  'Productos sin frizz',
+  'Línea Kids para mi peque',
 ];
 
 const WHATSAPP_URL = 'https://wa.me/50672125261?text=' + encodeURIComponent('Hola Be Curly Full CR, vengo del chat de la web y necesito ayuda 💕');
@@ -167,7 +167,7 @@ export function ProductPill({ slug }) {
 
   return (
     <div className="my-2 flex items-center gap-2 p-2.5 bg-white rounded-2xl border border-rose-100 hover:border-rose-300 hover:shadow-md transition-all group"
-         style={{ boxShadow: '0 1px 3px rgba(232,121,160,0.06)' }}>
+         style={{ boxShadow: '0 1px 3px rgba(206,108,141,0.06)' }}>
       <Link to={`/producto/${product.slug}`} onClick={closePanel} className="flex items-center gap-3 flex-1 min-w-0">
         <div className="relative flex-shrink-0">
           <img
@@ -307,7 +307,7 @@ export function ComboAddButton({ slugs }) {
       style={
         added || count === 0
           ? undefined
-          : { background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' }
+          : { background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 100%)' }
       }>
       {added ? (
         <>
@@ -336,7 +336,7 @@ export function LinkButton({ label, href }) {
   const isInternal = href.startsWith('/');
   const closePanel = useChatStore((s) => s.closePanel);
   const className = 'my-2 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white shadow-md hover:shadow-lg active:scale-[0.98] transition-all';
-  const style = { background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)' };
+  const style = { background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 100%)' };
   if (isInternal) {
     return (
       // closePanel() al click — sin esto, el panel sigue cubriendo la pagina
@@ -374,8 +374,8 @@ export function MessageBubble({ msg, isStreaming }) {
         style={
           isUser
             ? {
-                background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 60%, #F9A8D4 100%)',
-                boxShadow: '0 2px 8px rgba(232,121,160,0.25), inset 0 1px 0 rgba(255,255,255,0.15)',
+                background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 60%, #E5A8C2 100%)',
+                boxShadow: '0 2px 8px rgba(206,108,141,0.25), inset 0 1px 0 rgba(255,255,255,0.15)',
               }
             : undefined
         }>
@@ -479,7 +479,7 @@ export function ChatPanelInner({ onReset, onClose, showHeader = true }) {
         <div
           className="relative px-4 sm:px-5 py-4 text-white overflow-hidden flex-shrink-0"
           style={{
-            background: 'linear-gradient(135deg, #1A1414 0%, #1A0A12 25%, #831843 55%, #E879A0 85%, #F472B6 100%)',
+            background: 'linear-gradient(135deg, #231A1B 0%, #2A181E 25%, #5C2940 55%, #B25577 85%, #CE6C8D 100%)',
             // iOS notch / Android status bar — el header full-screen choca con la barra
             paddingTop: 'max(1rem, env(safe-area-inset-top))',
           }}>
@@ -524,23 +524,23 @@ export function ChatPanelInner({ onReset, onClose, showHeader = true }) {
               <motion.span
                 animate={{ scale: [1, 1.15, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#1A0A12] shadow-sm"
+                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#2A181E] shadow-sm"
               />
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                <p className="font-display font-bold text-[15px] leading-tight tracking-tight">
-                  JD Asistente
+                <p className="font-display font-semibold text-[16px] leading-tight tracking-tight">
+                  Curly
                 </p>
                 <span className="px-1.5 py-0.5 rounded-md text-[8px] font-bold tracking-wider"
-                      style={{ background: 'linear-gradient(135deg, #F472B6 0%, #F9A8D4 100%)', color: '#1A1414' }}>
+                      style={{ background: 'linear-gradient(135deg, #CE6C8D 0%, #E0A878 100%)', color: '#fff' }}>
                   IA
                 </span>
               </div>
               <p className="text-[11px] text-white/80 flex items-center gap-1.5 leading-tight mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                Tu asesora de belleza · 24/7
+                Tu asesora de rizos · siempre lista
               </p>
             </div>
 
@@ -679,7 +679,7 @@ export function ChatPanelInner({ onReset, onClose, showHeader = true }) {
                   className="text-xs px-3.5 py-2 bg-white text-rose-600 font-medium rounded-full transition-all shadow-sm hover:shadow-md"
                   style={{
                     border: '1px solid transparent',
-                    backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #F9A8D4 0%, #F472B6 100%)',
+                    backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #E5A8C2 0%, #CE6C8D 100%)',
                     backgroundOrigin: 'border-box',
                     backgroundClip: 'padding-box, border-box',
                   }}>
@@ -709,7 +709,7 @@ export function ChatPanelInner({ onReset, onClose, showHeader = true }) {
                     className="text-xs px-3 py-1.5 bg-white text-rose-600 font-medium rounded-full transition-all shadow-sm hover:shadow-md"
                     style={{
                       border: '1px solid transparent',
-                      backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #F9A8D4 0%, #F472B6 100%)',
+                      backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #E5A8C2 0%, #CE6C8D 100%)',
                       backgroundOrigin: 'border-box',
                       backgroundClip: 'padding-box, border-box',
                     }}>
@@ -766,9 +766,9 @@ export function ChatPanelInner({ onReset, onClose, showHeader = true }) {
           aria-label="Enviar"
           className="relative w-10 h-10 flex items-center justify-center rounded-full text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all flex-shrink-0 overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, #E879A0 0%, #F472B6 50%, #F472B6 100%)',
+            background: 'linear-gradient(135deg, #CE6C8D 0%, #B25577 100%)',
             boxShadow: !loading && input.trim()
-              ? '0 4px 12px rgba(232,121,160,0.4), inset 0 1px 0 rgba(255,255,255,0.3)'
+              ? '0 4px 12px rgba(206,108,141,0.4), inset 0 1px 0 rgba(255,255,255,0.3)'
               : 'none',
           }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="relative">
@@ -850,13 +850,13 @@ export default function ChatbotWidget() {
                   delay: 3,
                 }}
                 className="absolute right-[72px] top-1/2 -translate-y-1/2 whitespace-nowrap pointer-events-none hidden sm:block">
-                <div className="relative bg-white px-3.5 py-2 rounded-2xl shadow-card border border-rose-100">
+                <div className="relative bg-white px-3.5 py-2 rounded-2xl shadow-card border border-cream-200">
                   <p className="text-xs font-semibold text-ink-900">
-                    ¡Hola! Soy <span className="text-rose-500">JD</span> ✨
+                    ¡Hola! Soy <span className="text-rose-500">Curly</span> ✨
                   </p>
-                  <p className="text-[10px] text-ink-500">Tu asesora de belleza IA</p>
+                  <p className="text-[10px] text-ink-500">Tu asesora de rizos</p>
                   <div
-                    className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r border-b border-rose-100"
+                    className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r border-b border-cream-200"
                     style={{ transform: 'translateY(-50%) rotate(-45deg)' }}
                   />
                 </div>
@@ -870,7 +870,7 @@ export default function ChatbotWidget() {
               transition={{ duration: 2.6, repeat: Infinity, ease: 'easeOut' }}
               className="absolute inset-0 rounded-full pointer-events-none"
               style={{
-                background: 'radial-gradient(circle, rgba(232,121,160,0.7) 0%, rgba(244,114,182,0.4) 50%, transparent 100%)',
+                background: 'radial-gradient(circle, rgba(206,108,141,0.6) 0%, rgba(229,168,194,0.4) 50%, transparent 100%)',
                 filter: 'blur(10px)',
               }}
             />
@@ -879,25 +879,25 @@ export default function ChatbotWidget() {
               animate={{ scale: [1, 1.7, 1], opacity: [0.45, 0, 0.45] }}
               transition={{ duration: 2.6, repeat: Infinity, ease: 'easeOut', delay: 1.3 }}
               className={`absolute inset-0 rounded-full pointer-events-none border-2 ${heavyDecorClass}`}
-              style={{ borderColor: 'rgba(244,114,182,0.55)' }}
+              style={{ borderColor: 'rgba(206,108,141,0.5)' }}
             />
             {/* Third aura — outermost (desktop only) */}
             <motion.span
               animate={{ scale: [1, 1.95, 1], opacity: [0.25, 0, 0.25] }}
               transition={{ duration: 2.6, repeat: Infinity, ease: 'easeOut', delay: 0.6 }}
               className={`absolute inset-0 rounded-full pointer-events-none border ${heavyDecorClass}`}
-              style={{ borderColor: 'rgba(232,121,160,0.4)' }}
+              style={{ borderColor: 'rgba(229,168,194,0.45)' }}
             />
 
             {/* Floating sparkle particles — desktop only (heavy on mobile battery) */}
             <div className={heavyDecorClass}>
             {[
-              { x: -20, y: -24, delay: 0,    size: 6, color: '#F9A8D4' },
-              { x: 24,  y: -16, delay: 1.0,  size: 4, color: '#F9A8D4' },
-              { x: -14, y: 26,  delay: 2.0,  size: 5, color: '#F472B6' },
-              { x: 28,  y: 20,  delay: 0.6,  size: 3, color: '#FFD9A8' },
-              { x: 0,   y: -30, delay: 1.5,  size: 4, color: '#F9A8D4' },
-              { x: -28, y: 4,   delay: 2.4,  size: 3, color: '#F9A8D4' },
+              { x: -20, y: -24, delay: 0,    size: 6, color: '#E5A8C2' },
+              { x: 24,  y: -16, delay: 1.0,  size: 4, color: '#E5A8C2' },
+              { x: -14, y: 26,  delay: 2.0,  size: 5, color: '#CE6C8D' },
+              { x: 28,  y: 20,  delay: 0.6,  size: 3, color: '#E0A878' },
+              { x: 0,   y: -30, delay: 1.5,  size: 4, color: '#E5A8C2' },
+              { x: -28, y: 4,   delay: 2.4,  size: 3, color: '#E5A8C2' },
             ].map((s, i) => (
               <motion.span
                 key={i}
@@ -928,7 +928,7 @@ export default function ChatbotWidget() {
 
             <motion.button
               onClick={openPanel}
-              aria-label="Abrir asistente JD"
+              aria-label="Abrir asistente Curly de Be Curlyful"
               animate={
                 reduceMotion
                   ? undefined
@@ -952,11 +952,11 @@ export default function ChatbotWidget() {
               }
               whileHover={{ scale: 1.15, rotate: -8, transition: { duration: 0.25 } }}
               whileTap={{ scale: 0.88 }}
-              className="relative flex items-center justify-center w-[68px] h-[68px] rounded-full overflow-hidden"
+              className="relative flex items-center justify-center w-[64px] h-[64px] rounded-full overflow-hidden"
               style={{
-                background: 'linear-gradient(135deg, #7B2D48 0%, #E879A0 25%, #F472B6 50%, #FBCFE8 75%, #F472B6 100%)',
+                background: 'linear-gradient(135deg, #8C3F5C 0%, #B25577 35%, #CE6C8D 65%, #E0A878 100%)',
                 boxShadow:
-                  '0 6px 24px rgba(232,121,160,0.55), 0 14px 40px rgba(244,114,182,0.35), inset 0 1.5px 0 rgba(255,255,255,0.55), inset 0 -3px 6px rgba(80,30,40,0.25)',
+                  '0 6px 24px rgba(206,108,141,0.50), 0 14px 40px rgba(178,85,119,0.30), inset 0 1.5px 0 rgba(255,255,255,0.50), inset 0 -3px 6px rgba(60,30,45,0.25)',
               }}>
 
               {/* Top highlight reflection — for 3D depth */}
@@ -1033,7 +1033,7 @@ export default function ChatbotWidget() {
                   animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
                   transition={{ duration: 1, repeat: Infinity }}
                   className="absolute top-1 right-1 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-white shadow-lg"
-                  style={{ boxShadow: '0 0 8px rgba(232,121,160,0.8)' }}
+                  style={{ boxShadow: '0 0 8px rgba(206,108,141,0.8)' }}
                 />
               )}
             </motion.button>
@@ -1057,7 +1057,7 @@ export default function ChatbotWidget() {
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               className="hidden sm:block absolute -inset-4 rounded-[2rem] pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse at center, rgba(232,121,160,0.35) 0%, rgba(244,114,182,0.2) 50%, transparent 80%)',
+                background: 'radial-gradient(ellipse at center, rgba(206,108,141,0.35) 0%, rgba(178,85,119,0.2) 50%, transparent 80%)',
                 filter: 'blur(24px)',
                 zIndex: -1,
               }}

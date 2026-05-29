@@ -18,7 +18,7 @@ let activeAbort = null;
 const WELCOME = {
   role: 'model',
   content:
-    '¡Hola! Soy JD Asistente 💕 Te ayudo a encontrar productos de maquillaje, skincare, perfumes o cuidado capilar. ¿Qué buscás hoy?',
+    '¡Hola! Soy Curly, tu asesora de rizos ✨ Te ayudo a encontrar el producto ideal para tu cabello rizado: definición, hidratación, limpieza o la línea Kids. ¿Qué buscás hoy?',
 };
 
 export function stripSugMarker(text) {

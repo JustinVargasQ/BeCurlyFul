@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..600&family=Manrope:wght@400..800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,90 +6,118 @@
 
 @layer base {
   html { scroll-behavior: smooth; }
-  body { @apply bg-white text-ink-900 font-body antialiased; }
+  /* base cálida tipo lino — no blanco frío. Da el aire "natural/fresco". */
+  body { @apply bg-cream-50 text-ink-900 font-body antialiased; }
   #root { @apply min-h-screen; }
+
+  /* Fraunces luce mejor con un toque de optical sizing alto en displays */
+  .font-display { font-optical-sizing: auto; }
 
   ::-webkit-scrollbar       { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: #FFB3DA;
-    border: 2px solid #FFF8FC;
+    background: #E5A8C2;
+    border: 2px solid #FFFBF7;
     border-radius: 999px;
     transition: background 0.2s;
   }
-  ::-webkit-scrollbar-thumb:hover { background: #E879A0; }
+  ::-webkit-scrollbar-thumb:hover { background: #CE6C8D; }
 
   :focus-visible {
     outline: 2px solid transparent;
     outline-offset: 2px;
-    box-shadow: 0 0 0 3px #fff, 0 0 0 5px #F9A8D4;
+    box-shadow: 0 0 0 3px #FFFBF7, 0 0 0 5px #E5A8C2;
   }
   a:focus-visible,
   button:focus-visible,
   [role="button"]:focus-visible,
   [tabindex]:focus-visible {
-    box-shadow: 0 0 0 3px #fff, 0 0 0 5px #F9A8D4;
+    box-shadow: 0 0 0 3px #FFFBF7, 0 0 0 5px #E5A8C2;
   }
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible {
-    box-shadow: 0 0 0 3px #FFD6EC;
+    box-shadow: 0 0 0 3px #F1CCDC;
   }
+
+  ::selection { background: #F1CCDC; color: #231A1B; }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-rose-500 hover:bg-rose-600 text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 shadow-btn hover:shadow-btn-hover;
+    @apply inline-flex items-center justify-center gap-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold tracking-wide px-8 py-3.5 rounded-full transition-all duration-300 shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 border-2 border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300;
+    @apply inline-flex items-center justify-center gap-2 border border-rose-300 text-rose-600 hover:border-rose-500 hover:bg-rose-50 font-semibold tracking-wide px-8 py-3.5 rounded-full transition-all duration-300;
+  }
+  /* eyebrow editorial — guion + versalitas espaciadas (clean-beauty) */
+  .section-label {
+    @apply inline-flex items-center gap-3 text-[11px] font-bold tracking-[0.24em] uppercase text-rose-500 mb-4;
+  }
+  .section-label::before {
+    content: "";
+    display: inline-block;
+    width: 1.75rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.55;
   }
   .section-title {
-    @apply font-display text-4xl sm:text-5xl font-extrabold text-ink-900 leading-tight tracking-tight;
+    @apply font-display text-[2.1rem] sm:text-5xl font-semibold text-ink-900 leading-[1.06] tracking-[-0.01em];
   }
-  .section-label {
-    @apply inline-flex items-center text-xs font-bold tracking-[0.18em] uppercase text-rose-500 bg-rose-50 px-3 py-1 rounded-full mb-3;
+  /* tarjeta base reutilizable — superficie suave sobre la base lino */
+  .surface {
+    @apply bg-white rounded-3xl border border-cream-200 shadow-soft;
   }
 }
 
 /* Google Places Autocomplete dropdown */
 .pac-container {
   z-index: 9999 !important;
-  border-radius: 0.75rem;
-  border: 1px solid #FFD6EC;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+  border: 1px solid #F1CCDC;
+  box-shadow: 0 18px 50px -20px rgba(60,30,45,0.30);
   font-family: inherit;
-  margin-top: 4px;
-  padding: 4px 0;
+  margin-top: 6px;
+  padding: 6px 0;
 }
 .pac-item {
-  padding: 8px 14px;
+  padding: 9px 16px;
   border: none;
   cursor: pointer;
   font-size: 13px;
 }
-.pac-item:hover, .pac-item-selected { background-color: #FFF0F7; }
-.pac-item-query { font-size: 13px; color: #1f1b1b; }
-.pac-matched { font-weight: 700; color: #E879A0; }
+.pac-item:hover, .pac-item-selected { background-color: #FCF4F7; }
+.pac-item-query { font-size: 13px; color: #231A1B; }
+.pac-matched { font-weight: 700; color: #CE6C8D; }
 .pac-icon { margin-right: 8px; }
 
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-  .chips-scroll { scrollbar-width: thin; scrollbar-color: #FFB3DA transparent; }
+  .chips-scroll { scrollbar-width: thin; scrollbar-color: #E5A8C2 transparent; }
   .chips-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
   .chips-scroll::-webkit-scrollbar-track { background: transparent; }
-  .chips-scroll::-webkit-scrollbar-thumb { background: #FFB3DA; border-radius: 999px; }
-  .chips-scroll::-webkit-scrollbar-thumb:hover { background: #F472B6; }
+  .chips-scroll::-webkit-scrollbar-thumb { background: #E5A8C2; border-radius: 999px; }
+  .chips-scroll::-webkit-scrollbar-thumb:hover { background: #CE6C8D; }
 
   .skeleton {
-    background: linear-gradient(90deg, #FFF0F7 25%, #FFF8FC 50%, #FFF0F7 75%);
+    background: linear-gradient(90deg, #FAF3EC 25%, #FFFBF7 50%, #FAF3EC 75%);
     background-size: 200% 100%;
     @apply animate-shimmer;
   }
 
   .text-balance { text-wrap: balance; }
+  .text-pretty  { text-wrap: pretty; }
+
+  /* palabra de acento con degradé rosa cálido */
+  .text-accent {
+    background: linear-gradient(105deg, #CE6C8D 0%, #D886A4 55%, #E0A878 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 }
 
 @keyframes sparkle-float {
@@ -120,42 +148,42 @@
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 251, 247, 0.78);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .glass-dark {
-  background: rgba(26, 20, 20, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(35, 26, 27, 0.55);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* Animated gradient headline — now vibrant pink */
+/* Animated gradient headline — rosa cálido suave */
 .text-gradient-hero {
   background: linear-gradient(
-    90deg,
+    100deg,
     #fff      0%,
-    #FBCFE8  18%,
-    #fff      35%,
-    #F9A8D4  52%,
-    #fff      68%,
-    #FBCFE8  85%,
+    #F1CCDC  20%,
+    #fff      40%,
+    #E5A8C2  55%,
+    #fff      72%,
+    #F1CCDC  88%,
     #fff     100%
   );
   background-size: 300% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: text-shimmer 5s linear infinite;
+  animation: text-shimmer 6s linear infinite;
 }
 
 /* Chat panel border gradient */
 @media (min-width: 640px) {
   .chat-panel-wrapper {
-    background: linear-gradient(135deg, #E879A0 0%, #F472B6 30%, #F9A8D4 55%, #F472B6 100%);
+    background: linear-gradient(135deg, #B25577 0%, #CE6C8D 35%, #E5A8C2 65%, #CE6C8D 100%);
   }
 }
 
@@ -164,7 +192,7 @@
   content: '';
   display: block;
   height: 3px;
-  background: linear-gradient(90deg, #E879A0, #F472B6, #E879A0);
+  background: linear-gradient(90deg, #CE6C8D, #E0A878, #CE6C8D);
   border-radius: 999px;
   transform-origin: left;
   animation: section-line 1.2s cubic-bezier(.3,1,.3,1) both;
@@ -188,6 +216,8 @@
   .animate-marquee,
   .animate-marquee-reverse,
   .animate-float,
+  .animate-float-slow,
+  .animate-blob,
   .animate-orb-pulse,
   .animate-breathe,
   .animate-shimmer,

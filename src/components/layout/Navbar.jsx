@@ -71,8 +71,14 @@ function NavCatLink({ cat, onNavigate, mobile }) {
   if (mobile) {
     return (
       <button onClick={handleClick}
-        className="w-full flex items-center px-4 py-3 rounded-xl text-ink-800 font-medium hover:bg-rose-50 hover:text-rose-500 transition-colors">
-        {cat.label}
+        className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl font-medium transition-colors group ${
+          cat.highlight ? 'text-rose-600 bg-rose-50' : 'text-ink-700 hover:bg-cream-100 hover:text-rose-600'
+        }`}>
+        <span className="font-display text-lg">{cat.label}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          className="text-ink-300 group-hover:text-rose-400 group-hover:translate-x-0.5 transition-transform">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
       </button>
     );
   }
@@ -80,15 +86,15 @@ function NavCatLink({ cat, onNavigate, mobile }) {
   if (cat.highlight) {
     return (
       <button onClick={handleClick}
-        className="px-4 py-1.5 text-sm font-bold text-white bg-rose-500 hover:bg-rose-600 rounded-full transition-all duration-200 whitespace-nowrap shadow-sm">
-        🔥 {cat.label}
+        className="ml-1 px-4 py-1.5 text-[13px] font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-full transition-colors duration-200 whitespace-nowrap shadow-btn">
+        {cat.label}
       </button>
     );
   }
 
   return (
     <button onClick={handleClick}
-      className="px-4 py-1.5 text-sm font-medium text-ink-600 hover:text-rose-500 hover:bg-rose-50 rounded-full transition-all duration-200 whitespace-nowrap">
+      className="relative px-3.5 py-1.5 text-[13px] font-medium text-ink-600 hover:text-rose-600 transition-colors duration-200 whitespace-nowrap after:absolute after:left-3.5 after:right-3.5 after:-bottom-0.5 after:h-px after:bg-rose-400 after:origin-left after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">
       {cat.label}
     </button>
   );
@@ -204,7 +210,8 @@ export default function Navbar() {
     <>
       {/* ── Announcement strip ── */}
       <div
-        className="bg-rose-500 text-white text-[11px] font-semibold h-8 flex items-center justify-center overflow-hidden relative z-50 cursor-default select-none"
+        className="text-white text-[11px] font-semibold h-8 flex items-center justify-center overflow-hidden relative z-50 cursor-default select-none"
+        style={{ background: 'linear-gradient(90deg, #B25577 0%, #CE6C8D 50%, #B25577 100%)' }}
         onMouseEnter={() => setAnnPaused(true)}
         onMouseLeave={() => setAnnPaused(false)}
         onTouchStart={() => setAnnPaused(true)}
@@ -215,15 +222,15 @@ export default function Navbar() {
             animate={{ y: 0,  opacity: 1 }}
             exit={{    y: -10, opacity: 0 }}
             transition={{ duration: 0.35 }}
-            className="absolute tracking-widest uppercase">
+            className="absolute tracking-[0.18em] uppercase">
             {ANNOUNCEMENTS[ann]}
           </motion.span>
         </AnimatePresence>
       </div>
 
-      {/* ── Main nav — flat sticky bar ── */}
-      <header className={`sticky top-0 z-40 bg-white transition-shadow duration-200 ${scrolled ? 'shadow-[0_2px_16px_rgba(232,121,160,0.15)]' : ''} border-b border-rose-100`}>
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center gap-2 sm:gap-3">
+      {/* ── Main nav — glass sticky bar over the warm base ── */}
+      <header className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? 'bg-cream-50/90 backdrop-blur-xl shadow-soft border-b border-cream-200' : 'bg-cream-50/70 backdrop-blur-md border-b border-transparent'}`}>
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-[68px] flex items-center gap-2 sm:gap-3">
 
           {/* Mobile: hamburger */}
           <button onClick={() => setMenuOpen(true)}
@@ -235,7 +242,7 @@ export default function Navbar() {
           {/* Logo — centered on mobile via flex-1 trick */}
           <Link to="/" aria-label="Be Curly Full CR"
             className="flex-shrink-0 lg:flex-none absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0">
-            <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-8 sm:h-9 w-auto rounded-lg" />
+            <img src="/icons/logo.jpg" alt="Be Curly Full CR" className="h-9 sm:h-10 w-auto rounded-xl shadow-soft ring-1 ring-white/60" />
           </Link>
 
           {/* Desktop: categories centered */}
@@ -252,7 +259,7 @@ export default function Navbar() {
             {/* Desktop search */}
             <div ref={desktopRef} className="hidden lg:block relative mr-1">
               <form onSubmit={handleSearch}
-                className="flex items-center gap-2 border border-rose-200 rounded-full px-4 py-2 hover:border-rose-400 focus-within:border-rose-500 focus-within:shadow-[0_0_0_3px_rgba(232,121,160,0.15)] transition-all bg-white">
+                className="flex items-center gap-2 border border-cream-200 rounded-full px-4 py-2 hover:border-rose-300 focus-within:border-rose-400 focus-within:shadow-[0_0_0_3px_rgba(206,108,141,0.14)] transition-all bg-white/80">
                 <SearchIcon />
                 <input
                   ref={searchRef}

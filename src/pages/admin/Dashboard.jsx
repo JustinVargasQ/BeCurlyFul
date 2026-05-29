@@ -343,8 +343,8 @@ function DashboardHome({ adminName }) {
 
   useEffect(() => {
     const handler = () => fetchData();
-    window.addEventListener('jd:new-order', handler);
-    return () => window.removeEventListener('jd:new-order', handler);
+    window.addEventListener('bcf:new-order', handler);
+    return () => window.removeEventListener('bcf:new-order', handler);
   }, [fetchData]);
 
   const productCount = USE_API ? products.length : PRODUCTS.length;
@@ -436,14 +436,14 @@ function DashboardHome({ adminName }) {
 function SidebarContent({ location, onNavigate, onLogout, adminName }) {
   const initials = adminName
     ? adminName.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase()
-    : 'JD';
+    : 'BC';
 
   return (
     <div className="flex flex-col h-full">
       {/* Brand */}
       <div className="p-5 flex-shrink-0">
         <p className="font-display text-xl font-bold text-white">
-          JD <span className="text-rose-400">Admin</span>
+          Be Curlyful <span className="text-rose-400">Admin</span>
         </p>
         <p className="text-white/30 text-[11px] mt-0.5 uppercase tracking-widest">Panel de control</p>
       </div>
@@ -565,13 +565,13 @@ function showStockNotification(title, body, tag) {
 let _pendingOrders = 0;
 function updateTabTitle(delta = 0) {
   _pendingOrders = Math.max(0, _pendingOrders + delta);
-  const base = 'JD Admin';
+  const base = 'Be Curlyful Admin';
   document.title = _pendingOrders > 0 ? `(${_pendingOrders}) Pedido nuevo! — ${base}` : base;
 }
 
 function useNewOrderAlert() {
   useEffect(() => {
-    document.title = 'JD Admin';
+    document.title = 'Be Curlyful Admin';
     const unlock = () => { try { getAudioCtx(); } catch {} };
     document.addEventListener('click', unlock, { once: true });
 
@@ -590,7 +590,7 @@ function useNewOrderAlert() {
       useToastStore.getState().success(
         `Nuevo pedido de ${data.customer || 'cliente'}! #${data.orderNumber}`
       );
-      window.dispatchEvent(new CustomEvent('jd:new-order', { detail: data }));
+      window.dispatchEvent(new CustomEvent('bcf:new-order', { detail: data }));
     });
 
     // Stock-bajo y agotado: alertas blandas (sin sonido) para que reabastezcas a tiempo.
@@ -600,7 +600,7 @@ function useNewOrderAlert() {
         showStockNotification('⚠️ Stock bajo', `${data.name} — quedan ${data.stock}`, `low-${data.productId}`);
         useToastStore.getState().info?.(`⚠️ ${data.name} en stock bajo (${data.stock})`)
           ?? useToastStore.getState().success(`⚠️ ${data.name} en stock bajo (${data.stock})`);
-        window.dispatchEvent(new CustomEvent('jd:low-stock', { detail: data }));
+        window.dispatchEvent(new CustomEvent('bcf:low-stock', { detail: data }));
       } catch {}
     });
 
@@ -610,19 +610,19 @@ function useNewOrderAlert() {
         showStockNotification('🛑 Producto agotado', `${data.name} — sin stock`, `out-${data.productId}`);
         useToastStore.getState().error?.(`🛑 ${data.name} agotado`)
           ?? useToastStore.getState().success(`🛑 ${data.name} agotado`);
-        window.dispatchEvent(new CustomEvent('jd:out-of-stock', { detail: data }));
+        window.dispatchEvent(new CustomEvent('bcf:out-of-stock', { detail: data }));
       } catch {}
     });
 
     // Reset tab title when window gets focus
-    const onFocus = () => { _pendingOrders = 0; document.title = 'JD Admin'; };
+    const onFocus = () => { _pendingOrders = 0; document.title = 'Be Curlyful Admin'; };
     window.addEventListener('focus', onFocus);
 
     return () => {
       es.close();
       document.removeEventListener('click', unlock);
       window.removeEventListener('focus', onFocus);
-      document.title = 'JD Admin';
+      document.title = 'Be Curlyful Admin';
     };
   }, []);
 }
@@ -688,7 +688,7 @@ export default function AdminDashboard() {
       {/* Mobile drawer */}
       <aside className={`fixed inset-y-0 left-0 z-40 w-60 bg-ink-900 flex-col transform transition-transform duration-300 lg:hidden ${sidebarOpen ? 'flex translate-x-0' : 'hidden -translate-x-full'}`}>
         <div className="flex items-center justify-between px-5 py-4 flex-shrink-0">
-          <p className="font-display text-xl font-bold text-white">JD <span className="text-rose-400">Admin</span></p>
+          <p className="font-display text-xl font-bold text-white">Be Curlyful <span className="text-rose-400">Admin</span></p>
           <button onClick={() => setSidebarOpen(false)} className="p-1.5 text-white/40 hover:text-white transition-colors">
             <CloseIcon />
           </button>
@@ -718,7 +718,7 @@ export default function AdminDashboard() {
             Tienda activa
           </div>
           <div className="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white text-[11px] font-bold">
-            {admin?.name?.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase() || 'JD'}
+            {admin?.name?.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase() || 'BC'}
           </div>
         </header>
 
