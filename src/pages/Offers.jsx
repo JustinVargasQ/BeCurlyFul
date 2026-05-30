@@ -50,7 +50,7 @@ export default function Offers() {
   const totalSavings = raw.reduce((acc, p) => acc + (p.oldPrice - p.price), 0);
 
   return (
-    <main className="min-h-screen bg-white pb-20 sm:pb-0">
+    <main className="min-h-screen bg-cream-50 pb-28 sm:pb-20">
       <SEO
         title="Ofertas y descuentos"
         description="Encontrá las mejores ofertas en productos para cabello rizado en Costa Rica. Descuentos reales en la línea Be Curlyful con envíos a todo el país."
@@ -59,11 +59,11 @@ export default function Offers() {
 
       {/* ── Hero header ── */}
       <div className="relative overflow-hidden pt-24 pb-14"
-        style={{ background: 'linear-gradient(135deg, #1A1414 0%, #2E1A20 50%, #1A1414 100%)' }}>
+        style={{ background: 'linear-gradient(135deg, #5C2940 0%, #8C3F5C 45%, #B25577 100%)' }}>
 
         {/* Ambient orbs */}
-        <div className="pointer-events-none absolute -top-20 -right-20 w-96 h-96 rounded-full bg-rose-500/15 blur-3xl animate-orb-pulse" />
-        <div className="pointer-events-none absolute -bottom-16 -left-16 w-72 h-72 rounded-full bg-rose-600/10 blur-3xl animate-orb-pulse" style={{ animationDelay: '2s' }} />
+        <div className="pointer-events-none absolute -top-20 -right-20 w-96 h-96 rounded-full bg-rose-300/20 blur-3xl animate-orb-pulse" />
+        <div className="pointer-events-none absolute -bottom-16 -left-16 w-72 h-72 rounded-full blur-3xl animate-orb-pulse" style={{ background: 'rgba(224,168,120,0.16)', animationDelay: '2s' }} />
 
         {/* Sparkles */}
         {[{x:'8%',y:'30%',s:3,d:'0.3s',t:'3.2s'},{x:'85%',y:'55%',s:4,d:'1.1s',t:'2.9s'},{x:'50%',y:'75%',s:3,d:'0.7s',t:'3.6s'},{x:'20%',y:'65%',s:4,d:'1.8s',t:'3.0s'}].map((p,i)=>(
@@ -75,7 +75,7 @@ export default function Offers() {
 
         {/* Gold gradient top line */}
         <div className="absolute inset-x-0 top-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent 0%, #F472B6 25%, #E879A0 50%, #F472B6 75%, transparent 100%)' }} />
+          style={{ background: 'linear-gradient(90deg, transparent 0%, #E0A878 25%, #F1CCDC 50%, #E0A878 75%, transparent 100%)' }} />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link to="/"
@@ -89,16 +89,16 @@ export default function Offers() {
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.3,1,0.3,1] }}>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-rose-300"
-                  style={{ background: 'rgba(232,121,160,0.25)', border: '1px solid rgba(232,121,160,0.4)' }}>
+                <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white"
+                  style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
                   </svg>
                 </div>
-                <span className="text-xs font-bold tracking-[0.22em] uppercase text-rose-400">Descuentos activos</span>
+                <span className="text-xs font-bold tracking-[0.22em] uppercase text-rose-200">Descuentos activos</span>
               </div>
-              <h1 className="font-display text-4xl sm:text-5xl font-bold text-white leading-tight mb-2">
-                Hasta <span className="text-rose-400">−{maxDiscount}%</span> off
+              <h1 className="font-display text-4xl sm:text-5xl font-semibold text-white leading-[1.05] tracking-[-0.01em] mb-2">
+                Hasta <span className="italic" style={{ color: '#F1CCDC' }}>−{maxDiscount}%</span> off
               </h1>
               <p className="text-white/50 text-sm">
                 {loading ? '...' : `${offers.length} productos · Ahorrás hasta ${formatCRC(Math.max(...raw.map(p=>p.oldPrice-p.price)||[0]))}`}
