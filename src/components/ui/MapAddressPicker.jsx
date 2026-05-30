@@ -3,12 +3,17 @@ import { loadGoogleMaps, hasGoogleMapsKey } from '../../lib/loadGoogleMaps';
 
 const CR_CENTER = { lat: 9.9281, lng: -84.0907 };
 const MAP_SEPARATOR = '\nRef. mapa: ';
-/* Tolerate old data that used 📍 as the marker */
-const MAP_SEPARATOR_RX = /\n(?:📍\s*)?Ref\. mapa:\s*/;
+/* Cuando el cliente marca el mapa SIN escribir señas, la referencia va sin el
+ * salto de línea inicial — así no queda una línea vacía arriba de la dirección. */
+const MAP_REF_LABEL = 'Ref. mapa: ';
+/* Tolera el \n opcional (referencia sin señas) y el viejo marcador 📍 */
+const MAP_SEPARATOR_RX = /\n?(?:📍\s*)?Ref\. mapa:\s*/;
 
 const getUserDescription = (text) => {
   if (!text) return '';
-  return text.split(MAP_SEPARATOR_RX)[0].trim();
+  /* SIN .trim(): el input es controlado, si trimeáramos en cada render el
+   * usuario no podría escribir un espacio al final (se borraría al instante). */
+  return text.split(MAP_SEPARATOR_RX)[0];
 };
 
 const getMapReference = (text) => {
@@ -57,10 +62,12 @@ export default function MapAddressPicker({
   };
 
   const handleMapConfirm = (result) => {
-    const desc = getUserDescription(value);
+    const desc = getUserDescription(value).trim();
+    /* La ubicación del mapa SIEMPRE queda como referencia (chip verde), nunca
+     * pisa el campo de texto — aunque el cliente no haya escrito señas. */
     const combined = desc
       ? `${desc}${MAP_SEPARATOR}${result.address}`
-      : result.address;
+      : `${MAP_REF_LABEL}${result.address}`;
     onChange?.(combined);
     onPick?.({ address: combined, lat: result.lat, lng: result.lng });
     setOpen(false);
