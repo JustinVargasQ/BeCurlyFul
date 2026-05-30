@@ -42,7 +42,9 @@ export default function MapAddressPicker({
     }
   };
 
-  const handleMapButtonClick = () => setShowPreStep(true);
+  /* El input principal ya captura la dirección con señas, así que el botón abre
+   * DIRECTO el mapa (sin el modal intermedio que volvía a pedir las señas). */
+  const handleMapButtonClick = () => setOpen(true);
 
   const handlePreStepContinue = (text) => {
     /* Save user description (preserving any existing map ref) */
@@ -71,47 +73,51 @@ export default function MapAddressPicker({
 
   return (
     <div className="relative">
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-300 pointer-events-none z-10">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </span>
-          <input
-            type="text"
-            required={required}
-            value={userDescription}
-            onChange={(e) => handleInputChange(e.target.value)}
-            placeholder={placeholder}
-            className={`w-full pl-10 ${className}`}
-            autoComplete="off"
-          />
-        </div>
-        {hasGoogleMapsKey && (
-          <button
-            type="button"
-            onClick={handleMapButtonClick}
-            className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors shadow-btn ${
-              hasMapMarked
-                ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                : 'bg-rose-500 hover:bg-rose-600 text-white'
-            }`}
-            title={hasMapMarked ? 'Cambiar ubicación' : 'Elegir ubicación en el mapa'}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
-            <span className="hidden sm:inline">{hasMapMarked ? 'Cambiar' : 'Mapa'}</span>
-          </button>
-        )}
+      {/* Paso 1 — escribir la dirección con señas */}
+      <div className="relative">
+        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-300 pointer-events-none z-10">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </span>
+        <input
+          type="text"
+          required={required}
+          value={userDescription}
+          onChange={(e) => handleInputChange(e.target.value)}
+          placeholder={placeholder}
+          className={`w-full pl-10 ${className}`}
+          autoComplete="off"
+        />
       </div>
 
+      {/* Paso 2 — botón ancho para marcar el punto exacto en el mapa */}
+      {hasGoogleMapsKey ? (
+        <button
+          type="button"
+          onClick={handleMapButtonClick}
+          className={`mt-2 w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all border-2 ${
+            hasMapMarked
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:border-emerald-300'
+              : 'bg-rose-50 border-rose-200 text-rose-600 hover:border-rose-400 hover:bg-rose-100'
+          }`}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          {hasMapMarked ? 'Cambiar ubicación en el mapa' : 'Marcar mi ubicación exacta en el mapa'}
+        </button>
+      ) : (
+        <p className="mt-1.5 text-[11px] text-ink-400 leading-relaxed">
+          Detallá las señas lo más claro posible: barrio, color de casa y puntos de referencia.
+        </p>
+      )}
+
+      {/* Confirmación cuando ya marcó el punto */}
       {hasMapMarked && (
-        <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-2 flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+        <div className="mt-2 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5 flex items-center gap-2">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
           <p className="text-[11px] text-emerald-800 leading-snug min-w-0 flex-1 break-words">
-            <span className="font-bold">Marcado en mapa:</span>{' '}
+            <span className="font-bold">Ubicación marcada:</span>{' '}
             <span className="text-emerald-700">{mapReference}</span>
           </p>
           <button
