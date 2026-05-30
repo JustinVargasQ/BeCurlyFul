@@ -718,13 +718,14 @@ export default function AdminOrders() {
       } else if (em?.reason === 'no_customer_email') {
         useToastStore.getState().info?.(`Estado cambiado a "${statusLabel}". El cliente no tiene email registrado.`)
           ?? useToastStore.getState().success(`Estado cambiado a "${statusLabel}" (cliente sin email)`);
-      } else if (em?.reason === 'smtp_not_configured') {
-        useToastStore.getState().error?.(`Estado cambiado pero SMTP no está configurado. Revisá /admin → SMTP.`)
-          ?? useToastStore.getState().success(`Estado cambiado (SMTP no configurado)`);
+      } else if (em?.reason === 'smtp_not_configured' || em?.reason === 'no_provider_configured') {
+        useToastStore.getState().error?.(`Estado cambiado pero el correo no se pudo enviar. Revisá las vars de entorno en Render (BREVO_API_KEY, BREVO_SENDER_EMAIL).`)
+          ?? useToastStore.getState().success(`Estado cambiado (email no configurado)`);
       } else if (em?.reason === 'no_template') {
         useToastStore.getState().success(`Estado cambiado a "${statusLabel}" (sin email para este estado)`);
       } else if (em && !em.ok) {
-        useToastStore.getState().error?.(`Estado cambiado pero email falló: ${em.detail || em.reason}`)
+        const detail = em.detail || em.reason || 'error desconocido';
+        useToastStore.getState().error?.(`Estado cambiado pero email falló: ${detail}`)
           ?? useToastStore.getState().success(`Estado cambiado (email falló)`);
       } else {
         useToastStore.getState().success(`Estado cambiado a "${statusLabel}"`);
