@@ -162,7 +162,7 @@ function variantsHtml(v) {
  * en env si querés cambiarlo sin redeploy. Idealmente JPG/PNG cuadrado,
  * URL publica (Cloudinary, S3, etc). */
 const LOGO_URL = process.env.EMAIL_LOGO_URL
-  || `${process.env.CLIENT_URL || 'https://becurlyful.vercel.app'}/icons/logo.jpg`;
+  || `${process.env.CLIENT_URL || 'https://becurlyfulcr.vercel.app'}/icons/logo.jpg`;
 
 function buildOrderHtml(order) {
   const rows = (order.items || []).map((i) => `

@@ -8,4 +8,4 @@ Disallow: /mi-cuenta
 Disallow: /favoritos
 Disallow: /pedido
 
-Sitemap: https://becurlyful.vercel.app/sitemap.xml
+Sitemap: https://becurlyfulcr.vercel.app/sitemap.xml

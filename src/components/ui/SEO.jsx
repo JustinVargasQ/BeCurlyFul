@@ -1,7 +1,7 @@
 ﻿import { Helmet } from 'react-helmet-async';
 
 const SITE_NAME  = 'Be Curly Full CR';
-const SITE_URL   = 'https://becurlyful.vercel.app';
+const SITE_URL   = 'https://becurlyfulcr.vercel.app';
 const DEFAULT_IMG = `${SITE_URL}/icons/icon-512.png`;
 const DEFAULT_DESC = 'Productos para cabello rizado y cuidado capilar con envíos a todo Costa Rica.';
 
@@ -13,7 +13,7 @@ const LOCAL_BUSINESS_JSONLD = {
   '@context': 'https://schema.org',
   '@type': 'Store',
   name: 'Be Curly Full CR',
-  url: 'https://becurlyful.vercel.app',
+  url: 'https://becurlyfulcr.vercel.app',
   logo: `${SITE_URL}/icons/icon-512.png`,
   image: `${SITE_URL}/icons/icon-512.png`,
   description: 'Tienda especializada en productos para cabello rizado y cuidado capilar con envíos a todo Costa Rica.',
@@ -38,7 +38,7 @@ const LOCAL_BUSINESS_JSONLD = {
   }],
   potentialAction: {
     '@type': 'SearchAction',
-    target: 'https://becurlyful.vercel.app/?q={search_term_string}',
+    target: 'https://becurlyfulcr.vercel.app/?q={search_term_string}',
     'query-input': 'required name=search_term_string',
   },
 };
