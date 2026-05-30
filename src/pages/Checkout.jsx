@@ -129,19 +129,18 @@ function Field({ label, required, hint, error, touched, icon, children }) {
 /* ── Section card ── */
 function Section({ step, Icon, title, sub, children }) {
   return (
-    <div className="bg-white rounded-2xl shadow-card border border-cream-100 overflow-hidden">
-      <div className="px-6 py-5 border-b border-cream-100 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-rose-500"
-          style={{ background: 'linear-gradient(135deg,rgba(232,121,160,.12),rgba(244,114,182,.08))', border:'1px solid rgba(232,121,160,.18)' }}>
+    <div className="bg-white rounded-2xl shadow-soft border border-cream-200 overflow-hidden">
+      <div className="px-5 py-4 border-b border-cream-200 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 text-rose-500 bg-rose-50 border border-rose-100">
           {Icon ? <Icon /> : null}
         </div>
         <div>
-          <h2 className="font-display text-base font-bold text-ink-900 leading-tight">{title}</h2>
+          <h2 className="font-display text-[15px] font-semibold text-ink-900 leading-tight">{title}</h2>
           {sub && <p className="text-[11px] text-ink-400 mt-0.5">{sub}</p>}
         </div>
-        <span className="ml-auto text-xs font-bold text-ink-300">{step}</span>
+        <span className="ml-auto text-xs font-semibold text-ink-300">{step}</span>
       </div>
-      <div className="p-6">{children}</div>
+      <div className="p-5">{children}</div>
     </div>
   );
 }
@@ -164,7 +163,7 @@ const SectionPayIcon = () => (
   </svg>
 );
 
-const inputBase = 'w-full border rounded-xl px-4 py-3 text-ink-900 placeholder-ink-300 focus:outline-none transition-all bg-white text-sm';
+const inputBase = 'w-full border rounded-2xl px-4 py-3 text-ink-900 placeholder-ink-300 focus:outline-none transition-all bg-white text-sm';
 const inputOk   = `${inputBase} border-emerald-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`;
 const inputErr  = `${inputBase} border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100`;
 const inputDef  = `${inputBase} border-cream-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-100`;
@@ -391,7 +390,8 @@ export default function Checkout() {
   }
 
   return (
-    <main className="pt-20 pb-24 bg-cream-50 min-h-screen">
+    /* pb-32 mobile: form se puede rellenar sin que la sticky bar tape el último campo */
+    <main className="pt-20 pb-32 sm:pb-24 bg-cream-50 min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Header ── */}
@@ -402,7 +402,7 @@ export default function Checkout() {
           </Link>
           <div className="flex items-end justify-between flex-wrap gap-3">
             <div>
-              <h1 className="font-display text-3xl sm:text-4xl font-bold text-ink-900 leading-tight">Completar pedido</h1>
+              <h1 className="font-display font-semibold text-ink-900 leading-tight" style={{ fontSize: 'clamp(1.7rem, 6vw, 2.5rem)' }}>Completar pedido</h1>
               <p className="text-ink-400 text-sm mt-1">Te confirmamos por WhatsApp en minutos</p>
             </div>
             {/* Progress pills */}
@@ -517,7 +517,7 @@ export default function Checkout() {
                           </svg>
                         </span>
                         <div>
-                          <p className="text-sm font-semibold text-ink-900">Be Curly Full CR · Costa Rica</p>
+                          <p className="text-sm font-semibold text-ink-900">Be Curlyful CR · Costa Rica</p>
                           <p className="text-xs text-ink-400 mt-0.5">Te confirmamos el punto exacto por WhatsApp</p>
                           <a href={`https://www.google.com/maps/search/?api=1&query=place_id:${PLACE_ID}`} target="_blank" rel="noopener noreferrer"
                             className="text-xs text-rose-500 font-semibold hover:underline mt-1 inline-block">
@@ -553,7 +553,7 @@ export default function Checkout() {
                   <label key={key}
                     className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${
                       shipping === key
-                        ? 'border-rose-400 bg-rose-50/60 shadow-sm'
+                        ? 'border-rose-300 bg-rose-50 shadow-soft'
                         : 'border-cream-200 hover:border-rose-200 bg-white'
                     }`}>
                     <input type="radio" name="shipping" value={key} checked={shipping === key} onChange={() => setShipping(key)} className="accent-rose-500 flex-shrink-0" />
@@ -685,7 +685,7 @@ export default function Checkout() {
                 <motion.button type="submit"
                   disabled={submitting}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center justify-center gap-2.5 bg-[#25D366] hover:bg-[#1fbc59] disabled:opacity-60 text-white font-bold py-4 rounded-xl transition-colors text-base shadow-lg">
+                  className="w-full flex items-center justify-center gap-2.5 bg-[#25D366] hover:bg-[#1fbc59] disabled:opacity-60 text-white font-bold py-4 rounded-full transition-colors text-base shadow-card">
                   {submitting ? (
                     <><svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Registrando...</>
                   ) : (
@@ -701,6 +701,28 @@ export default function Checkout() {
             </div>
           </div>
         </form>
+
+        {/* ── Sticky CTA mobile — posicionada sobre el BottomNav ── */}
+        <div className="sm:hidden fixed bottom-16 inset-x-0 z-40 px-4 py-3"
+          style={{ background: 'rgba(255,251,247,0.96)', backdropFilter: 'blur(16px)', borderTop: '1px solid rgba(206,108,141,0.15)' }}>
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div>
+              <p className="text-[11px] text-ink-400">Total</p>
+              <p className="font-display font-semibold text-ink-900 text-lg tabular-nums">{formatCRC(grandTotal)}</p>
+            </div>
+            <motion.button
+              type="submit"
+              form="checkout-form-mobile"
+              disabled={submitting}
+              whileTap={{ scale: 0.97 }}
+              onClick={handleSubmit}
+              className="flex items-center gap-2 bg-[#25D366] hover:bg-[#1fbc59] disabled:opacity-60 text-white font-bold py-3.5 px-6 rounded-full transition-colors shadow-card text-[15px] flex-1 max-w-[200px] justify-center">
+              {submitting
+                ? <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                : <><WaIcon /> Enviar pedido</>}
+            </motion.button>
+          </div>
+        </div>
       </div>
     </main>
   );
