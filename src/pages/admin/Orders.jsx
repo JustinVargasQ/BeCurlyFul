@@ -267,6 +267,15 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onUpdatePa
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 
+  /* Links de navegación para el repartidor */
+  const hasCoords = order.customer?.lat && order.customer?.lng;
+  const mapsUrl = hasCoords
+    ? `https://www.google.com/maps?q=${order.customer.lat},${order.customer.lng}`
+    : order.customer?.address
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.customer.address}, ${order.customer.province}, Costa Rica`)}`
+      : null;
+  const wazeUrl = hasCoords ? `https://waze.com/ul?ll=${order.customer.lat},${order.customer.lng}&navigate=yes` : null;
+
   const copyAddress = () => {
     navigator.clipboard?.writeText(`${order.customer?.name}\n${order.customer?.phone}\n${order.customer?.address}, ${order.customer?.province}`);
   };
@@ -344,31 +353,43 @@ function OrderDrawer({ order, onClose, onUpdateStatus, onUpdateNotes, onUpdatePa
               </div>
             </div>
             <div className="pt-3 border-t border-cream-100">
-              <p className="text-[11px] font-bold text-ink-400 uppercase tracking-widest mb-1">Envío</p>
-              <p className="text-sm text-ink-700">{order.customer?.address}</p>
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-[11px] font-bold text-ink-400 uppercase tracking-widest">Envío</p>
+                {hasCoords && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    GPS exacto
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-ink-700 leading-snug">{order.customer?.address}</p>
               <p className="text-xs text-ink-500 mt-0.5">{order.customer?.province}</p>
               <p className="text-[11px] text-ink-400 mt-2 capitalize">Método: {order.shippingMethod}</p>
-              {qrDataUrl && (
-                <div className="mt-3 flex items-start gap-3 bg-cream-50 rounded-xl p-3 border border-cream-200">
-                  <img src={qrDataUrl} alt="QR ubicación" className="w-16 h-16 rounded-lg flex-shrink-0 border border-cream-200" />
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-ink-600 mb-0.5 flex items-center gap-1"><PinIcon /> Ubicación en mapa</p>
-                    <p className="text-[10px] text-ink-400 leading-relaxed">
-                      Escaneá el QR para ver la dirección exacta del cliente en Google Maps.
-                      {order.customer?.lat && order.customer?.lng && (
-                        <span className="block mt-1 text-green-600 font-semibold flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Coordenadas GPS registradas</span>
-                      )}
-                    </p>
-                    <a
-                      href={order.customer?.lat && order.customer?.lng
-                        ? `https://www.google.com/maps/search/?api=1&query=${order.customer.lat},${order.customer.lng}`
-                        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.customer?.address}, ${order.customer?.province}, Costa Rica`)}`
-                      }
-                      target="_blank" rel="noopener noreferrer"
-                      className="text-[10px] text-rose-500 font-semibold hover:underline mt-1 inline-block">
-                      Abrir en Maps →
+
+              {/* Botones de navegación para el repartidor */}
+              {mapsUrl && (
+                <div className="mt-3 flex gap-2">
+                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold py-2.5 rounded-xl transition-colors shadow-sm">
+                    <PinIcon /> Google Maps
+                  </a>
+                  {wazeUrl && (
+                    <a href={wazeUrl} target="_blank" rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-[#33ccff] hover:bg-[#1eb8eb] text-white text-xs font-bold py-2.5 rounded-xl transition-colors shadow-sm">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6 2 11c0 2.4 1 4.6 2.7 6.2-.2.9-.7 2-1.5 2.6-.3.2-.2.7.2.7 1.6 0 3-.5 4-1.3 1.3.5 2.8.8 4.6.8 5.5 0 10-4 10-9s-4.5-9-10-9zm-3.5 9a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm7 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg>
+                      Waze
                     </a>
-                  </div>
+                  )}
+                </div>
+              )}
+
+              {/* QR para imprimir / escanear desde otro dispositivo */}
+              {qrDataUrl && (
+                <div className="mt-2.5 flex items-center gap-3 bg-cream-50 rounded-xl p-2.5 border border-cream-200">
+                  <img src={qrDataUrl} alt="QR ubicación" className="w-14 h-14 rounded-lg flex-shrink-0 border border-cream-200 bg-white" />
+                  <p className="text-[10px] text-ink-500 leading-relaxed">
+                    Escaneá el QR con otro teléfono para abrir la ubicación en Google Maps.
+                  </p>
                 </div>
               )}
             </div>

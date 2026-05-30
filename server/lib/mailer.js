@@ -155,7 +155,7 @@ function variantsText(v) {
 function variantsHtml(v) {
   const text = variantsText(v);
   if (!text) return '';
-  return `<div style="margin-top:2px;font-size:12px;color:#B85F72;font-weight:600">${text}</div>`;
+  return `<div style="margin-top:2px;font-size:12px;color:#CE6C8D;font-weight:600">${text}</div>`;
 }
 
 /* Logo que aparece en el header de los emails. Override con EMAIL_LOGO_URL
@@ -178,6 +178,17 @@ function buildOrderHtml(order) {
     hour: '2-digit', minute: '2-digit',
   });
 
+  /* Links de navegación para el repartidor — usa GPS exacto si el cliente lo
+   * marcó en el mapa, sino busca por la dirección de texto. */
+  const c = order.customer || {};
+  const hasCoords = c.lat && c.lng;
+  const mapsUrl = hasCoords
+    ? `https://www.google.com/maps?q=${c.lat},${c.lng}`
+    : c.address
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${c.address}, ${c.province || ''}, Costa Rica`)}`
+      : null;
+  const wazeUrl = hasCoords ? `https://waze.com/ul?ll=${c.lat},${c.lng}&navigate=yes` : null;
+
   return `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8"><title>Nuevo pedido</title></head>
@@ -188,13 +199,13 @@ function buildOrderHtml(order) {
 
         <!-- Header -->
         <tr>
-          <td style="background:#B85F72;padding:28px 32px;text-align:center">
+          <td style="background:#CE6C8D;padding:28px 32px;text-align:center">
             <img src="${LOGO_URL}" alt="Be Curly Full CR" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
             <h1 style="margin:8px 0 0;color:#fff;font-size:26px;font-weight:bold;letter-spacing:1px">
               Nuevo pedido
             </h1>
-            <p style="margin:8px 0 0;color:#f5d0d8;font-size:20px;font-weight:bold;font-family:monospace">${order.orderNumber}</p>
-            <p style="margin:6px 0 0;color:#f5d0d8;font-size:12px">${createdAt}</p>
+            <p style="margin:8px 0 0;color:#F1CCDC;font-size:20px;font-weight:bold;font-family:monospace">${order.orderNumber}</p>
+            <p style="margin:6px 0 0;color:#F1CCDC;font-size:12px">${createdAt}</p>
           </td>
         </tr>
 
@@ -206,16 +217,27 @@ function buildOrderHtml(order) {
             <table width="100%" cellpadding="0" cellspacing="0" style="background:#fdf8f8;border:1px solid #f0e8e8;border-radius:10px;margin-bottom:20px">
               <tr>
                 <td style="padding:16px 20px;border-bottom:1px solid #f0e8e8">
-                  <p style="margin:0;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#B85F72">Cliente</p>
+                  <p style="margin:0;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#CE6C8D">Cliente</p>
                 </td>
               </tr>
               <tr>
                 <td style="padding:16px 20px">
-                  <p style="margin:0 0 4px;font-size:16px;font-weight:bold;color:#222">${order.customer?.name || ''}</p>
-                  <p style="margin:0 0 4px;font-size:14px;color:#555">📞 ${order.customer?.phone || ''}</p>
-                  <p style="margin:0 0 4px;font-size:14px;color:#555">📍 ${order.customer?.address || ''}, ${order.customer?.province || ''}</p>
-                  <p style="margin:8px 0 0;font-size:12px;color:#999">Método de envío: ${order.shippingMethod || 'correos'}</p>
-                  ${order.customer?.notes ? `<p style="margin:6px 0 0;font-size:13px;color:#666;font-style:italic">Nota: ${order.customer.notes}</p>` : ''}
+                  <p style="margin:0 0 4px;font-size:16px;font-weight:bold;color:#222">${c.name || ''}</p>
+                  <p style="margin:0 0 6px;font-size:14px;color:#555">📞 <a href="tel:${c.phone || ''}" style="color:#555;text-decoration:none">${c.phone || ''}</a></p>
+                  <p style="margin:0 0 10px;font-size:14px;color:#555;line-height:1.5">📍 ${c.address || ''}${c.province ? ', ' + c.province : ''}</p>
+                  ${mapsUrl ? `
+                  <table cellpadding="0" cellspacing="0" style="margin:0 0 4px"><tr>
+                    <td style="padding-right:8px">
+                      <a href="${mapsUrl}" style="display:inline-block;background:#CE6C8D;color:#fff;text-decoration:none;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:bold">📍 Google Maps</a>
+                    </td>
+                    ${wazeUrl ? `<td>
+                      <a href="${wazeUrl}" style="display:inline-block;background:#33ccff;color:#fff;text-decoration:none;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:bold">🧭 Waze</a>
+                    </td>` : ''}
+                  </tr></table>
+                  ${hasCoords ? `<p style="margin:4px 0 0;font-size:11px;color:#16a34a;font-weight:bold">✓ Ubicación GPS exacta marcada por el cliente</p>` : ''}
+                  ` : ''}
+                  <p style="margin:10px 0 0;font-size:12px;color:#999">Método de envío: ${order.shippingMethod || 'correos'}</p>
+                  ${c.notes ? `<p style="margin:6px 0 0;font-size:13px;color:#666;font-style:italic">Nota: ${c.notes}</p>` : ''}
                 </td>
               </tr>
             </table>
@@ -250,14 +272,14 @@ function buildOrderHtml(order) {
               </tr>` : ''}
               <tr style="background:#fdf8f8">
                 <td style="padding:14px 16px;font-size:16px;font-weight:bold;color:#222">TOTAL</td>
-                <td style="padding:14px 16px;font-size:20px;font-weight:bold;color:#B85F72;text-align:right">${fmt(order.total)}</td>
+                <td style="padding:14px 16px;font-size:20px;font-weight:bold;color:#CE6C8D;text-align:right">${fmt(order.total)}</td>
               </tr>
             </table>
 
             <!-- CTA -->
             <div style="text-align:center">
               <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/admin/ordenes"
-                style="display:inline-block;background:#B85F72;color:#fff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:14px;font-weight:bold;letter-spacing:.5px">
+                style="display:inline-block;background:#CE6C8D;color:#fff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:14px;font-weight:bold;letter-spacing:.5px">
                 Ver pedido en el panel
               </a>
             </div>
@@ -392,10 +414,10 @@ function buildConfirmationHtml(order) {
 
         <!-- Header -->
         <tr>
-          <td style="background:#B85F72;padding:32px;text-align:center">
+          <td style="background:#CE6C8D;padding:32px;text-align:center">
             <img src="${LOGO_URL}" alt="Be Curly Full CR" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
             <h1 style="margin:10px 0 0;color:#fff;font-size:26px;font-weight:bold">¡Tu pedido fue recibido!</h1>
-            <p style="margin:10px 0 0;color:#f5d0d8;font-size:20px;font-weight:bold;font-family:monospace">${order.orderNumber}</p>
+            <p style="margin:10px 0 0;color:#F1CCDC;font-size:20px;font-weight:bold;font-family:monospace">${order.orderNumber}</p>
           </td>
         </tr>
 
@@ -438,15 +460,15 @@ function buildConfirmationHtml(order) {
               </tr>` : ''}
               <tr style="background:#fdf8f8">
                 <td style="padding:14px 16px;font-size:16px;font-weight:bold;color:#222">TOTAL</td>
-                <td style="padding:14px 16px;font-size:20px;font-weight:bold;color:#B85F72;text-align:right">${fmt(order.total)}</td>
+                <td style="padding:14px 16px;font-size:20px;font-weight:bold;color:#CE6C8D;text-align:right">${fmt(order.total)}</td>
               </tr>
             </table>
 
             <!-- Rastreo -->
             <div style="text-align:center;background:#fdf8f8;border:1px solid #f0e8e8;border-radius:12px;padding:20px;margin-bottom:24px">
               <p style="margin:0 0 6px;font-size:13px;color:#888">Podés rastrear el estado de tu pedido aquí:</p>
-              <a href="${trackUrl}" style="font-family:monospace;font-size:16px;font-weight:bold;color:#B85F72;text-decoration:none">${order.orderNumber}</a><br>
-              <a href="${trackUrl}" style="display:inline-block;margin-top:12px;background:#B85F72;color:#fff;text-decoration:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:bold">
+              <a href="${trackUrl}" style="font-family:monospace;font-size:16px;font-weight:bold;color:#CE6C8D;text-decoration:none">${order.orderNumber}</a><br>
+              <a href="${trackUrl}" style="display:inline-block;margin-top:12px;background:#CE6C8D;color:#fff;text-decoration:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:bold">
                 Ver estado del pedido →
               </a>
             </div>
@@ -515,11 +537,11 @@ function buildStatusHtml(order, newStatus) {
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
 
         <tr>
-          <td style="background:#B85F72;padding:32px;text-align:center">
+          <td style="background:#CE6C8D;padding:32px;text-align:center">
             <img src="${LOGO_URL}" alt="Be Curly Full CR" width="110" style="display:inline-block;max-width:110px;height:auto;border-radius:12px">
             <p style="margin:12px 0 0;font-size:40px">${msg.emoji}</p>
             <h1 style="margin:8px 0 0;color:#fff;font-size:22px;font-weight:bold">${msg.titulo}</h1>
-            <p style="margin:8px 0 0;color:#f5d0d8;font-size:16px;font-family:monospace">${order.orderNumber}</p>
+            <p style="margin:8px 0 0;color:#F1CCDC;font-size:16px;font-family:monospace">${order.orderNumber}</p>
           </td>
         </tr>
 
@@ -529,7 +551,7 @@ function buildStatusHtml(order, newStatus) {
               Hola <strong>${firstName}</strong>,<br>${msg.cuerpo}
             </p>
 
-            <a href="${trackUrl}" style="display:inline-block;background:#B85F72;color:#fff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:14px;font-weight:bold;letter-spacing:.5px">
+            <a href="${trackUrl}" style="display:inline-block;background:#CE6C8D;color:#fff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:14px;font-weight:bold;letter-spacing:.5px">
               Ver estado del pedido →
             </a>
 
@@ -629,12 +651,12 @@ function buildAbandonedCartHtml(cart) {
       <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
 
         <tr>
-          <td style="background:linear-gradient(135deg,#B85F72,#93485A);padding:32px;text-align:center">
+          <td style="background:linear-gradient(135deg,#CE6C8D,#93485A);padding:32px;text-align:center">
             <img src="${LOGO_URL}" alt="Be Curly Full CR" width="100" style="display:inline-block;max-width:100px;height:auto;border-radius:12px">
             <h1 style="margin:14px 0 0;color:#fff;font-size:24px;font-weight:bold;letter-spacing:.3px">
               Te dejaste algo lindo 💕
             </h1>
-            <p style="margin:8px 0 0;color:#f5d0d8;font-size:14px">Tu carrito te está esperando</p>
+            <p style="margin:8px 0 0;color:#F1CCDC;font-size:14px">Tu carrito te está esperando</p>
           </td>
         </tr>
 
@@ -651,14 +673,14 @@ function buildAbandonedCartHtml(cart) {
             ${moreCount > 0 ? `<p style="margin:10px 0 0;font-size:13px;color:#888">+ ${moreCount} producto${moreCount === 1 ? '' : 's'} más en tu carrito</p>` : ''}
 
             <p style="margin:18px 0 0;text-align:right;font-size:16px;color:#222">
-              Total: <strong style="color:#B85F72">${fmt(cart.subtotal || 0)}</strong>
+              Total: <strong style="color:#CE6C8D">${fmt(cart.subtotal || 0)}</strong>
             </p>
           </td>
         </tr>
 
         <tr>
           <td style="padding:8px 32px 28px;text-align:center">
-            <a href="${siteUrl}/checkout?recover=1" style="display:inline-block;background:#B85F72;color:#fff;text-decoration:none;padding:14px 36px;border-radius:10px;font-size:14px;font-weight:bold;letter-spacing:.5px">
+            <a href="${siteUrl}/checkout?recover=1" style="display:inline-block;background:#CE6C8D;color:#fff;text-decoration:none;padding:14px 36px;border-radius:10px;font-size:14px;font-weight:bold;letter-spacing:.5px">
               Volver a mi carrito →
             </a>
             <p style="margin:18px 0 0;font-size:12px;color:#aaa">
