@@ -63,7 +63,8 @@ async function sendViaBrevo({ to, subject, html }) {
     });
     if (!res.ok) {
       const err = await res.text().catch(() => '');
-      return { ok: false, reason: 'brevo_failed', detail: err.slice(0, 300) };
+      console.error(`❌ Brevo HTTP ${res.status}: ${err.slice(0, 500)}`);
+      return { ok: false, reason: 'brevo_failed', detail: `HTTP ${res.status}: ${err.slice(0, 300)}` };
     }
     const data = await res.json().catch(() => ({}));
     return { ok: true, id: data.messageId, via: 'brevo' };
