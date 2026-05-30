@@ -4,12 +4,18 @@ import { motion } from 'framer-motion';
 import useCart from '../../hooks/useCart';
 import useWishlist from '../../hooks/useWishlist';
 import useFlyStore from '../../store/flyStore';
+import useQuickView from '../../store/quickViewStore';
 import { formatCRC } from '../../lib/currency';
 import { optimizedImage } from '../../lib/api';
 
 const CartPlusIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+  </svg>
+);
+const EyeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
   </svg>
 );
 const HeartIcon = ({ filled }) => (
@@ -33,6 +39,7 @@ export default function ProductCard({ product, index = 0 }) {
   const { addItem }           = useCart();
   const { has, toggle }       = useWishlist();
   const fly                   = useFlyStore((s) => s.fly);
+  const openQuick             = useQuickView((s) => s.open);
   const [added, setAdded]     = useState(false);
   const [hovered, setHovered] = useState(false);
   const [imgIdx, setImgIdx]   = useState(0);
@@ -80,6 +87,12 @@ export default function ProductCard({ product, index = 0 }) {
     e.preventDefault();
     e.stopPropagation();
     toggle(product);
+  };
+
+  const handleQuick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openQuick(product);
   };
 
   return (
@@ -186,6 +199,10 @@ export default function ProductCard({ product, index = 0 }) {
               <CartPlusIcon />
               {outOfStock ? 'Agotado' : added ? '¡Agregado!' : 'Al carrito'}
             </button>
+            <button onClick={handleQuick} aria-label="Vista rápida"
+              className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white text-ink-700 hover:bg-ink-900 hover:text-white rounded-full shadow-card transition-colors">
+              <EyeIcon />
+            </button>
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -198,7 +215,12 @@ export default function ProductCard({ product, index = 0 }) {
             </button>
           </motion.div>
 
-          {/* Mobile: circular add button */}
+          {/* Mobile: vista rápida (esquina libre) + agregar */}
+          <button onClick={handleQuick}
+            aria-label="Vista rápida"
+            className="sm:hidden absolute bottom-2.5 left-2.5 w-9 h-9 flex items-center justify-center rounded-full bg-white/85 backdrop-blur text-ink-600 shadow-card z-10 active:scale-90 transition-transform">
+            <EyeIcon />
+          </button>
           <button onClick={handleAdd} disabled={outOfStock}
             aria-label={outOfStock ? 'Agotado' : 'Agregar al carrito'}
             className={`sm:hidden absolute bottom-2.5 right-2.5 w-10 h-10 flex items-center justify-center rounded-full shadow-card transition-colors z-10 ${
