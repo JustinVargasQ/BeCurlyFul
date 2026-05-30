@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useCart from '../../hooks/useCart';
 import useWishlist from '../../hooks/useWishlist';
+import useFlyStore from '../../store/flyStore';
 import { formatCRC } from '../../lib/currency';
 import { optimizedImage } from '../../lib/api';
 
@@ -29,13 +30,15 @@ const BADGE_STYLES = {
 };
 
 export default function ProductCard({ product, index = 0 }) {
-  const { addItem, openCart } = useCart();
+  const { addItem }           = useCart();
   const { has, toggle }       = useWishlist();
+  const fly                   = useFlyStore((s) => s.fly);
   const [added, setAdded]     = useState(false);
   const [hovered, setHovered] = useState(false);
   const [imgIdx, setImgIdx]   = useState(0);
   const [imgError, setImgError] = useState(false);
   const intervalRef           = useRef(null);
+  const imgWrapRef            = useRef(null);
 
   const allImages = product.images?.length > 0 ? product.images : (product.img ? [product.img] : []);
   const currentImg = allImages[imgIdx] || '';
@@ -63,10 +66,14 @@ export default function ProductCard({ product, index = 0 }) {
     e.preventDefault();
     e.stopPropagation();
     if (outOfStock) return;
+    /* Fly-to-cart: una miniatura de la foto vuela hacia el ícono del carrito */
+    const rect = imgWrapRef.current?.getBoundingClientRect();
+    if (rect && currentImg) {
+      fly(optimizedImage(currentImg, 200), { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    }
     addItem(product, 1);
     setAdded(true);
-    openCart();
-    setTimeout(() => setAdded(false), 1800);
+    setTimeout(() => setAdded(false), 1500);
   };
 
   const handleFav = (e) => {
@@ -90,7 +97,7 @@ export default function ProductCard({ product, index = 0 }) {
         className="group flex flex-col h-full bg-white rounded-[1.75rem] overflow-hidden border border-cream-200 hover:border-rose-200 shadow-soft hover:shadow-card-hover transition-[box-shadow,border-color] duration-500">
 
         {/* ── Image ── */}
-        <div className="relative overflow-hidden bg-cream-100" style={{ aspectRatio: '1' }}>
+        <div ref={imgWrapRef} className="relative overflow-hidden bg-cream-100" style={{ aspectRatio: '1' }}>
           {currentImg && !imgError ? (
             <>
               <motion.img

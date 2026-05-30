@@ -342,6 +342,7 @@ export default function Navbar() {
             </Link>
 
             <button onClick={openCart}
+              id="cart-fly-target"
               aria-label="Carrito"
               className="relative p-2 text-ink-600 hover:text-rose-500 transition-colors">
               <CartIcon />
@@ -350,7 +351,10 @@ export default function Navbar() {
                   <motion.span key="badge"
                     initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
                     className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
-                    {count > 9 ? '9+' : count}
+                    {/* key={count} re-dispara el pop en cada producto agregado */}
+                    <motion.span key={count} initial={{ scale: 1.7 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 14 }}>
+                      {count > 9 ? '9+' : count}
+                    </motion.span>
                   </motion.span>
                 )}
               </AnimatePresence>

@@ -7,6 +7,7 @@ import BottomNav from './components/layout/BottomNav';
 import { trackPageView } from './lib/analytics';
 import CartDrawer from './components/layout/CartDrawer';
 import Toaster from './components/ui/Toaster';
+import FlyToCart from './components/ui/FlyToCart';
 // Home se mantiene eager — es la página de entrada, queremos que aparezca
 // instantáneamente sin chunk delay. El resto se lazy-loadea.
 import Home from './pages/Home';
@@ -152,6 +153,7 @@ export default function App() {
       <ScrollToTop />
       <ServerWakeup />
       <Toaster />
+      <FlyToCart />
       <InstallBanner />
       <ErrorBoundary label="ChatbotWidget">
         <Suspense fallback={null}><ChatbotWidget /></Suspense>
