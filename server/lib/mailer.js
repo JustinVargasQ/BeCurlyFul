@@ -161,7 +161,8 @@ function variantsHtml(v) {
 /* Logo que aparece en el header de los emails. Override con EMAIL_LOGO_URL
  * en env si querés cambiarlo sin redeploy. Idealmente JPG/PNG cuadrado,
  * URL publica (Cloudinary, S3, etc). */
-const LOGO_URL = process.env.EMAIL_LOGO_URL || 'https://res.cloudinary.com/dp82rk4ou/image/upload/v1778759671/jdicono_scsfo2.jpg';
+const LOGO_URL = process.env.EMAIL_LOGO_URL
+  || `${process.env.CLIENT_URL || 'https://becurlyful.vercel.app'}/icons/logo.jpg`;
 
 function buildOrderHtml(order) {
   const rows = (order.items || []).map((i) => `
@@ -267,7 +268,7 @@ function buildOrderHtml(order) {
         <!-- Footer -->
         <tr>
           <td style="background:#fdf8f8;padding:16px 32px;text-align:center;border-top:1px solid #f0e8e8">
-            <p style="margin:0;font-size:12px;color:#bbb">Be Curly Full CR Store · Notificación automática</p>
+            <p style="margin:0;font-size:12px;color:#bbb">Be Curlyful CR · Notificación automática</p>
           </td>
         </tr>
 
@@ -459,7 +460,7 @@ function buildConfirmationHtml(order) {
         <!-- Footer -->
         <tr>
           <td style="background:#fdf8f8;padding:16px 32px;text-align:center;border-top:1px solid #f0e8e8">
-            <p style="margin:0;font-size:12px;color:#bbb">Be Curly Full CR Store · Gracias por tu compra 🌸</p>
+            <p style="margin:0;font-size:12px;color:#bbb">Be Curlyful CR · Gracias por tu compra 🌸</p>
           </td>
         </tr>
 
@@ -540,7 +541,7 @@ function buildStatusHtml(order, newStatus) {
 
         <tr>
           <td style="background:#fdf8f8;padding:16px 32px;text-align:center;border-top:1px solid #f0e8e8">
-            <p style="margin:0;font-size:12px;color:#bbb">Be Curly Full CR Store · Notificación automática</p>
+            <p style="margin:0;font-size:12px;color:#bbb">Be Curlyful CR · Notificación automática</p>
           </td>
         </tr>
 
