@@ -31,10 +31,8 @@ const IconKids = () => (
 );
 
 const CATEGORIES = [
-  { key: 'rizos',       label: 'Rizos',       Icon: IconRizos },
-  { key: 'limpieza',    label: 'Limpieza',    Icon: IconLimpieza },
-  { key: 'tratamiento', label: 'Tratamiento', Icon: IconTratamiento },
-  { key: 'kids',        label: 'Kids',        Icon: IconKids },
+  { key: 'rizos', label: 'Rutina de rizos', Icon: IconRizos },
+  { key: 'kids',  label: 'Línea Kids',      Icon: IconKids },
 ];
 
 const PRESET_BUDGETS = [5000, 10000, 15000, 20000, 30000];

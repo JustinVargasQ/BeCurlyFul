@@ -35,34 +35,21 @@ exports.getBySlug = async (req, res, next) => {
 /* ─── Kit Builder ─── Devuelve los esenciales por categoría con N opciones
  * cada uno, todos por debajo del presupuesto. Usado por el widget del home y
  * el flow interactivo del chatbot. */
+/* Pasos de la rutina Be Curlyful — cada slot lista los productos reales por
+ * slug (determinista). Si se agregan productos nuevos en el admin, agregá su
+ * slug al paso correspondiente para que aparezca en el Kit Builder. */
 const KIT_ESSENTIALS = {
-  maquillaje: [
-    { key: 'base',      label: 'Base',         emoji: '🎨', cats: ['rostro','maquillaje'], synonyms: ['base','foundation','bb cream','cc cream'] },
-    { key: 'labial',    label: 'Labial',       emoji: '💋', cats: ['labios','maquillaje'],  synonyms: ['labial','labio','lip','gloss','tinta','balsamo','rouge'] },
-    { key: 'sombra',    label: 'Sombras',      emoji: '👁️', cats: ['ojos','maquillaje'],    synonyms: ['sombra','eyeshadow','paleta'] },
-    { key: 'rubor',     label: 'Rubor',        emoji: '🌸', cats: ['rostro','maquillaje'], synonyms: ['rubor','blush','colorete'] },
-    { key: 'corrector', label: 'Corrector',    emoji: '✨', cats: ['rostro','maquillaje'], synonyms: ['corrector','concealer','cubre','ojeras'] },
+  rizos: [
+    { key: 'limpieza',    label: 'Limpieza',    emoji: '🚿', slugs: ['shampoo-limpieza-diaria', 'shampoo-limpieza-profunda'] },
+    { key: 'hidratacion', label: 'Hidratación', emoji: '💧', slugs: ['acondicionador-revitalizante', 'crema-hidratante-rizos', 'mascarilla-hidronutritiva'] },
+    { key: 'definicion',  label: 'Definición',  emoji: '✨', slugs: ['activador-de-rizos', 'crema-gel-rizos'] },
+    { key: 'fijacion',    label: 'Fijación',    emoji: '💫', slugs: ['gel-alta-fijacion', 'gel-alta-fijacion-xl'] },
   ],
-  skincare: [
-    { key: 'limpiador', label: 'Limpiador',    emoji: '🧼', cats: ['skincare'], synonyms: ['limpiador','limpieza','cleanser','jabon','jabón'] },
-    { key: 'tonico',    label: 'Tónico',       emoji: '💧', cats: ['skincare'], synonyms: ['tonico','tónico','toner'] },
-    { key: 'hidratante',label: 'Hidratante',   emoji: '💦', cats: ['skincare'], synonyms: ['hidratante','crema','moisturizer'] },
-    { key: 'serum',     label: 'Serum',        emoji: '🧪', cats: ['skincare'], synonyms: ['serum','sérum','niacinamida','retinol'] },
-    { key: 'protector', label: 'Protector',    emoji: '☀️', cats: ['skincare'], synonyms: ['protector','solar','bloqueador','spf'] },
-  ],
-  cabello: [
-    { key: 'shampoo',         label: 'Shampoo',        emoji: '🧴', cats: ['cabello'], synonyms: ['shampoo','champu','champú'] },
-    { key: 'acondicionador',  label: 'Acondicionador', emoji: '💆', cats: ['cabello'], synonyms: ['acondicionador','conditioner'] },
-    { key: 'tratamiento',     label: 'Tratamiento',    emoji: '✨', cats: ['cabello'], synonyms: ['tratamiento','keratina','queratina','mascarilla'] },
-  ],
-  perfumes: [
-    { key: 'perfume',         label: 'Perfume',        emoji: '🌸', cats: ['perfumes','rostro','maquillaje'], synonyms: ['perfume','colonia','fragancia','eau de'] },
-  ],
-  mix: [
-    { key: 'base',      label: 'Base',         emoji: '🎨', cats: ['rostro','maquillaje'], synonyms: ['base','foundation','bb cream'] },
-    { key: 'labial',    label: 'Labial',       emoji: '💋', cats: ['labios','maquillaje'],  synonyms: ['labial','labio','lip','gloss','tinta','balsamo'] },
-    { key: 'hidratante',label: 'Hidratante',   emoji: '💦', cats: ['skincare'],             synonyms: ['hidratante','crema','moisturizer'] },
-    { key: 'protector', label: 'Protector',    emoji: '☀️', cats: ['skincare'],             synonyms: ['protector','solar','bloqueador','spf'] },
+  kids: [
+    { key: 'shampoo-kids', label: 'Shampoo',           emoji: '🧴', slugs: ['shampoo-kids'] },
+    { key: 'acond-kids',   label: 'Acondicionador',    emoji: '💆', slugs: ['acondicionador-kids'] },
+    { key: 'crema-kids',   label: 'Crema para peinar', emoji: '💜', slugs: ['crema-peinar-kids'] },
+    { key: 'gel-kids',     label: 'Gel',               emoji: '✨', slugs: ['gel-liquido-kids'] },
   ],
 };
 
@@ -75,44 +62,25 @@ function _normalizeForKit(s) {
 
 exports.getKitOptions = async (req, res, next) => {
   try {
-    const cat = String(req.query.cat || 'maquillaje').toLowerCase();
+    const cat = String(req.query.cat || 'rizos').toLowerCase();
     const budget = Math.max(0, parseInt(req.query.budget, 10) || 0);
-    // Subimos el cap a 20 — antes era 6 que se sentia muy chico al usuario
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 20);
 
-    const subtypes = KIT_ESSENTIALS[cat] || KIT_ESSENTIALS.maquillaje;
+    const subtypes = KIT_ESSENTIALS[cat] || KIT_ESSENTIALS.rizos;
 
-    // Traemos solo los productos relevantes para los subtypes pedidos
-    const allCats = [...new Set(subtypes.flatMap((s) => s.cats))];
-    const filter = { isActive: true, category: { $in: allCats } };
+    // Traemos solo los productos listados en los slugs de estos pasos
+    const allSlugs = [...new Set(subtypes.flatMap((s) => s.slugs || []))];
+    const filter = { isActive: true, slug: { $in: allSlugs } };
     if (budget > 0) filter.price = { $lte: budget };
 
     const products = await Product.find(filter)
       .select('name slug brand category price oldPrice description features images stock badge rating reviewCount tags variants')
       .lean({ virtuals: true });
 
-    // Para cada subtipo, encontrar candidatos por nombre/desc/tags y elegir top N
     const result = subtypes.map((sub) => {
       const candidates = products
-        .filter((p) => sub.cats.includes(p.category))
+        .filter((p) => (sub.slugs || []).includes(p.slug))
         .filter((p) => p.stock !== 0)
-        .filter((p) => {
-          const name = _normalizeForKit(p.name);
-          const tags = (p.tags || []).map(_normalizeForKit);
-          // Match por tag (preferido — owner-curado) o por sinónimo en el nombre
-          if (sub.synonyms.some((s) => tags.includes(_normalizeForKit(s)))) return true;
-          return sub.synonyms.some((s) => name.includes(_normalizeForKit(s)));
-        })
-        .filter((p) => {
-          const name = _normalizeForKit(p.name);
-          const tags = (p.tags || []).map(_normalizeForKit);
-          // Excluir accesorios y kits/sets — el usuario está armando un kit propio
-          if (tags.includes('accesorio')) return false;
-          if (tags.includes('kit') || tags.includes('set') || tags.includes('combo')) return false;
-          if (ACCESSORY_NAME_KEYWORDS.some((k) => name.includes(k))) return false;
-          if (BUNDLE_NAME_KEYWORDS.some((k) => name.split(/\s+/).includes(k))) return false;
-          return true;
-        })
         .sort((a, b) => {
           // Priorizar: tiene oferta > rating con reviews > más barato
           const aDiscount = a.oldPrice && a.oldPrice > a.price ? 1 : 0;
@@ -125,12 +93,7 @@ exports.getKitOptions = async (req, res, next) => {
         })
         .slice(0, limit);
 
-      return {
-        key: sub.key,
-        label: sub.label,
-        emoji: sub.emoji,
-        options: candidates,
-      };
+      return { key: sub.key, label: sub.label, emoji: sub.emoji, options: candidates };
     });
 
     res.json({ category: cat, budget, subtypes: result });
