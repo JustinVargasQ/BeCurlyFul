@@ -286,13 +286,28 @@ function buildOrderHtml(order) {
  *              sino Resend. Asi el admin puede preferir un proveedor sin
  *              tocar codigo. */
 function providerOrder() {
-  const pref = String(process.env.EMAIL_PROVIDER || '').toLowerCase();
-  if (pref === 'smtp')   return ['smtp', 'resend', 'brevo'];
-  if (pref === 'resend') return ['resend', 'smtp', 'brevo'];
-  if (pref === 'brevo')  return ['brevo', 'resend', 'smtp'];
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) return ['smtp', 'resend', 'brevo'];
-  if (process.env.BREVO_API_KEY) return ['brevo', 'resend', 'smtp'];
-  return ['resend', 'brevo', 'smtp'];
+  const pref     = String(process.env.EMAIL_PROVIDER || '').toLowerCase();
+  const hasBrevo  = !!process.env.BREVO_API_KEY;
+  const hasResend = !!process.env.RESEND_API_KEY;
+  const hasSMTP   = !!(process.env.SMTP_USER && process.env.SMTP_PASS);
+
+  let order;
+  if (pref === 'smtp')   order = ['smtp', 'resend', 'brevo'];
+  else if (pref === 'resend') order = ['resend', 'smtp', 'brevo'];
+  else if (pref === 'brevo')  order = ['brevo', 'resend', 'smtp'];
+  else if (hasSMTP)      order = ['smtp', 'resend', 'brevo'];
+  else if (hasBrevo)     order = ['brevo', 'resend', 'smtp'];
+  else                   order = ['resend', 'brevo', 'smtp'];
+
+  // Solo incluir proveedores que realmente tienen credenciales configuradas.
+  // Sin este filtro el loop siempre terminaba en SMTP (último) y devolvía
+  // smtp_not_configured aunque Brevo o Resend hubieran fallado antes.
+  return order.filter((p) => {
+    if (p === 'smtp')   return hasSMTP;
+    if (p === 'resend') return hasResend;
+    if (p === 'brevo')  return hasBrevo;
+    return false;
+  });
 }
 
 async function trySmtp({ to, subject, html }) {
