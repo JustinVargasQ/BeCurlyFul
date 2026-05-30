@@ -454,7 +454,7 @@ exports.autoTagAll = async (req, res, next) => {
  * crea o actualiza. Por slug: si existe, hace update; si no, create.
  * Devuelve resumen detallado para que el admin sepa qué pasó con cada fila.
  */
-const VALID_CATEGORIES = ['ojos', 'labios', 'rostro', 'skincare', 'maquillaje', 'cabello'];
+const VALID_CATEGORIES = ['rizos', 'limpieza', 'tratamiento', 'kids', 'kits'];
 
 function slugify(s = '') {
   return String(s).toLowerCase().trim()
