@@ -311,6 +311,17 @@ exports.smtpDiagnostic = async (req, res, next) => {
       const settings = await Settings.findOne({ key: 'main' });
       const notifTo = settings?.notificationEmail || null;
       const senderEmail = process.env.BREVO_SENDER_EMAIL;
+
+      // Enviar email de prueba real si el caller pasó ?test=email
+      const testTo = String(req.query.test || '').trim();
+      let testResult = null;
+      if (testTo && senderEmail) {
+        const r = await sendTestEmail(testTo);
+        testResult = r.ok
+          ? { ok: true, to: testTo, via: r.via }
+          : { ok: false, error: r.detail || r.reason || 'desconocido' };
+      }
+
       return res.json({
         ok: !!senderEmail,
         providerOrder: order,
@@ -322,6 +333,7 @@ exports.smtpDiagnostic = async (req, res, next) => {
           : notifTo
             ? `Brevo configurado. Las notificaciones de pedidos llegan a ${notifTo}. Los clientes reciben sus confirmaciones sin problemas.`
             : 'Brevo configurado pero NO hay notificationEmail en /admin/config — los avisos al admin no llegan.',
+        ...(testResult ? { testEmail: testResult } : {}),
       });
     }
 
