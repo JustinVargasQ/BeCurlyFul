@@ -8,6 +8,8 @@ import useGoogleReviews from '../hooks/useGoogleReviews';
 import SEO from '../components/ui/SEO';
 import api, { assetUrl, optimizedImage } from '../lib/api';
 import KitBuilder from '../components/ui/KitBuilder';
+import RizosQuiz from '../components/ui/RizosQuiz';
+import ReelVideo from '../components/ui/ReelVideo';
 import { formatCRC } from '../lib/currency';
 
 const USE_API = import.meta.env.VITE_API_URL;
@@ -352,109 +354,80 @@ function HeroGridLayout({ onCatSelect }) {
   return (
     <section className="relative overflow-hidden bg-cream-50">
 
-      {/* ══════ MOBILE HERO — editorial aireado, fresco & natural ══════ */}
-      <div className="lg:hidden relative overflow-hidden">
-        {/* Lienzo cálido tipo lino + degradé suave hacia blush */}
-        <div className="absolute inset-0 -z-10"
-          style={{ background: 'linear-gradient(178deg, #FFFBF7 0%, #FDF6F0 45%, #F8E6EE 100%)' }} />
-        {/* Blobs orgánicos que evocan rizos */}
-        <div className="absolute -top-20 -right-24 w-72 h-72 rounded-blob bg-rose-200/55 blur-2xl animate-blob -z-10" />
-        <div className="absolute top-72 -left-24 w-72 h-72 rounded-blob2 blur-3xl animate-float-slow -z-10"
-          style={{ background: 'rgba(224,168,120,0.22)' }} />
+      {/* ══════ MOBILE HERO — video full-bleed protagonista ══════ */}
+      <div className="lg:hidden relative overflow-hidden bg-ink-900" style={{ height: 'calc(100svh - 96px)', minHeight: 560 }}>
+        {/* Video de la dueña — autoplay silenciado, llena la pantalla.
+            Wrapper absolute inset-0 (no en el componente, porque su `relative`
+            interno le ganaría al `absolute` en el CSS de Tailwind). */}
+        <div className="absolute inset-0">
+          <BrandStoryVideo className="w-full h-full" />
+        </div>
 
-        <div className="relative px-5 pt-10 pb-12">
+        {/* Gradiente inferior para legibilidad del texto */}
+        <div className="absolute inset-x-0 bottom-0 h-[80%] pointer-events-none z-[1]"
+          style={{ background: 'linear-gradient(to top, rgba(22,11,17,0.95) 0%, rgba(22,11,17,0.6) 36%, rgba(22,11,17,0.14) 64%, transparent 100%)' }} />
+
+        {/* Contenido abajo */}
+        <div className="absolute inset-x-0 bottom-0 px-5 pb-9 z-10">
           {/* Eyebrow */}
-          <motion.span
+          <motion.div
             initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="section-label">
-            Felicidad en tus rizos
-          </motion.span>
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="flex items-center gap-2.5 mb-3">
+            <span className="h-px w-7 bg-rose-300/70" />
+            <span className="text-rose-200 text-[10px] font-bold tracking-[0.24em] uppercase">Felicidad en tus rizos</span>
+          </motion.div>
 
-          {/* Titular gigante en Fraunces */}
+          {/* Titular */}
           <motion.h1
             initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.05, ease: [0.3, 1, 0.3, 1] }}
-            className="font-display font-semibold text-ink-900 leading-[0.92] tracking-[-0.02em]"
-            style={{ fontSize: 'clamp(3rem, 15.5vw, 4.6rem)' }}>
+            transition={{ duration: 0.7, delay: 0.15, ease: [0.3, 1, 0.3, 1] }}
+            className="font-display font-semibold text-white leading-[0.9] tracking-[-0.02em]"
+            style={{ fontSize: 'clamp(3rem, 15vw, 4.4rem)', textShadow: '0 2px 24px rgba(0,0,0,0.4)' }}>
             Amá tus<br />
-            <span className="italic text-accent">rizos</span> hoy
+            <span className="italic" style={{ color: '#F1CCDC' }}>rizos</span>
           </motion.h1>
 
           {/* Subtítulo */}
           <motion.p
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.18 }}
-            className="mt-4 text-ink-500 text-[15px] leading-relaxed max-w-xs text-pretty">
-            Productos Be Curlyful para cabello rizado. Envíos a todo Costa Rica desde&nbsp;₡2,000.
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="mt-3 text-white/75 text-[14px] leading-relaxed max-w-[17rem]">
+            Productos para cabello rizado · Envíos a todo CR.
           </motion.p>
+
+          {/* Seguidores reales */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.32 }}
+            className="mt-4 flex items-center gap-3.5 text-white">
+            <div className="flex items-center gap-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span className="font-bold text-[15px] tabular-nums">22.7k</span>
+              <span className="text-white/55 text-[11px]">seguidores</span>
+            </div>
+            <span className="w-px h-4 bg-white/25" />
+            <div className="flex items-center gap-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              <span className="font-bold text-[15px] tabular-nums">10k</span>
+              <span className="text-white/55 text-[11px]">en FB</span>
+            </div>
+          </motion.div>
 
           {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.28 }}
-            className="mt-7 flex gap-3">
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mt-5 flex gap-3">
             <motion.button onClick={() => onCatSelect(null)} whileTap={{ scale: 0.97 }}
-              className="btn-primary flex-1 px-4 py-3.5 text-[15px]">
+              className="flex-1 bg-white text-ink-900 font-semibold py-3.5 rounded-full text-[15px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
               Ver catálogo
             </motion.button>
             <motion.button onClick={() => onCatSelect('kids')} whileTap={{ scale: 0.97 }}
-              className="btn-outline flex-1 px-4 py-3.5 text-[15px] bg-white/60">
+              className="flex-1 font-semibold py-3.5 rounded-full text-[15px] text-white"
+              style={{ background: 'rgba(255,255,255,0.14)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.35)' }}>
               Línea Kids
             </motion.button>
-          </motion.div>
-
-          {/* Showcase — fotos en marcos orgánicos */}
-          <div className="relative mt-12 h-[330px]">
-            {/* Foto principal — blob morfeante */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: [0.3, 1, 0.3, 1] }}
-              className="absolute inset-x-0 top-0 h-[280px] rounded-blob overflow-hidden shadow-card-hover animate-blob">
-              <Link to={`/producto/${HERO_PRODUCTS[0].slug}`} className="block w-full h-full">
-                <img src={HERO_PRODUCTS[0].img} alt="" loading="eager" className="w-full h-full object-cover" />
-              </Link>
-            </motion.div>
-
-            {/* Foto secundaria — colgando abajo-derecha */}
-            <motion.div
-              initial={{ opacity: 0, x: 24, rotate: 8 }}
-              animate={{ opacity: 1, x: 0, rotate: 4 }}
-              transition={{ duration: 0.7, delay: 0.5, ease: [0.3, 1, 0.3, 1] }}
-              className="absolute -bottom-2 right-1 w-32 h-40 rounded-[2rem] overflow-hidden border-[5px] border-cream-50 shadow-card">
-              <Link to={`/producto/${HERO_PRODUCTS[2].slug}`} className="block w-full h-full">
-                <img src={HERO_PRODUCTS[2].img} alt="" loading="eager" className="w-full h-full object-cover" />
-              </Link>
-            </motion.div>
-
-            {/* Chip flotante de prueba social */}
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-              className="absolute left-1 bottom-10 glass rounded-2xl pl-2.5 pr-3.5 py-2.5 shadow-card flex items-center gap-2.5 animate-float-slow">
-              <span className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              </span>
-              <div className="leading-tight">
-                <p className="text-[13px] font-bold text-ink-900">+1.200 clientas</p>
-                <p className="text-[10px] text-ink-400">felices con sus rizos</p>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Trust row compacto */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="mt-6 grid grid-cols-3 gap-2.5">
-            {TRUST.slice(0, 3).map((t, i) => (
-              <div key={i} className="flex flex-col items-center text-center gap-1.5 bg-white/55 border border-cream-200 rounded-2xl px-2 py-3">
-                <span className="text-rose-500"><t.Icon /></span>
-                <span className="text-[10px] font-semibold text-ink-700 leading-tight">{t.title}</span>
-              </div>
-            ))}
           </motion.div>
         </div>
       </div>
@@ -518,56 +491,40 @@ function HeroGridLayout({ onCatSelect }) {
               </div>
             </motion.div>
 
-            {/* Right: editorial collage en marcos orgánicos */}
-            <div className="relative h-[560px]">
-              {/* Principal — blob morfeante */}
+            {/* Right: video protagonista (sin fotos de producto) */}
+            <div className="relative h-[560px] flex items-center justify-center">
               <motion.div
-                initial={{ opacity: 0, scale: 0.92 }}
+                initial={{ opacity: 0, scale: 0.94 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.15, ease: [0.3, 1, 0.3, 1] }}
-                className="absolute left-0 top-8 w-[60%] h-[78%] rounded-blob overflow-hidden shadow-card-hover animate-blob">
-                <Link to={`/producto/${HERO_PRODUCTS[0].slug}`} className="block w-full h-full group">
-                  <img src={HERO_PRODUCTS[0].img} alt="" loading="eager"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                </Link>
+                className="relative w-[82%] max-w-[400px] aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-card-hover ring-1 ring-white/60">
+                <BrandStoryVideo className="w-full h-full" />
               </motion.div>
 
-              {/* Superior derecha */}
-              <motion.div
-                initial={{ opacity: 0, y: -24, rotate: 6 }}
-                animate={{ opacity: 1, y: 0, rotate: 3 }}
-                transition={{ duration: 0.7, delay: 0.3, ease: [0.3, 1, 0.3, 1] }}
-                className="absolute right-0 top-0 w-[44%] h-[42%] rounded-[2.5rem] overflow-hidden border-[6px] border-cream-50 shadow-card">
-                <Link to={`/producto/${HERO_PRODUCTS[1].slug}`} className="block w-full h-full group">
-                  <img src={HERO_PRODUCTS[1].img} alt="" loading="eager"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                </Link>
-              </motion.div>
-
-              {/* Inferior derecha */}
-              <motion.div
-                initial={{ opacity: 0, y: 24, rotate: -6 }}
-                animate={{ opacity: 1, y: 0, rotate: -3 }}
-                transition={{ duration: 0.7, delay: 0.45, ease: [0.3, 1, 0.3, 1] }}
-                className="absolute right-4 bottom-2 w-[46%] h-[44%] rounded-[2.5rem] overflow-hidden border-[6px] border-cream-50 shadow-card">
-                <Link to={`/producto/${HERO_PRODUCTS[3].slug}`} className="block w-full h-full group">
-                  <img src={HERO_PRODUCTS[3].img} alt="" loading="eager"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                </Link>
-              </motion.div>
-
-              {/* Chip flotante de prueba social */}
+              {/* Chip flotante — seguidores reales */}
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                className="absolute left-2 bottom-6 glass rounded-2xl pl-2.5 pr-4 py-3 shadow-card flex items-center gap-3 animate-float-slow">
-                <span className="w-9 h-9 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                </span>
-                <div className="leading-tight">
-                  <p className="text-sm font-bold text-ink-900">+1.200 clientas</p>
-                  <p className="text-[11px] text-ink-400">felices con sus rizos</p>
+                className="absolute left-0 bottom-8 glass rounded-2xl px-4 py-3 shadow-card flex items-center gap-4 animate-float-slow">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-full text-white flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(45deg, #F09433, #DC2743 50%, #BC1888)' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                  </span>
+                  <div className="leading-tight">
+                    <p className="text-sm font-bold text-ink-900 tabular-nums">22.7k</p>
+                    <p className="text-[10px] text-ink-400">Instagram</p>
+                  </div>
+                </div>
+                <span className="w-px h-7 bg-cream-200" />
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-full bg-[#1877F2] text-white flex items-center justify-center flex-shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                  </span>
+                  <div className="leading-tight">
+                    <p className="text-sm font-bold text-ink-900 tabular-nums">10k</p>
+                    <p className="text-[10px] text-ink-400">Facebook</p>
+                  </div>
                 </div>
               </motion.div>
             </div>
@@ -882,6 +839,13 @@ const IG_FEED = [
   { slug: 'acondicionador-revitalizante', img: `${CLD}/v1779996548/becurlyfulcr/productos/acondicionador-revitalizante.jpg`, likes: 205, caption: 'Suavidad y brillo en cada lavado' },
 ];
 
+/* Reels de quienes respaldan la marca (influencers / aliadas) */
+const COMMUNITY_REELS = [
+  { src: '/videos/ticasrizadas.mp4', name: 'Ticas Rizadas', handle: 'Comunidad rizada' },
+  { src: '/videos/marcolochas.mp4',  name: 'Marco Loche',   handle: 'Nos recomienda' },
+  { src: '/videos/chicasrizos.mp4',  name: 'Chicas Rizos',  handle: 'Comunidad rizada' },
+];
+
 const HeartFillIcon = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
 );
@@ -899,10 +863,31 @@ function LocationSocialBar() {
       <div className="pointer-events-none absolute -bottom-24 right-1/4 w-72 h-72 rounded-blob2 blur-3xl" style={{ background: 'rgba(224,168,120,0.14)' }} />
 
       <div className="relative max-w-2xl mx-auto px-4 sm:px-6">
-        <div className="text-center flex flex-col items-center mb-8">
+        <div className="text-center flex flex-col items-center mb-7">
           <span className="section-label">Nuestra comunidad</span>
           <h2 className="section-title">Sumate a la <span className="italic text-accent">familia rizada</span></h2>
-          <p className="text-ink-500 mt-3 max-w-md text-pretty">Tocá una foto para comprar el producto, o una historia para ver la categoría.</p>
+          <p className="text-ink-500 mt-3 max-w-md text-pretty">Influencers y salones de todo el país confían en Be Curlyful.</p>
+        </div>
+
+        {/* ── Reels de quienes nos respaldan ── */}
+        <div className="mb-7">
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 snap-x">
+            {COMMUNITY_REELS.map((r) => (
+              <a key={r.src} href="https://www.instagram.com/becurlyfulcr" target="_blank" rel="noopener noreferrer"
+                className="flex-shrink-0 w-[40vw] max-w-[160px] snap-start">
+                <div className="relative aspect-[9/16] rounded-2xl overflow-hidden shadow-card border border-cream-200">
+                  <ReelVideo src={r.src} className="w-full h-full object-cover" />
+                  <span className="absolute top-2 right-2 text-white drop-shadow">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                  </span>
+                  <div className="absolute inset-x-0 bottom-0 p-2.5 pt-8" style={{ background: 'linear-gradient(to top, rgba(35,26,27,0.82), transparent)' }}>
+                    <p className="text-white font-semibold text-[12px] leading-tight">{r.name}</p>
+                    <p className="text-white/70 text-[10px] mt-0.5">{r.handle}</p>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* ── Tarjeta perfil estilo Instagram ── */}
@@ -926,7 +911,7 @@ function LocationSocialBar() {
               </a>
               {/* Stats */}
               <div className="flex-1 grid grid-cols-3 gap-1 text-center">
-                {[['+50', 'posts'], ['1.2k', 'seguidores'], ['+1.2k', 'rizos felices']].map(([n, l]) => (
+                {[['+90', 'posts'], ['22.7k', 'seguidores'], ['10k', 'en FB']].map(([n, l]) => (
                   <div key={l}>
                     <p className="font-display font-semibold text-ink-900 text-lg sm:text-xl leading-none">{n}</p>
                     <p className="text-[11px] text-ink-400 mt-1 leading-tight">{l}</p>
@@ -1120,8 +1105,8 @@ const RUTINA_STEPS = [
 
 function StatsStrip() {
   return (
-    <section className="py-16 sm:py-24 bg-cream-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="grain py-16 sm:py-24 bg-cream-50">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 flex flex-col items-center">
           <span className="section-label">La clave de los rizos perfectos</span>
           <h2 className="section-title">Tu rutina <span className="italic text-accent">Be&nbsp;Curlyful</span></h2>
@@ -1785,6 +1770,94 @@ function TestimonialsSection() {
 }
 
 /* ─── About ─── */
+/* Video de la marca (la dueña) — AUTOPLAY en silencio apenas carga la página.
+ * Botón para activar/silenciar el sonido (la narración). El TAMAÑO lo define el
+ * contenedor padre (llena con absolute inset-0).
+ * Nota: el archivo pesa ~21MB sin comprimir — conviene comprimirlo (~720p) para
+ * que el autoplay arranque rápido en mobile. */
+function BrandStoryVideo({ className = '' }) {
+  const ref = useRef(null);
+  const [muted, setMuted] = useState(true);
+
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return undefined;
+    // React no siempre setea la PROPIEDAD muted (solo el atributo) y el navegador
+    // exige muted=true para autoplay. La forzamos por las dudas.
+    v.muted = true;
+    v.defaultMuted = true;
+
+    const tryPlay = () => {
+      // Si el recurso aún no tiene datos, forzar load antes de play
+      if (v.networkState === HTMLMediaElement.NETWORK_NO_SOURCE || v.readyState === 0) {
+        try { v.load(); } catch {}
+      }
+      const p = v.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    };
+
+    tryPlay();
+
+    // Reintentos: cuando el video ya tiene suficientes datos para arrancar
+    const onCanPlay   = () => tryPlay();
+    const onLoaded    = () => tryPlay();
+    const onVis       = () => { if (!document.hidden) tryPlay(); };
+    v.addEventListener('canplay', onCanPlay);
+    v.addEventListener('loadeddata', onLoaded);
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('pageshow', onVis);
+
+    return () => {
+      v.removeEventListener('canplay', onCanPlay);
+      v.removeEventListener('loadeddata', onLoaded);
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('pageshow', onVis);
+    };
+  }, []);
+
+  const toggleSound = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const v = ref.current;
+    if (!v) return;
+    const next = !v.muted;
+    v.muted = next;
+    setMuted(next);
+    if (!next) { const p = v.play?.(); if (p && p.catch) p.catch(() => {}); }
+  };
+
+  return (
+    <div className={`relative overflow-hidden bg-ink-900 ${className}`}>
+      <video
+        ref={ref}
+        src="/videos/videoIntro.mp4"
+        poster="/icons/logo.jpg"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <button
+        onClick={toggleSound}
+        aria-label={muted ? 'Activar sonido del video' : 'Silenciar video'}
+        className="absolute top-3 right-3 z-20 w-10 h-10 rounded-full flex items-center justify-center text-white transition-transform active:scale-90"
+        style={{ background: 'rgba(35,26,27,0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.25)' }}>
+        {muted ? (
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        ) : (
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
 function AboutSection() {
   return (
     <section id="nosotras" className="py-20 sm:py-28 overflow-hidden"
@@ -1809,7 +1882,7 @@ function AboutSection() {
               <motion.div
                 animate={{ y: [-6, 6, -6] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 glass rounded-2xl shadow-card px-3.5 py-2.5 sm:px-4 sm:py-3 flex items-center gap-2.5">
+                className="absolute -bottom-3 -right-2 sm:-right-4 glass rounded-2xl shadow-card px-3.5 py-2.5 sm:px-4 sm:py-3 flex items-center gap-2.5">
                 <span className="w-9 h-9 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                 </span>
@@ -2060,6 +2133,150 @@ function FaqSection() {
   );
 }
 
+/* ─── Salones / Dónde encontrarnos — videos verticales de distribución ─── */
+const SALON_VIDEOS = [
+  { src: '/videos/salones.mp4',     label: 'Salones aliados',  sub: 'Nos usan en sus servicios' },
+  { src: '/videos/salones2.mp4',    label: 'En todo el país',  sub: 'Cada vez más puntos' },
+  { src: '/videos/ubicaciones.mp4', label: 'Puntos de venta',  sub: 'Encontranos cerca tuyo' },
+];
+
+function SalonesSection() {
+  return (
+    <section className="grain py-16 sm:py-24 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FCF4F7 0%, #FFFBF7 100%)' }}>
+      <div className="relative max-w-5xl mx-auto">
+        <div className="px-4 sm:px-6 text-center flex flex-col items-center mb-8">
+          <span className="section-label">Dónde encontrarnos</span>
+          <h2 className="section-title">En salones de <span className="italic text-accent">todo el país</span></h2>
+          <p className="text-ink-500 mt-3 max-w-md text-pretty">
+            Estilistas y salones eligen Be Curlyful para sus clientas. Mirá dónde ya nos están usando.
+          </p>
+        </div>
+
+        {/* Carrusel de reels verticales */}
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide snap-x px-4 sm:px-6 pb-2">
+          {SALON_VIDEOS.map((v, i) => (
+            <motion.div
+              key={v.src}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ delay: i * 0.08, duration: 0.5 }}
+              className="flex-shrink-0 w-[58vw] max-w-[230px] snap-start">
+              <div className="relative aspect-[9/16] rounded-[1.75rem] overflow-hidden shadow-card border border-cream-200">
+                <ReelVideo src={v.src} className="w-full h-full object-cover" />
+                <div className="absolute inset-x-0 bottom-0 p-3.5 pt-10" style={{ background: 'linear-gradient(to top, rgba(35,26,27,0.85), transparent)' }}>
+                  <p className="text-white font-display font-semibold text-[15px] leading-tight">{v.label}</p>
+                  <p className="text-white/75 text-[11px] mt-0.5">{v.sub}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* CTA distribuidores */}
+        <div className="px-4 sm:px-6 mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <p className="text-ink-500 text-sm text-center">¿Tenés un salón y querés distribuir Be Curlyful?</p>
+          <a href="https://wa.me/50672125261?text=Hola%20Be%20Curlyful%2C%20me%20interesa%20distribuir%20sus%20productos%20en%20mi%20salón"
+            target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db954] text-white font-semibold px-6 py-3 rounded-full text-sm shadow-card transition-colors">
+            <WaIcon /> Quiero distribuir
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Quiz CTA section — mobile-first, visual e inmersivo ─── */
+const QUIZ_CTA_IMGS = [
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996541/becurlyfulcr/productos/activador-de-rizos.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996550/becurlyfulcr/productos/mascarilla-hidronutritiva.jpg',
+  'https://res.cloudinary.com/dq4eqkzyn/image/upload/v1779996544/becurlyfulcr/productos/gel-alta-fijacion.jpg',
+];
+
+function QuizSection() {
+  const [quizOpen, setQuizOpen] = useState(false);
+
+  return (
+    <>
+      <section className="grain px-4 sm:px-6 py-8 sm:py-12 max-w-2xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.6, ease: [0.3, 1, 0.3, 1] }}
+          /* Tarjeta visual de doble columna en mobile */
+          className="relative rounded-[2rem] overflow-hidden border border-cream-200 shadow-card-hover"
+          style={{ background: 'linear-gradient(135deg, #FCF4F7 0%, #FDF6F0 60%, #FFFBF7 100%)' }}>
+
+          {/* Blob decorativo */}
+          <div className="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-blob bg-rose-200/40 blur-2xl animate-blob" />
+
+          <div className="relative flex items-center gap-0 sm:gap-6">
+            {/* Columna izquierda: texto + CTA */}
+            <div className="flex-1 px-6 py-7 sm:py-10">
+              <span className="section-label !text-[10px]">Quiz gratuito</span>
+              <h2 className="font-display font-semibold text-ink-900 leading-[1.06] tracking-[-0.01em] mb-3"
+                style={{ fontSize: 'clamp(1.5rem, 5.5vw, 2rem)' }}>
+                ¿No sabés qué<br />
+                <span className="italic text-accent">usar para tus rizos?</span>
+              </h2>
+              <p className="text-ink-500 text-[14px] leading-relaxed mb-5 max-w-[200px] sm:max-w-none text-pretty">
+                2 preguntas y te armamos una rutina personalizada.
+              </p>
+              <motion.button
+                onClick={() => setQuizOpen(true)}
+                whileTap={{ scale: 0.97 }}
+                className="btn-primary py-3.5 px-6 text-[14px] rounded-xl">
+                Empezar quiz
+              </motion.button>
+            </div>
+
+            {/* Columna derecha: collage de fotos */}
+            <div className="relative w-32 sm:w-40 flex-shrink-0 self-stretch overflow-hidden">
+              {/* Gradiente que difumina el borde izquierdo */}
+              <div className="absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none"
+                style={{ background: 'linear-gradient(to right, #FCF4F7, transparent)' }} />
+              <div className="flex flex-col h-full gap-1.5 p-1.5">
+                {QUIZ_CTA_IMGS.map((src, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.1 + i * 0.1, duration: 0.5 }}
+                    className={`flex-1 rounded-2xl overflow-hidden shadow-soft ${i % 2 === 1 ? 'ml-3' : 'mr-3'}`}>
+                    <img src={src} alt="" loading="lazy" className="w-full h-full object-cover" />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer micro — social proof */}
+          <div className="relative border-t border-cream-200/80 px-6 py-3 flex items-center gap-2">
+            <div className="flex -space-x-2 flex-shrink-0">
+              {['#CE6C8D','#E0A878','#B25577'].map((c, i) => (
+                <span key={i} className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-white text-[8px] font-bold"
+                  style={{ background: c }}>
+                  {['M','A','S'][i]}
+                </span>
+              ))}
+            </div>
+            <p className="text-[11px] text-ink-500">
+              <strong className="text-ink-900">Miles de clientas</strong> ya encontraron su rutina ideal
+            </p>
+          </div>
+        </motion.div>
+      </section>
+
+      <AnimatePresence>
+        {quizOpen && <RizosQuiz onClose={() => setQuizOpen(false)} />}
+      </AnimatePresence>
+    </>
+  );
+}
+
 /* ─── Page ─── */
 export default function Home() {
   const [selectedCat, setSelectedCat] = useState(null);
@@ -2079,18 +2296,18 @@ export default function Home() {
   }, []);
 
   return (
-    <main>
+    /* pb-20 en mobile: compensa la altura del BottomNav (≈64px + safe-area) */
+    <main className="pb-20 sm:pb-0">
       <SEO />
       <Hero onCatSelect={handleCatSelect} />
+      <QuizSection />
       <FeaturedSection />
       <StatsStrip />
       <KitBuilder />
       <Catalog externalCat={selectedCat} catalogRef={catalogRef} />
-      <PromoBanner />
-      <LocationSocialBar />
-      <BrandMarquee />
-      <TestimonialsSection />
       <AboutSection />
+      <LocationSocialBar />
+      <SalonesSection />
       <ShippingSection />
       <TrackOrderSection />
       <FaqSection />

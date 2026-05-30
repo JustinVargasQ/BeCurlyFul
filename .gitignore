@@ -23,8 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-# JD Virtual Store
+# Be Curlyful CR
 .env
 server/.env
 server/uploads/*
 !server/uploads/.gitkeep
+
+# Originales de video sin comprimir (respaldo local, no se deploya)
+media-originals/

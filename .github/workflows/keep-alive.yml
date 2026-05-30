@@ -22,7 +22,7 @@ jobs:
     steps:
       - name: Ping backend health endpoint
         run: |
-          response=$(curl -sw "\n%{http_code}" --max-time 60 https://becurlyfulcr.onrender.com/api/health)
+          response=$(curl -sw "\n%{http_code}" --max-time 60 https://becurlyful.onrender.com/api/health)
           status=$(echo "$response" | tail -1)
           body=$(echo "$response" | head -n -1)
           echo "Status: $status"

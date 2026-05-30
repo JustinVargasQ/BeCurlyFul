@@ -50,7 +50,7 @@ export default function Offers() {
   const totalSavings = raw.reduce((acc, p) => acc + (p.oldPrice - p.price), 0);
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white pb-20 sm:pb-0">
       <SEO
         title="Ofertas y descuentos"
         description="Encontrá las mejores ofertas en productos para cabello rizado en Costa Rica. Descuentos reales en la línea Be Curlyful con envíos a todo el país."

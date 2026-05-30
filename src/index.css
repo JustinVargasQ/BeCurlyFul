@@ -7,7 +7,11 @@
 @layer base {
   html { scroll-behavior: smooth; }
   /* base cálida tipo lino — no blanco frío. Da el aire "natural/fresco". */
-  body { @apply bg-cream-50 text-ink-900 font-body antialiased; }
+  body {
+    @apply bg-cream-50 text-ink-900 font-body antialiased;
+    /* Padding para el bottom nav mobile — evita que el footer quede tapado */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
   #root { @apply min-h-screen; }
 
   /* Fraunces luce mejor con un toque de optical sizing alto en displays */
@@ -95,6 +99,20 @@
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Textura de papel sutil — da personalidad artesanal/natural sobre los fondos crema */
+  .grain {
+    position: relative;
+  }
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    background-size: 300px 300px;
+  }
 
   .chips-scroll { scrollbar-width: thin; scrollbar-color: #E5A8C2 transparent; }
   .chips-scroll::-webkit-scrollbar { height: 6px; width: 6px; }

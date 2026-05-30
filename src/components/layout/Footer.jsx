@@ -57,7 +57,7 @@ export default function Footer() {
         style={{ background: 'radial-gradient(circle, rgba(224,168,120,0.14) 0%, transparent 70%)' }} />
       <div className="pointer-events-none absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24 sm:pb-10">
 
         {/* ── Main grid ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-12">

@@ -3,6 +3,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import BottomNav from './components/layout/BottomNav';
 import { trackPageView } from './lib/analytics';
 import CartDrawer from './components/layout/CartDrawer';
 import Toaster from './components/ui/Toaster';
@@ -123,6 +124,7 @@ function StorefrontLayout({ children }) {
         </motion.div>
       </AnimatePresence>
       <Footer />
+      <BottomNav />
     </>
   );
 }

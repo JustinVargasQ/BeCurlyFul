@@ -138,6 +138,13 @@ export default function Navbar() {
     if (searchOpen) setTimeout(() => searchRef.current?.focus(), 50);
   }, [searchOpen]);
 
+  // Escuchar el evento del BottomNav para abrir el buscador desde mobile
+  useEffect(() => {
+    const fn = () => setSearchOpen(true);
+    window.addEventListener('bcf:open-search', fn);
+    return () => window.removeEventListener('bcf:open-search', fn);
+  }, []);
+
   // Debounced live suggestions
   useEffect(() => {
     if (!query.trim() || query.trim().length < 2) { setSuggestions([]); setShowSugg(false); return; }
