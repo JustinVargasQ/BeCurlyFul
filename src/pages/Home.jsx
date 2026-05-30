@@ -1532,8 +1532,8 @@ function Catalog({ externalCat, catalogRef }) {
           <CategoryChips cat={cat} onCat={handleCat} />
         </div>
 
-        {/* Filtros */}
-        <div className="mb-6 bg-white border border-cream-200 rounded-2xl p-3 shadow-soft">
+        {/* Filtros — caja solo en desktop; en mobile el FilterBar es su propio botón/sheet */}
+        <div className="mb-6 sm:bg-white sm:border sm:border-cream-200 sm:rounded-2xl sm:p-3 sm:shadow-soft">
           <FilterBar brand={brand} minPrice={minPrice} maxPrice={maxPrice} sort={sort} onBrand={handleBrand} onPrice={handlePrice} onSort={handleSort} />
         </div>
 

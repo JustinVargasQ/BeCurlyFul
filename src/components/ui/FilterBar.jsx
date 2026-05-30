@@ -111,6 +111,126 @@ function Option({ label, selected, onClick, prefix }) {
   );
 }
 
+/* ── Mobile: botón "Filtros" + bottom-sheet ── */
+const FilterIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/>
+  </svg>
+);
+const sheetChip = (active) =>
+  `px-3.5 py-1.5 rounded-full text-sm font-medium border-2 transition-all ${
+    active ? 'border-rose-400 bg-rose-50 text-rose-700' : 'border-cream-200 bg-white text-ink-700'
+  }`;
+
+function MobileFilters({ brand, sort, minPrice, maxPrice, brands, activeCount, onBrand, onPrice, onSort }) {
+  const [open, setOpen] = useState(false);
+  const [lMin, setLMin] = useState(minPrice || '');
+  const [lMax, setLMax] = useState(maxPrice || '');
+
+  useEffect(() => { setLMin(minPrice || ''); setLMax(maxPrice || ''); }, [minPrice, maxPrice]);
+  useEffect(() => {
+    if (!open) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [open]);
+
+  const applyAndClose = () => {
+    onPrice({ minPrice: lMin ? Number(lMin) : '', maxPrice: lMax ? Number(lMax) : '' });
+    setOpen(false);
+  };
+  const clearAll = () => {
+    onBrand(''); onSort('relevancia'); onPrice({ minPrice: '', maxPrice: '' });
+    setLMin(''); setLMax('');
+  };
+  const activeSort = SORT_OPTIONS.find((o) => o.value === (sort || 'relevancia')) || SORT_OPTIONS[0];
+
+  return (
+    <div className="sm:hidden">
+      <button onClick={() => setOpen(true)}
+        className="w-full flex items-center justify-between gap-2 bg-white border border-cream-200 rounded-2xl px-4 py-3 shadow-soft">
+        <span className="flex items-center gap-2 text-sm font-semibold text-ink-800">
+          <FilterIcon /> Filtros y orden
+        </span>
+        <span className="flex items-center gap-2">
+          {activeCount > 0 && <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center">{activeCount}</span>}
+          <span className="text-xs text-ink-400 truncate max-w-[120px]">{activeSort.label}</span>
+        </span>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[80]" style={{ background: 'rgba(35,26,27,0.5)', backdropFilter: 'blur(4px)' }}
+              onClick={() => setOpen(false)} />
+            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 32, stiffness: 320 }}
+              className="fixed bottom-0 inset-x-0 z-[80] bg-cream-50 rounded-t-[2rem] max-h-[85dvh] flex flex-col shadow-modal">
+              <div className="flex items-center justify-between px-5 pt-5 pb-3">
+                <h3 className="font-display font-semibold text-ink-900 text-xl">Filtrar y ordenar</h3>
+                <button onClick={() => setOpen(false)} aria-label="Cerrar"
+                  className="w-9 h-9 rounded-full bg-cream-100 flex items-center justify-center text-ink-500">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+
+              <div className="overflow-y-auto px-5 pb-4 space-y-6 flex-1">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-ink-400 mb-2.5">Ordenar por</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {SORT_OPTIONS.map((o) => (
+                      <button key={o.value} onClick={() => onSort(o.value)}
+                        className={`px-3 py-2.5 rounded-xl text-sm font-medium text-left border-2 transition-all ${
+                          (sort || 'relevancia') === o.value ? 'border-rose-400 bg-rose-50 text-rose-700' : 'border-cream-200 bg-white text-ink-700'
+                        }`}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {brands.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-ink-400 mb-2.5">Marca</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={() => onBrand('')} className={sheetChip(!brand)}>Todas</button>
+                      {brands.map((b) => <button key={b} onClick={() => onBrand(b)} className={sheetChip(brand === b)}>{b}</button>)}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-ink-400 mb-2.5">Rango de precio</p>
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex-1 flex items-center gap-1.5 bg-white border border-cream-200 rounded-xl px-3 py-2.5 focus-within:border-rose-400">
+                      <span className="text-ink-400 text-xs font-semibold">₡</span>
+                      <input type="number" min="0" placeholder="Mínimo" value={lMin} onChange={(e) => setLMin(e.target.value)}
+                        className="w-full text-sm bg-transparent outline-none placeholder-ink-300" />
+                    </div>
+                    <span className="text-ink-300">—</span>
+                    <div className="flex-1 flex items-center gap-1.5 bg-white border border-cream-200 rounded-xl px-3 py-2.5 focus-within:border-rose-400">
+                      <span className="text-ink-400 text-xs font-semibold">₡</span>
+                      <input type="number" min="0" placeholder="Máximo" value={lMax} onChange={(e) => setLMax(e.target.value)}
+                        className="w-full text-sm bg-transparent outline-none placeholder-ink-300" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-5 py-4 border-t border-cream-200 flex gap-3"
+                style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+                <button onClick={clearAll} className="px-5 py-3 rounded-full text-sm font-semibold text-ink-600 bg-cream-100 hover:bg-cream-200 transition-colors">Limpiar</button>
+                <button onClick={applyAndClose} className="btn-primary flex-1 py-3">Ver resultados</button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function FilterBar({ brand, minPrice, maxPrice, sort, onBrand, onPrice, onSort }) {
   const brands = useBrands();
   const [localMin, setLocalMin] = useState(minPrice || '');
@@ -153,7 +273,16 @@ export default function FilterBar({ brand, minPrice, maxPrice, sort, onBrand, on
   const activeCount = [brand, hasPriceFilter, sort && sort !== 'relevancia'].filter(Boolean).length;
 
   return (
-    <div ref={containerRef} className="flex flex-wrap gap-2.5 items-center mb-7">
+    <>
+      {/* Mobile: botón + bottom-sheet */}
+      <MobileFilters
+        brand={brand} sort={sort} minPrice={minPrice} maxPrice={maxPrice}
+        brands={brands} activeCount={activeCount}
+        onBrand={onBrand} onPrice={onPrice} onSort={onSort}
+      />
+
+      {/* Desktop: pills con dropdowns */}
+      <div ref={containerRef} className="hidden sm:flex flex-wrap gap-2.5 items-center mb-7">
 
       {/* ── Brand ── */}
       <div className="relative">
@@ -295,6 +424,7 @@ export default function FilterBar({ brand, minPrice, maxPrice, sort, onBrand, on
           </motion.button>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </>
   );
 }
